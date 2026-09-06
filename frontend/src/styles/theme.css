@@ -257,6 +257,66 @@ img { max-width: 100%; }
 .map-key { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; margin-top: 10px; }
 .map-key i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 
+/* ---------- Government Initiatives Slider ---------- */
+.section.gov-initiatives { padding: 0; overflow: hidden; }
+.gov-slider { outline: none; }
+.gov-slider:focus-visible .gov-slider-viewport { outline: 2px solid var(--orange); outline-offset: 3px; }
+.gov-slider-viewport {
+  position: relative;
+  aspect-ratio: 3 / 1;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.gov-slider-viewport:active { cursor: grabbing; }
+.gov-slider-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+  outline: none;
+}
+.gov-slider-track.no-anim { transition: none; }
+.gov-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 100%;
+}
+.gov-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+.gov-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(31, 36, 48, 0.16);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.gov-slider-arrow:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
+.gov-slider-arrow:active { transform: translateY(-50%) scale(0.94); }
+.gov-slider-arrow.prev { left: 14px; }
+.gov-slider-arrow.next { right: 14px; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
   .nav-links { display: none; }
@@ -277,7 +337,11 @@ img { max-width: 100%; }
   .card-grid { grid-template-columns: 1fr; }
   .chat-panel { right: 12px; left: 12px; width: auto; }
   .fab { right: 14px; bottom: 14px; }
+  .gov-slider-arrow { width: 36px; height: 36px; font-size: 20px; }
+  .gov-slider-arrow.prev { left: 10px; }
+  .gov-slider-arrow.next { right: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ticker-track { animation: none; }
+  .gov-slider-track { transition-duration: 0.01ms; }
 }

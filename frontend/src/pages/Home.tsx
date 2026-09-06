@@ -4,6 +4,7 @@ import type { HomeData } from '../api/client'
 import Ticker from '../components/Ticker'
 import Carousel from '../components/Carousel'
 import ExploreDashboard from '../components/ExploreDashboard'
+import GovernmentInitiativesScroller from '../components/GovernmentInitiativesScroller'
 import { Section, gradientFor, StatCard, Skeleton } from '../components/ui'
 import { MiniIndia } from '../components/IndiaMap'
 
@@ -17,6 +18,8 @@ export default function Home() {
 
   return (
     <>
+      <GovernmentInitiativesScroller />
+
       <Ticker />
 
       <section className="hero">

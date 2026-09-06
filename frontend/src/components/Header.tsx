@@ -23,12 +23,12 @@ export default function Header() {
   return (
     <header className="navbar">
       <div className="container nav-inner">
-        <Link to="/" className="brand">
-          <span className="brand-mark" aria-hidden>श्री</span>
-          <span>
-            <div className="brand-name">Bharat Cultural Odessey</div>
-            <div className="brand-sub">Ministry of Culture · Digital Bharat</div>
-          </span>
+        <Link to="/" className="brand" aria-label="Sanskriti Setu — Home">
+          <img
+            className="brand-logo"
+            src="/images/branding/sanskriti-setu-logo.png"
+            alt="Sanskriti Setu"
+          />
         </Link>
 
         <nav className="nav-links">

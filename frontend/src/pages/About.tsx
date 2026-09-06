@@ -13,7 +13,7 @@ export default function About() {
     <>
       <PageHead
         title="About this platform"
-        sub="Bharat Cultural Odessey is a SIH 2026 prototype — a single window to India’s heritage and the institutions that preserve it."
+        sub="Sanskriti Setu is a SIH 2026 prototype — a single window to India's heritage and the institutions that preserve it."
         crumbs={[{ label: 'About' }]}
       />
 

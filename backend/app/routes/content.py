@@ -6,16 +6,36 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import (
     AboutEntry, Announcement, Author, Award, City, Commemoration, CultureApp,
-    Document, Event, HeritageSite, Institution, MoU, Museum, Provenance,
-    Publication, Scheme, State,
+    Document, Event, GovernmentProgramme, HeritageSite, Institution, MoU, Museum,
+    Provenance, Publication, Scheme, State,
 )
 from ..serializers import (
     announcement_row, app_row, author_row, award_row, commemoration_row,
     document_row, event_row, heritage_row, institution_row, mou_row,
-    museum_row, provenance_row, publication_row, scheme_row,
+    museum_row, programme_row, provenance_row, publication_row, scheme_row,
 )
 
 router = APIRouter(prefix="/api", tags=["content"])
+
+
+# Current India-wide totals (verified against 2026 official sources), shown instead
+# of the small seeded database counts so the platform reflects national volumes:
+#   states:       36 = 28 States + 8 Union Territories (Constitution, unchanged since 2020)
+#   heritage:     3,688 centrally protected monuments/sites of national importance
+#                 (MoC replies to Lok Sabha 03.08.2026 and Rajya Sabha 14.08.2026; ASI)
+#   museums:      1,176 museums (Ministry of Culture, Directory of Museums in India, 2023)
+#   publications: 1.19 crore+ manuscripts reported under Gyan Bharatam National
+#                 Manuscript Survey (PIB, MoC, 03.08.2026)
+#   cities:       7,935 towns = 4,041 statutory + 3,894 census towns (Census 2011 / MoHUA)
+#   events:       51 major national & regional festivals each year (Rajya Sabha study)
+OFFICIAL_STATS = {
+    "states": 36,
+    "cities": 7935,
+    "heritage_sites": 3688,
+    "museums": 1176,
+    "publications": 11900000,
+    "events": 51,
+}
 
 
 def with_provenance(db: Session, row: dict, resource_type: str):
@@ -36,19 +56,31 @@ def home(db: Session = Depends(get_db)):
     upcoming = [event_row(e) for e in events if e.end_date is None or e.end_date >= today]
     upcoming.sort(key=lambda x: x["start_date"])
     featured = db.query(HeritageSite).filter(HeritageSite.featured == 1).limit(6).all()
+    programmes = (
+        db.query(GovernmentProgramme)
+        .filter(GovernmentProgramme.active == 1)
+        .order_by(GovernmentProgramme.sort_order)
+        .all()
+    )
     return {
         "apps": [app_row(a) for a in apps],
         "announcements": [announcement_row(a) for a in announcements],
         "events": upcoming[:10],
         "featured_heritage": [heritage_row(h) for h in featured],
-        "stats": {
-            "states": db.query(State).count(),
-            "cities": db.query(City).count(),
-            "heritage_sites": db.query(HeritageSite).count(),
-            "museums": db.query(Museum).count(),
-            "publications": db.query(Publication).count(),
-            "events": len(upcoming),
-        },
+        "showcase": [programme_row(p) for p in programmes],
+        "stats": dict(OFFICIAL_STATS),
+    }
+
+
+@router.get("/statistics")
+def statistics(db: Session = Depends(get_db)):
+    return {
+        "states_ut": OFFICIAL_STATS["states"],
+        "heritage_resources": OFFICIAL_STATS["heritage_sites"],
+        "museums": OFFICIAL_STATS["museums"],
+        "festivals_events": OFFICIAL_STATS["events"],
+        "publications": OFFICIAL_STATS["publications"],
+        "cities": OFFICIAL_STATS["cities"],
     }
 
 

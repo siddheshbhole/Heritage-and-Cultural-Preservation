@@ -278,6 +278,21 @@ class CommunityPost(Base):
     image_url = Column(String, nullable=True)
 
 
+class GovernmentProgramme(Base):
+    __tablename__ = "government_programmes"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    description = Column(Text)
+    category = Column(String)  # Campaign / Programme / Portal / Commemoration
+    image_url = Column(String, nullable=True)
+    official_url = Column(String)
+    source_label = Column(String)  # issuing body, e.g. "Ministry of Culture"
+    source_url = Column(String, nullable=True)
+    active = Column(Integer, default=1)
+    sort_order = Column(Integer, default=0)
+
+
 class Provenance(Base):
     __tablename__ = "provenance"
 

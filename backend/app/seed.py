@@ -8,8 +8,8 @@ from datetime import date
 from .database import Base, SessionLocal, engine
 from .models import (
     AboutEntry, Announcement, Author, Award, City, Commemoration, CommunityPost,
-    CommunityProfile, CultureApp, Document, Event, HeritageSite, Institution,
-    MoU, Museum, Provenance, Publication, Scheme, State,
+    CommunityProfile, CultureApp, Document, Event, GovernmentProgramme,
+    HeritageSite, Institution, MoU, Museum, Provenance, Publication, Scheme, State,
 )
 
 TODAY = date.today().isoformat()
@@ -918,6 +918,39 @@ def build():
     for title, desc, cat, url in apps:
         db.add(CultureApp(title=title, description=desc, category=cat, official_url=url, action="Visit official portal"))
 
+    # ------------------------------- GOVERNMENT SHOWCASE PROGRAMMES -------------------------------
+    # Only verified Government of India / Ministry of Culture campaigns, portals and programmes.
+    # image_url stays null until official poster assets are supplied by the Ministry (drop them
+    # under frontend/public/images/showcase/ and set image_url to the path).
+    programmes = [
+        ("150 Years of Vande Mataram",
+         "A year-long nationwide commemoration of India's National Song 'Vande Mataram' (7 November 2025 – 7 November 2026), inaugurated by the Prime Minister of India.",
+         "Commemoration",
+         "/images/campaigns/vande-mataram-showcase-square.webp", "https://www.vandemataram150.in", "Ministry of Culture",
+         "https://culture.gov.in/commemorations/150-years-vande-mataram", 1),
+        ("80 Years of India's Independence — Har Ghar Tiranga",
+         "The nationwide Har Ghar Tiranga campaign, launched by the Government of India, urging every citizen to hoist the Tiranga as India marks 80 years of independence on 15 August 2026.",
+         "Campaign",
+         "/images/campaigns/har-ghar-tiranga.jpg", "https://www.culture.gov.in", "Ministry of Culture",
+         "https://pib.gov.in", 2),
+        ("Gyan Bharatam Mission",
+         "The Ministry of Culture's national mission to survey, conserve and digitise India's manuscript heritage, including the National Manuscript Survey launched in March 2026.",
+         "Programme",
+         "/images/campaigns/gyan-bharatam-showcase-square.webp", "https://culture.gov.in/gyan-bharatam-mission", "Ministry of Culture",
+         "https://culture.gov.in/gyan-bharatam-mission", 3),
+        ("Indian Culture Portal (Version 2.0)",
+         "The Government of India's national digital platform for India's cultural heritage — manuscripts, art, monuments, museums and curated collections, upgraded in March 2026.",
+         "Portal",
+         "/images/campaigns/indian-culture-showcase-square.webp", "https://www.indianculture.gov.in", "Ministry of Culture",
+         "https://www.indianculture.gov.in", 4),
+    ]
+    for title, desc, cat, img, url, source_label, source_url, sort_order in programmes:
+        db.add(GovernmentProgramme(
+            title=title, description=desc, category=cat, image_url=img,
+            official_url=url, source_label=source_label, source_url=source_url,
+            active=1, sort_order=sort_order,
+        ))
+
     # ------------------------------- SCHEMES -------------------------------
     schemes = [
         ("Tagore National Fellowship for Cultural Research (TNFR)", "One-year academic fellowships for research on Indian culture in museums, archives and libraries.", "Fellowship",
@@ -1158,6 +1191,7 @@ def build():
         (Commemoration, "commemorations"), (Document, "documents"), (Author, "authors"),
         (Publication, "publications"), (MoU, "mous"), (Institution, "institutions"),
         (CommunityPost, "community_posts"), (CommunityProfile, "community_profiles"),
+        (GovernmentProgramme, "government_programmes"),
     ]:
         print(f"  - {label}: {db.query(tbl).count()}")
 

@@ -21,7 +21,41 @@ export interface HomeData {
   announcements: Announcement[]
   events: Event[]
   featured_heritage: Heritage[]
+  showcase: GovernmentProgramme[]
   stats: { states: number; cities: number; heritage_sites: number; museums: number; publications: number; events: number }
+}
+
+export interface Statistics {
+  states_ut: number
+  heritage_resources: number
+  museums: number
+  festivals_events: number
+  publications: number
+  cities: number
+}
+
+export interface ShowcaseItem {
+  id: number
+  title: string
+  description: string
+  category: string
+  image_url: string | null
+  official_url: string
+  action: string
+  source_label?: string
+  source_url?: string | null
+  imageFit?: 'cover' | 'contain'
+  imagePosition?: string
+  bgColor?: string
+  playStoreUrl?: string
+  appStoreUrl?: string
+  qrUrl?: string | null
+  qrLabel?: string
+}
+
+export interface GovernmentProgramme extends ShowcaseItem {
+  source_label: string
+  source_url: string | null
 }
 
 export interface State {

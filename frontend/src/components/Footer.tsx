@@ -5,12 +5,12 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer-grid">
         <div>
-          <Link to="/" className="brand">
-            <span className="brand-mark" aria-hidden>श्री</span>
-            <span>
-              <div className="brand-name" style={{ color: '#fff' }}>Bharat Cultural Odessey</div>
-              <div className="brand-sub">Ministry of Culture · Digital Bharat</div>
-            </span>
+          <Link to="/" className="brand" aria-label="Sanskriti Setu">
+            <img
+              className="brand-logo"
+              src="/images/branding/sanskriti-setu-logo.png"
+              alt="Sanskriti Setu"
+            />
           </Link>
           <p className="muted" style={{ marginTop: 14, fontSize: 13.5, maxWidth: 340 }}>
             A digital gateway to India’s rich cultural heritage and the institutions that
@@ -50,7 +50,7 @@ export default function Footer() {
       </div>
       <div className="footer-bottom">
         <div className="container">
-          © {new Date().getFullYear()} Bharat Cultural Odessey · Digital Bharat · Building for SIH 2026
+          © {new Date().getFullYear()} Sanskriti Setu · Building for SIH 2026
         </div>
       </div>
     </footer>

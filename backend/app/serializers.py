@@ -272,6 +272,20 @@ def post_row(p):
     }
 
 
+def programme_row(p):
+    return {
+        "id": p.id,
+        "title": p.title,
+        "description": p.description,
+        "category": p.category,
+        "image_url": p.image_url,
+        "official_url": p.official_url,
+        "source_label": p.source_label,
+        "source_url": p.source_url,
+        "action": "Explore",
+    }
+
+
 def provenance_row(p):
     if p is None:
         return None

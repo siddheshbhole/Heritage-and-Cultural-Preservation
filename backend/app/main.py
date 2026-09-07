@@ -42,7 +42,10 @@ FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 def _index():
     index = FRONTEND_DIST / "index.html"
     if index.exists():
-        return FileResponse(index)
+        return FileResponse(
+            index,
+            headers={"Cache-Control": "no-cache", "Pragma": "no-cache", "Expires": "0"},
+        )
     return JSONResponse(
         {
             "detail": "Frontend build not found. Run `npm run build` in frontend/, or use the Vite dev server.",

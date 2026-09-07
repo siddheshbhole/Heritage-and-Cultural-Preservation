@@ -389,7 +389,7 @@ img { max-width: 100%; }
 }
 .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; align-items: center; padding: 54px 0; }
 .hero h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; }
-.hero p.lead { color: var(--muted); font-size: 17px; max-width: 560px; }
+.hero p.lead { color: #000; font-size: 19px; font-weight: 900; line-height: 1.5; max-width: 560px; -webkit-font-smoothing: auto; -webkit-text-stroke: 0.5px #000; }
 .hero-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 .hero-badge { display: inline-flex; gap: 8px; align-items: center; background: #fff; border: 1px solid var(--line); padding: 8px 14px; border-radius: 12px; font-size: 14px; box-shadow: var(--shadow); }
 .hero-badge b { color: var(--orange-deep); }

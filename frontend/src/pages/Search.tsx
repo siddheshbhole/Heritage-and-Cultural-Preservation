@@ -18,7 +18,7 @@ export default function Search() {
   const [params] = useSearchParams()
   const q = params.get('q') || ''
   const path = useMemo(() => (q ? withQuery('/search', { q }) : null), [q])
-  const { data, loading } = useFetch<SearchResult>(path)
+  const { data, loading, error, reload } = useFetch<SearchResult>(path)
 
   const results = (data?.results ?? []).sort((a, b) => b.rank - a.rank)
 
@@ -34,7 +34,7 @@ export default function Search() {
         {loading ? (
           <Skeleton />
         ) : results.length === 0 ? (
-          <Empty big="🔍" text={q ? 'Nothing matched. Try a different query.' : 'Type in the search bar above to begin.'} />
+          <Empty big="🔍" text={q ? 'Nothing matched. Try a different query.' : 'Type in the search bar above to begin.'} error={error} onRetry={reload} />
         ) : (
           <div className="feed">
             {results.map((r, i) => {

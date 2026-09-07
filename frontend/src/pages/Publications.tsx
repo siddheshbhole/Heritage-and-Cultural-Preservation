@@ -5,7 +5,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Publications() {
-  const { data: items, loading } = useFetch<Publication[]>('/publications')
+  const { data: items, loading, error, reload } = useFetch<Publication[]>('/publications')
   const [q, setQ] = useState('')
 
   const subjects = useMemo(() => [...new Set((items ?? []).map((p) => p.subject).filter(Boolean))], [items])
@@ -43,7 +43,7 @@ export default function Publications() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /></div>
         ) : filtered.length === 0 ? (
-          <Empty big="📚" text="Publication data hasn’t been connected yet." />
+          <Empty big="📚" text="Publication data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid">
             {filtered.map((p) => (

@@ -4,7 +4,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Awards() {
-  const { data: items, loading } = useFetch<Award[]>('/awards')
+  const { data: items, loading, error, reload } = useFetch<Award[]>('/awards')
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function Awards() {
         {loading ? (
           <Skeleton style={{ height: 320 }} />
         ) : !items || items.length === 0 ? (
-          <Empty big="🎖️" text="Award data hasn’t been connected yet." />
+          <Empty big="🎖️" text="Award data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid">
             {items.map((a) => (

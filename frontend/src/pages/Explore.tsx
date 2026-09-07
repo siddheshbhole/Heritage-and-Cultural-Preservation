@@ -7,7 +7,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Explore() {
-  const { data: states, loading } = useFetch<State[]>('/states')
+  const { data: states, loading, error, reload } = useFetch<State[]>('/states')
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
 
@@ -45,7 +45,7 @@ export default function Explore() {
         ) : states && states.length > 0 ? (
           <IndiaMap states={states} onSelect={(s) => navigate(`/states/${s.id}`)} />
         ) : (
-          <Empty big="🗺️" text="The state dataset hasn’t been connected yet." />
+          <Empty big="🗺️" text="The state dataset hasn’t been connected yet." error={error} onRetry={reload} />
         )}
 
         {!loading && filtered.length > 0 && (

@@ -19,7 +19,7 @@ function asPersonality(c: Commemoration): Personality {
 }
 
 export default function Greats() {
-  const { data: items, loading } = useFetch<Commemoration[]>('/commemorations')
+  const { data: items, loading, error, reload } = useFetch<Commemoration[]>('/commemorations')
   const [q, setQ] = useState('')
 
   const people = useMemo(() => (items ?? []).map(asPersonality), [items])
@@ -55,7 +55,7 @@ export default function Greats() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /></div>
         ) : filtered.length === 0 ? (
-          <Empty big="🪔" text="Personality data hasn’t been connected yet." />
+          <Empty big="🪔" text="Personality data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid">
             {filtered.map((p) => (

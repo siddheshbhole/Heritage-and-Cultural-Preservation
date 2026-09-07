@@ -13,7 +13,7 @@ export default function StateDetail() {
   const { data: s, loading, error } = useFetch<State>(`/states/${id}`)
 
   if (loading) return <Skeleton style={{ height: 400, marginTop: 30 }} />
-  if (error || !s) return <Empty big="🏛️" text="State not found — the dataset hasn’t been connected." />
+  if (error || !s) return <Empty big="🏛️" text="State not found — the dataset hasn’t been connected." error={error} />
 
   const cities = s.cities ?? []
   const heritage = cities.flatMap((c) => (c.heritage ?? []).map((h) => ({ ...h, city: c.name })))

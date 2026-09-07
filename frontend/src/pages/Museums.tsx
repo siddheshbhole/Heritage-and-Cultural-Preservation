@@ -6,7 +6,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Museums() {
-  const { data: items, loading } = useFetch<Museum[]>('/museums')
+  const { data: items, loading, error, reload } = useFetch<Museum[]>('/museums')
   const [q, setQ] = useState('')
 
   const filtered = useMemo(() => {
@@ -37,7 +37,7 @@ export default function Museums() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /><Skeleton /></div>
         ) : filtered.length === 0 ? (
-          <Empty big="🖼️" text="Museum data hasn’t been connected yet." />
+          <Empty big="🖼️" text="Museum data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid">
             {filtered.map((m) => (

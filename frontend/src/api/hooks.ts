@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { get } from '../api/client'
 
-export function useFetch<T>(path: string | null) {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+interface FetchOptions {
+  retries?: number
+}
+
+export function useFetch<T>(path: string | null, options: FetchOptions = {}) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,22 +18,35 @@ export function useFetch<T>(path: string | null) {
       return
     }
     let cancelled = false
-    setLoading(true)
-    setError(null)
-    get<T>(path)
-      .then((d) => {
+    const retries = options.retries ?? 2
+
+    const attempt = async (remaining: number) => {
+      setLoading(true)
+      setError(null)
+      try {
+        const d = await get<T>(path)
         if (!cancelled) setData(d)
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e.message)
-      })
-      .finally(() => {
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e)
+        const retriable = remaining > 0 && /status (5\d\d)|Cannot reach/.test(message)
+        if (retriable) {
+          await sleep(400 * (retries - remaining + 1))
+          if (!cancelled) return attempt(remaining - 1)
+        }
+        if (!cancelled) {
+          setData(null)
+          setError(message)
+        }
+      } finally {
         if (!cancelled) setLoading(false)
-      })
+      }
+    }
+
+    attempt(retries)
     return () => {
       cancelled = true
     }
-  }, [path])
+  }, [path, options.retries])
 
   useEffect(() => reload(), [reload])
 

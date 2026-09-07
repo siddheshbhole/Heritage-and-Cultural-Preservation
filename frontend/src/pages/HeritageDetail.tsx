@@ -9,7 +9,7 @@ export default function HeritageDetail() {
   const { data: h, loading, error } = useFetch<Heritage>(`/heritage/${id}`)
 
   if (loading) return <Skeleton style={{ height: 360, marginTop: 30 }} />
-  if (error || !h) return <Empty big="🏛️" text="Heritage site not found — the dataset hasn’t been connected." />
+  if (error || !h) return <Empty big="🏛️" text="Heritage site not found — the dataset hasn’t been connected." error={error} />
 
   const nearby = h.nearby ?? []
 

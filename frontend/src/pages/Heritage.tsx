@@ -8,7 +8,7 @@ import { Empty, Skeleton, gradientFor } from '../components/ui'
 const CATEGORIES = ['Temple', 'Fort', 'Monument', 'Archaeological', 'Palace', 'Cave Temple', 'World Heritage', 'Natural']
 
 export default function Heritage() {
-  const { data: items, loading } = useFetch<Heritage[]>('/heritage')
+  const { data: items, loading, error, reload } = useFetch<Heritage[]>('/heritage')
   const [cat, setCat] = useState('All')
   const [q, setQ] = useState('')
 
@@ -44,7 +44,7 @@ export default function Heritage() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /><Skeleton /><Skeleton /><Skeleton /></div>
         ) : filtered.length === 0 ? (
-          <Empty big="🏛️" text="Heritage data hasn’t been connected yet." />
+          <Empty big="🏛️" text="Heritage data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid wide">
             {filtered.map((h) => (

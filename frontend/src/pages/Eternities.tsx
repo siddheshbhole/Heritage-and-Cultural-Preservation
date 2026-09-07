@@ -4,7 +4,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton, gradientFor } from '../components/ui'
 
 export default function Eternities() {
-  const { data: items, loading } = useFetch<Author[]>('/authors')
+  const { data: items, loading, error, reload } = useFetch<Author[]>('/authors')
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function Eternities() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /></div>
         ) : !items || items.length === 0 ? (
-          <Empty big="✒️" text="Scholar data hasn’t been connected yet." />
+          <Empty big="✒️" text="Scholar data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid wide">
             {items.map((a) => (

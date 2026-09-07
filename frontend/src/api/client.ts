@@ -1,19 +1,34 @@
-const API_BASE = '/api'
+const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/+$/, '') || '/api'
 
-export async function get<T>(path: string): Promise<T> {
-  const res = await fetch(API_BASE + path)
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+async function handle<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    throw new Error(`Server responded with status ${res.status} (${res.statusText || 'unknown'})`)
+  }
   return res.json() as Promise<T>
 }
 
+export async function get<T>(path: string): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(API_BASE + path)
+  } catch {
+    throw new Error('Cannot reach the server. Is the API running?')
+  }
+  return handle<T>(res)
+}
+
 export async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(API_BASE + path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-  return res.json() as Promise<T>
+  let res: Response
+  try {
+    res = await fetch(API_BASE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    throw new Error('Cannot reach the server. Is the API running?')
+  }
+  return handle<T>(res)
 }
 
 export interface HomeData {

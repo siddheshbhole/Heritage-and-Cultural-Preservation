@@ -4,7 +4,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Institutions() {
-  const { data: items, loading } = useFetch<Institution[]>('/institutions')
+  const { data: items, loading, error, reload } = useFetch<Institution[]>('/institutions')
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function Institutions() {
         {loading ? (
           <Skeleton style={{ height: 320 }} />
         ) : !items || items.length === 0 ? (
-          <Empty big="🏫" text="Institution data hasn’t been connected yet." />
+          <Empty big="🏫" text="Institution data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="card-grid">
             {items.map((i) => (

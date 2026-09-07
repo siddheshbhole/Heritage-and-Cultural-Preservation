@@ -9,7 +9,7 @@ export default function MuseumDetail() {
   const { data: m, loading, error } = useFetch<Museum>(`/museums/${id}`)
 
   if (loading) return <Skeleton style={{ height: 320, marginTop: 30 }} />
-  if (error || !m) return <Empty big="🖼️" text="Museum not found — the dataset hasn’t been connected." />
+  if (error || !m) return <Empty big="🖼️" text="Museum not found — the dataset hasn’t been connected." error={error} />
 
   return (
     <>

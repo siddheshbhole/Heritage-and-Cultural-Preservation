@@ -24,6 +24,11 @@ export default function Culture() {
 
   const events = eventsQ.data ?? []
   const loading = eventsQ.loading || apps.loading
+  const error = eventsQ.error || apps.error
+  const retry = () => {
+    eventsQ.reload()
+    apps.reload()
+  }
 
   const [filter, setFilter] = useState('All')
 
@@ -55,7 +60,7 @@ export default function Culture() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /></div>
         ) : events.length === 0 ? (
-          <Empty big="🎭" text="Festival & event data hasn’t been connected yet." />
+          <Empty big="🎭" text="Festival & event data hasn’t been connected yet." error={error} onRetry={retry} />
         ) : (
           <div className="card-grid">
             {shown.map((e) => (

@@ -5,7 +5,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Papers() {
-  const { data: items, loading } = useFetch<Document[]>('/documents')
+  const { data: items, loading, error, reload } = useFetch<Document[]>('/documents')
   const [q, setQ] = useState('')
 
   const types = useMemo(() => [...new Set((items ?? []).map((d) => d.doc_type).filter(Boolean))], [items])
@@ -40,7 +40,7 @@ export default function Papers() {
         {loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /></div>
         ) : filtered.length === 0 ? (
-          <Empty big="📜" text="Document data hasn’t been connected yet." />
+          <Empty big="📜" text="Document data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="feed">
             {filtered.map((d) => (

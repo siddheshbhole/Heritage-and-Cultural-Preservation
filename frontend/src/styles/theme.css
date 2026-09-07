@@ -552,6 +552,8 @@ img { max-width: 100%; }
 /* ---------- Misc ---------- */
 .empty { text-align: center; color: var(--muted); padding: 46px 0; }
 .empty .big { font-size: 40px; margin-bottom: 8px; }
+.empty .empty-error { font-size: 13px; color: var(--orange-deep); margin: 8px 0 0; }
+.empty .empty-retry { margin-top: 12px; }
 .page-loading { padding: 44px 0; }
 .skeleton { border-radius: 12px; background: linear-gradient(90deg, #f0ede7 25%, #faf8f4 37%, #f0ede7 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }

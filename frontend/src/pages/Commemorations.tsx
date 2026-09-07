@@ -5,7 +5,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Commemorations() {
-  const { data: items, loading } = useFetch<Commemoration[]>('/commemorations')
+  const { data: items, loading, error, reload } = useFetch<Commemoration[]>('/commemorations')
   const [field, setField] = useState('All')
 
   const fields = useMemo(() => [...new Set((items ?? []).map((c) => c.field).filter(Boolean))], [items])
@@ -32,7 +32,7 @@ export default function Commemorations() {
         {loading ? (
           <Skeleton style={{ height: 320 }} />
         ) : filtered.length === 0 ? (
-          <Empty big="🏅" text="Commemoration data hasn’t been connected yet." />
+          <Empty big="🏅" text="Commemoration data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="timeline">
             {filtered.map((c) => (

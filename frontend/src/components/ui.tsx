@@ -81,11 +81,31 @@ export function Crumbs({ items }: { items: Array<{ label: string; to?: string }>
   )
 }
 
-export function Empty({ big = '🌿', text = 'Nothing here yet.' }: { big?: string; text?: string }) {
+export function Empty({
+  big = '🌿',
+  text = 'Nothing here yet.',
+  error,
+  onRetry,
+}: {
+  big?: string
+  text?: string
+  error?: string | null
+  onRetry?: () => void
+}) {
   return (
     <div className="empty">
       <div className="big">{big}</div>
-      {text}
+      <div>{text}</div>
+      {error && (
+        <>
+          <p className="empty-error">Not loading: {error}</p>
+          {onRetry && (
+            <button type="button" className="btn btn-sm btn-outline empty-retry" onClick={onRetry}>
+              Retry
+            </button>
+          )}
+        </>
+      )}
     </div>
   )
 }

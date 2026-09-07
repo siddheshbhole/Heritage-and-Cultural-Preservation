@@ -5,7 +5,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Mous() {
-  const { data: items, loading } = useFetch<MoU[]>('/mous')
+  const { data: items, loading, error, reload } = useFetch<MoU[]>('/mous')
   const [cat, setCat] = useState('All')
 
   const cats = useMemo(() => [...new Set((items ?? []).map((m) => m.category).filter(Boolean))], [items])
@@ -32,7 +32,7 @@ export default function Mous() {
         {loading ? (
           <Skeleton style={{ height: 320 }} />
         ) : filtered.length === 0 ? (
-          <Empty big="🤝" text="MoU data hasn’t been connected yet." />
+          <Empty big="🤝" text="MoU data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="feed">
             {filtered.map((m) => (

@@ -5,7 +5,7 @@ import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function Schemes() {
-  const { data: items, loading } = useFetch<Scheme[]>('/schemes')
+  const { data: items, loading, error, reload } = useFetch<Scheme[]>('/schemes')
   const [cat, setCat] = useState('All')
 
   const cats = useMemo(() => [...new Set((items ?? []).map((s) => s.category).filter(Boolean))], [items])
@@ -32,7 +32,7 @@ export default function Schemes() {
         {loading ? (
           <Skeleton style={{ height: 320 }} />
         ) : filtered.length === 0 ? (
-          <Empty big="🧾" text="Scheme data hasn’t been connected yet." />
+          <Empty big="🧾" text="Scheme data hasn’t been connected yet." error={error} onRetry={reload} />
         ) : (
           <div className="feed">
             {filtered.map((s) => (

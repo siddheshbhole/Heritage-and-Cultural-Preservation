@@ -9,7 +9,7 @@ export default function CityDetail() {
   const { data: c, loading, error } = useFetch<City>(`/cities/${id}`)
 
   if (loading) return <Skeleton style={{ height: 360, marginTop: 30 }} />
-  if (error || !c) return <Empty big="🏙️" text="City not found — the dataset hasn’t been connected." />
+  if (error || !c) return <Empty big="🏙️" text="City not found — the dataset hasn’t been connected." error={error} />
 
   const heritage = c.heritage ?? []
   const museums = c.museums ?? []

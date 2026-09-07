@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
 import type { State } from '../api/client'
 import IndiaMap from '../components/IndiaMap'
-import ExploreDashboard from '../components/ExploreDashboard'
 import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
@@ -64,11 +63,6 @@ export default function Explore() {
             ))}
           </div>
         )}
-      </div>
-
-      <div className="container" style={{ marginBottom: 40 }}>
-        <h2 className="section-title" style={{ marginBottom: 18 }}>Knowledge sections</h2>
-        <ExploreDashboard />
       </div>
     </>
   )

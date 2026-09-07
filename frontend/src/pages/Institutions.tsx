@@ -16,7 +16,7 @@ export default function Institutions() {
 
       <div className="container" style={{ marginBottom: 44 }}>
         {loading ? (
-          <Skeleton />
+          <Skeleton style={{ height: 320 }} />
         ) : !items || items.length === 0 ? (
           <Empty big="🏫" text="Institution data hasn’t been connected yet." />
         ) : (

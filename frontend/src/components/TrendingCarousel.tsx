@@ -9,8 +9,8 @@ interface Props {
   error?: string | null
 }
 
-const AUTOPLAY_MS = 2000
-const TRANSITION_MS = 700
+const AUTOPLAY_MS = 6000
+const TRANSITION_MS = 600
 
 export default function TrendingCarousel({ items, loading = false, error = null }: Props) {
   const [index, setIndex] = useState(0)
@@ -19,6 +19,7 @@ export default function TrendingCarousel({ items, loading = false, error = null 
   const touchX = useRef<number | null>(null)
   const touchY = useRef<number | null>(null)
   const resumeTimer = useRef<number | undefined>(undefined)
+  const stageRef = useRef<HTMLDivElement | null>(null)
   const count = items.length
 
   const goTo = useCallback((i: number) => {
@@ -44,12 +45,24 @@ export default function TrendingCarousel({ items, loading = false, error = null 
   }, [])
 
   useEffect(() => {
-    if (paused || count <= 1) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reducedMotion || paused || count <= 1) return
     timer.current = window.setInterval(() => {
       setIndex((i) => (i + 1) % count)
     }, AUTOPLAY_MS)
     return () => window.clearInterval(timer.current)
   }, [paused, count])
+
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || count <= 1) return
+    const io = new IntersectionObserver(
+      ([entry]) => setPaused(() => !entry.isIntersecting),
+      { rootMargin: '140px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [count])
 
   useEffect(() => () => {
     window.clearTimeout(resumeTimer.current)
@@ -58,8 +71,8 @@ export default function TrendingCarousel({ items, loading = false, error = null 
   if (loading) {
     return (
       <div className="trending" aria-busy="true" aria-label="Loading heritage highlights">
-        <Skeleton style={{ height: 360 }} />
-        <Skeleton style={{ height: 140, marginTop: 12 }} />
+        <Skeleton style={{ height: 560 }} />
+        <Skeleton style={{ height: 90, marginTop: 12 }} />
       </div>
     )
   }
@@ -86,6 +99,7 @@ export default function TrendingCarousel({ items, loading = false, error = null 
   return (
     <div className="trending">
       <div
+        ref={stageRef}
         className="trending-stage"
         role="region"
         aria-roledescription="carousel"
@@ -129,6 +143,7 @@ export default function TrendingCarousel({ items, loading = false, error = null 
                   src={item.image_url}
                   alt={item.title}
                   loading={item.id === items[0]?.id ? 'eager' : 'lazy'}
+                  decoding="async"
                   style={{ objectPosition: item.image_position || 'center' }}
                   onError={(e) => {
                     const img = e.currentTarget

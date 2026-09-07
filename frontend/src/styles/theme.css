@@ -21,6 +21,8 @@
 
 html, body, #root { margin: 0; min-height: 100%; }
 
+html, body { overflow-x: clip; }
+
 body {
   background: var(--white);
   color: var(--ink);
@@ -151,7 +153,7 @@ img { max-width: 100%; }
 .car-src { font-size: 13px; color: var(--muted); }
 .car-src:hover { color: var(--orange-deep); }
 .car-controls { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-.car-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 16px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.car-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 16px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 .car-btn:hover { border-color: var(--orange); color: var(--orange-deep); }
 .car-btn[aria-pressed="true"] { background: var(--orange-tint); color: var(--orange-deep); border-color: var(--orange); }
 .car-dots { display: flex; align-items: center; gap: 6px; }
@@ -300,7 +302,8 @@ img { max-width: 100%; }
 /* ---------- Hero ---------- */
 .hero { position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(120deg, #fff 55%, var(--orange-tint) 100%); border-bottom: 1px solid var(--line); }
 .hero-bg { position: absolute; inset: 0; z-index: 0; display: flex; overflow: hidden; }
-.hero-bg img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; display: block; filter: saturate(1.06) contrast(1.02); }
+.hero-bg img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; display: block; }
+.hero-bg img:nth-child(n + 6) { display: none; }
 .hero-bg-overlay {
   position: absolute; inset: 0; z-index: 1;
   background:
@@ -472,6 +475,7 @@ img { max-width: 100%; }
 /* ---------- Misc ---------- */
 .empty { text-align: center; color: var(--muted); padding: 46px 0; }
 .empty .big { font-size: 40px; margin-bottom: 8px; }
+.page-loading { padding: 44px 0; }
 .skeleton { border-radius: 12px; background: linear-gradient(90deg, #f0ede7 25%, #faf8f4 37%, #f0ede7 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -482,9 +486,12 @@ img { max-width: 100%; }
 .mobile-menu { display: none; }
 .mobile-menu a { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); font-weight: 600; color: var(--ink); }
 .mobile-menu a:hover { color: var(--orange-deep); text-decoration: none; }
+.mobile-search { display: flex; gap: 8px; margin: 4px 0 12px; }
+.mobile-search input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; font-size: 14px; outline: none; background: #fff; color: var(--ink); }
+.mobile-search button { border: 0; background: var(--orange); color: #fff; border-radius: 999px; padding: 0 16px; font-weight: 600; cursor: pointer; font-size: 13.5px; }
 
 /* ---------- Embed chat (page version of assistant) ---------- */
-.chat-embed { display: flex; flex-direction: column; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.chat-embed { display: flex; flex-direction: column; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); height: min(640px, calc(100dvh - 170px)) !important; }
 .chat-embed .chat-body { background: #faf9f6; }
 .chat-embed .msg { max-width: 88%; }
 .chat-embed .msg.ai { border-top-left-radius: 4px; }
@@ -502,7 +509,7 @@ img { max-width: 100%; }
   .hero-bg-overlay {
     background: linear-gradient(180deg, rgba(253, 249, 244, 0.9) 0%, rgba(253, 249, 244, 0.62) 42%, rgba(20, 26, 44, 0.34) 78%, rgba(20, 26, 44, 0.5) 100%);
   }
-  .hero-bg img:nth-child(n + 7) { display: none; }
+  .hero-bg img:nth-child(n + 4) { display: none; }
   .car-campaign-art { height: 380px; }
   .detail-grid { grid-template-columns: 1fr; }
   .aside { position: static; }
@@ -514,6 +521,9 @@ img { max-width: 100%; }
 }
 @media (max-width: 640px) {
   .section { padding: 34px 0; }
+  .nav-inner { height: 60px; gap: 10px; }
+  .nav-actions { gap: 6px; }
+  .langs { display: none; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .ministry-split { grid-template-columns: 1fr; }
   .ministry-leaders { grid-template-columns: 1fr; }
@@ -529,10 +539,18 @@ img { max-width: 100%; }
   .chat-panel { right: 12px; left: 12px; width: auto; }
   .fab { right: 14px; bottom: 14px; }
   .car-slide-split { grid-template-columns: 1fr; }
-  .hero-bg img:nth-child(n + 4) { display: none; }
+  .hero-bg img:nth-child(n + 3) { display: none; }
   .car-campaign-art { height: 280px; }
   .car-campaign-qr img { width: 56px; height: 56px; }
   .hero-inner { gap: 24px; }
+}
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .nav-inner { gap: 6px; }
+  .brand-logo { height: 32px; }
+  .nav-ai { display: none; }
+  .hamburger { padding: 7px 9px; font-size: 16px; }
+  .btn-sm { padding: 7px 10px; font-size: 12.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ticker-track, .car-slide-split, .car-slide-hero, .car-slide-poster, .car-campaign-slide { animation: none; }

@@ -16,7 +16,7 @@ export default function Awards() {
 
       <div className="container" style={{ marginBottom: 44 }}>
         {loading ? (
-          <Skeleton />
+          <Skeleton style={{ height: 320 }} />
         ) : !items || items.length === 0 ? (
           <Empty big="🎖️" text="Award data hasn’t been connected yet." />
         ) : (

@@ -30,7 +30,7 @@ export default function Schemes() {
 
       <div className="container" style={{ marginBottom: 44 }}>
         {loading ? (
-          <Skeleton />
+          <Skeleton style={{ height: 320 }} />
         ) : filtered.length === 0 ? (
           <Empty big="🧾" text="Scheme data hasn’t been connected yet." />
         ) : (

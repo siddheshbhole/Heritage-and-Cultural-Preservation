@@ -64,18 +64,15 @@ export default function Home() {
 
   return (
     <>
-      <Ticker />
+      <Ticker items={data?.announcements} />
 
       <section className="hero">
         <div className="hero-bg" aria-hidden="true">
-          <img src="/images/heritage/taj-mahal.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/hampi.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/konark.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/amber-fort.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/ellora.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/dance-bharatanatyam.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/ajanta.jpg" alt="" loading="lazy" />
-          <img src="/images/heritage/fatehpur-sikri.jpg" alt="" loading="lazy" />
+          <img src="/images/heritage/hero/taj-mahal.webp" alt="" loading="eager" decoding="async" />
+          <img src="/images/heritage/hero/hampi.webp" alt="" loading="lazy" decoding="async" />
+          <img src="/images/heritage/hero/konark.webp" alt="" loading="lazy" decoding="async" />
+          <img src="/images/heritage/hero/amber-fort.webp" alt="" loading="lazy" decoding="async" />
+          <img src="/images/heritage/hero/ellora.webp" alt="" loading="lazy" decoding="async" />
         </div>
         <div className="hero-bg-overlay" aria-hidden="true" />
         <div className="container hero-inner">
@@ -105,7 +102,7 @@ export default function Home() {
           <div className="hero-map-card showcase-box">
             <h2 className="showcase-title">Government Cultural Showcase</h2>
             {loading ? (
-              <Skeleton style={{ height: 360 }} />
+              <Skeleton style={{ height: 560 }} />
             ) : showcase.length > 0 ? (
               <Carousel items={showcase} variant="hero" />
             ) : (

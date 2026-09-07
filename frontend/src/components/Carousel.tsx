@@ -13,6 +13,7 @@ export default function Carousel({ items, variant = 'split', interval = 5500 }: 
   const [paused, setPaused] = useState(false)
   const timer = useRef<number | undefined>(undefined)
   const touchX = useRef<number | null>(null)
+  const stageRef = useRef<HTMLDivElement | null>(null)
   const count = items.length
 
   const next = useCallback(() => {
@@ -24,17 +25,29 @@ export default function Carousel({ items, variant = 'split', interval = 5500 }: 
   }, [count])
 
   useEffect(() => {
-    if (paused || count <= 1) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reducedMotion || paused || count <= 1) return
     timer.current = window.setInterval(next, interval)
     return () => window.clearInterval(timer.current)
   }, [next, paused, interval, count])
+
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || count <= 1) return
+    const io = new IntersectionObserver(
+      ([entry]) => setPaused(() => !entry.isIntersecting),
+      { rootMargin: '140px' }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [count])
 
   if (count === 0) return null
   const hero = variant === 'hero'
   const it = items[index]
 
   const media = it.image_url ? (
-    <img className="car-img" src={it.image_url} alt={it.title} loading="lazy" />
+    <img className="car-img" src={it.image_url} alt={it.title} loading="lazy" decoding="async" />
   ) : (
     <div className={hero ? 'car-tile' : 'card-thumb'} style={{ background: gradientFor(it.title) }}>
       <span>{initials(it.title)}</span>
@@ -43,6 +56,7 @@ export default function Carousel({ items, variant = 'split', interval = 5500 }: 
 
   return (
     <div
+      ref={stageRef}
       className={`carousel${hero ? ' carousel-hero' : ''}`}
       role="region"
       aria-roledescription="carousel"
@@ -77,7 +91,8 @@ export default function Carousel({ items, variant = 'split', interval = 5500 }: 
                 }}
                 src={it.image_url}
                 alt={it.title}
-                loading="lazy"
+                loading={hero ? 'eager' : 'lazy'}
+                decoding="async"
               />
             ) : (
               <div className="car-tile" style={{ background: gradientFor(it.title) }}>

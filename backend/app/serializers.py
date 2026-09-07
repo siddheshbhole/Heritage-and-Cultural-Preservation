@@ -1,3 +1,24 @@
+def trending_row(t):
+    return {
+        "id": t.id,
+        "title": t.title,
+        "slug": t.slug,
+        "category": t.category,
+        "kind": t.kind,
+        "state": t.state,
+        "city": t.city,
+        "image_url": t.image_url,
+        "image_position": t.image_position or "center",
+        "summary": t.summary,
+        "external_url": t.external_url,
+        "explore_url": t.explore_url,
+        "trend_score": round(t.trend_score or 0.0, 1),
+        "source_name": t.source_name,
+        "source_url": t.source_url,
+        "is_active": bool(t.is_active),
+    }
+
+
 def state_row(s):
     if s is None:
         return None
@@ -269,6 +290,37 @@ def post_row(p):
         "related_resource": p.related_resource,
         "related_city": p.related_city,
         "image_url": p.image_url,
+    }
+
+
+def ministry_leader_row(l):
+    return {
+        "id": l.id,
+        "name": l.name,
+        "title": l.title,
+        "designation": l.designation,
+        "image_url": l.image_url,
+        "official_url": l.official_url,
+    }
+
+
+def ministry_row(m, leaders):
+    return {
+        "heading": m.heading,
+        "about": m.about,
+        "mission": m.mission,
+        "vision": m.vision,
+        "stats": {
+            "attached_offices": m.attached_offices,
+            "subordinate_offices": m.subordinate_offices,
+            "autonomous_organizations": m.autonomous_organizations,
+        },
+        "leaders": [ministry_leader_row(l) for l in leaders],
+        "directory_url": m.directory_url,
+        "organisations_url": m.organisations_url,
+        "source_name": m.source_name,
+        "source_url": m.source_url,
+        "updated_at": m.updated_at,
     }
 
 

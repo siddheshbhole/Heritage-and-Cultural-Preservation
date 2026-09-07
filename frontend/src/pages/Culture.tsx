@@ -87,7 +87,13 @@ export default function Culture() {
         <div className="card-grid">
           {(apps.data ?? []).map((a) => (
             <a key={a.id} className="feature-card" href={a.official_url} target="_blank" rel="noreferrer">
-              <div className="card-thumb" style={{ background: gradientFor(a.title) }}>{a.title.split(/\s+/)[0]?.[0]}</div>
+              <div className="card-thumb service-thumb" style={{ background: gradientFor(a.title) }}>
+                {a.image_url ? (
+                  <img className="thumb-img" src={a.image_url} alt={a.title} loading="lazy" />
+                ) : (
+                  <span>{a.title.split(/\s+/)[0]?.[0]}</span>
+                )}
+              </div>
               <div className="fc-body">
                 <span className="chip chip-green">{a.category}</span>
                 <h3>{a.title}</h3>

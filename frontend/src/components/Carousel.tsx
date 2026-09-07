@@ -115,7 +115,7 @@ export default function Carousel({ items, variant = 'split', interval = 5500 }: 
         </div>
       ) : (
         <div key={it.id} className="car-slide-split">
-          <div className="car-media">{media}</div>
+          <div className={`car-media${it.image_url ? ' car-media-logo' : ''}`}>{media}</div>
           <div className="car-copy">
             <div className="car-meta">
               <span className="chip">{it.category}</span>

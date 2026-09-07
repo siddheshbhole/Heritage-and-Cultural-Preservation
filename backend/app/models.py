@@ -4,6 +4,46 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 
+class TrendingItem(Base):
+    """A featured heritage / cultural item shown in the homepage trending carousel.
+
+    The database is the source of truth: the frontend only fetches the current
+    active items from ``GET /api/trending``. A scheduled updater can add, re-score,
+    deactivate and rotate these records without any frontend code change.
+    """
+
+    __tablename__ = "trending_items"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    slug = Column(String, index=True)
+    category = Column(String)  # Heritage Site / Festival / Living Culture / Script / Dance ...
+    kind = Column(String, default="heritage")  # heritage | culture
+    state = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    image_url = Column(String)
+    image_position = Column(String, default="center")  # object-position focal point
+    summary = Column(Text)
+    external_url = Column(String)
+    explore_url = Column(String)
+    trends_on = Column(Integer, default=0)
+
+    # Trend score (0-100) built from weighted signals; higher = more prominent.
+    current_event_score = Column(Float, default=0.0)
+    recent_activity_score = Column(Float, default=0.0)
+    cultural_significance_score = Column(Float, default=0.0)
+    user_interest_score = Column(Float, default=0.0)
+    recency_score = Column(Float, default=0.0)
+    trend_score = Column(Float, default=0.0)
+
+    source_name = Column(String)
+    source_url = Column(String, nullable=True)
+    is_active = Column(Integer, default=1)
+    published_at = Column(String)
+    created_at = Column(String)
+    updated_at = Column(String)
+
+
 class State(Base):
     __tablename__ = "states"
 
@@ -242,6 +282,43 @@ class Institution(Base):
     description = Column(Text)
     responsibilities = Column(Text)
     official_url = Column(String)
+
+
+class MinistryProfile(Base):
+    """Content for the homepage "About the Ministry" section (single row).
+
+    The database is the source of truth: current facts about the Ministry
+    (about/mission/vision text, organisation stats, action URLs) can be updated
+    in place without any frontend code change.
+    """
+
+    __tablename__ = "ministry_profile"
+
+    id = Column(Integer, primary_key=True)
+    heading = Column(String)
+    about = Column(Text)
+    mission = Column(Text)
+    vision = Column(Text)
+    attached_offices = Column(Integer, default=0)
+    subordinate_offices = Column(Integer, default=0)
+    autonomous_organizations = Column(Integer, default=0)
+    directory_url = Column(String)
+    organisations_url = Column(String)
+    source_name = Column(String)
+    source_url = Column(String)
+    updated_at = Column(String)
+
+
+class MinistryLeader(Base):
+    __tablename__ = "ministry_leaders"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    title = Column(String, nullable=True)  # e.g. "Hon'ble"
+    designation = Column(String)  # e.g. "Minister of Culture"
+    image_url = Column(String)
+    official_url = Column(String)
+    sort_order = Column(Integer, default=0)
 
 
 class AboutEntry(Base):

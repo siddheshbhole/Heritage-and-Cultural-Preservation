@@ -25,6 +25,29 @@ export interface HomeData {
   stats: { states: number; cities: number; heritage_sites: number; museums: number; publications: number; events: number }
 }
 
+export interface TrendingItem {
+  id: number
+  title: string
+  slug: string
+  category: string
+  kind: 'heritage' | 'culture'
+  state: string | null
+  city: string | null
+  image_url: string
+  image_position: string
+  summary: string
+  external_url: string
+  explore_url: string
+  trend_score: number
+  source_name: string
+  source_url: string | null
+  is_active: boolean
+}
+
+export interface TrendingResponse {
+  items: TrendingItem[]
+}
+
 export interface Statistics {
   states_ut: number
   heritage_resources: number
@@ -144,6 +167,29 @@ export interface CultureApp {
   official_url: string
   image_url: string | null
   action: string
+}
+
+export interface MinistryLeader {
+  id: number
+  name: string
+  title: string | null
+  designation: string
+  image_url: string | null
+  official_url: string | null
+}
+
+export interface MinistryData {
+  heading: string
+  about: string
+  mission: string
+  vision: string
+  stats: { attached_offices: number; subordinate_offices: number; autonomous_organizations: number }
+  leaders: MinistryLeader[]
+  directory_url: string
+  organisations_url: string
+  source_name: string
+  source_url: string
+  updated_at: string
 }
 
 export interface Announcement {

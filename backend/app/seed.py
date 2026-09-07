@@ -904,19 +904,19 @@ def build():
 
     # ------------------------------- CULTURE APPS -------------------------------
     apps = [
-        ("Indian Culture Portal", "A vast portal of India's digital cultural treasures — manuscripts, paintings, music, dance and monuments.", "Portal", "https://www.indiaculture.gov.in"),
-        ("National Museum, New Delhi", "India's flagship national museum — artefacts from the Harappan age to the present.", "Museum", "https://www.nationalmuseumindia.gov.in"),
-        ("IGNCA Kalakosh", "The Indira Gandhi National Centre for the Arts' digital library of arts, research and conservation.", "Research", "https://ignca.gov.in"),
-        ("ASI Monument List", "The Archaeological Survey of India's catalogue of protected monuments of national importance.", "Archaeology", "https://asi.nic.in"),
-        ("National Library of India", "The repository of the nation's published knowledge, inaugurated at Kolkata.", "Library", "https://nationallibrary.gov.in"),
-        ("National Digital Library", "The NDLI platform giving access to text, audio, video across disciplines.", "Library", "https://ndl.iitkgp.ac.in"),
-        ("Sangeet Natak Akademi", "India's national academy for music, dance and drama.", "Academy", "https://sangeetnatak.gov.in"),
-        ("Lalit Kala Akademi", "India's national academy of visual arts.", "Academy", "https://lalitkala.gov.in"),
-        ("Sahitya Akademi", "India's national academy of letters.", "Academy", "https://sahitya-akademi.gov.in"),
-        ("Centre for Cultural Resources and Training", "Capacity building for teachers on Indian culture and heritage.", "Training", "https://ccrtindia.gov.in"),
+        ("Indian Culture Portal", "A vast portal of India's digital cultural treasures — manuscripts, paintings, music, dance and monuments.", "Portal", "https://www.indiaculture.gov.in", "images/official-services/indian-culture-portal.png"),
+        ("National Museum, New Delhi", "India's flagship national museum — artefacts from the Harappan age to the present.", "Museum", "https://www.nationalmuseumindia.gov.in", "images/official-services/national-museum-new-delhi.png"),
+        ("IGNCA Kalakosh", "The Indira Gandhi National Centre for the Arts' digital library of arts, research and conservation.", "Research", "https://ignca.gov.in", "images/official-services/indira-gandhi-national-centre-for-the-arts.png"),
+        ("ASI Monument List", "The Archaeological Survey of India's catalogue of protected monuments of national importance.", "Archaeology", "https://asi.nic.in", "images/official-services/archaeological-survey-of-india.png"),
+        ("National Library of India", "The repository of the nation's published knowledge, inaugurated at Kolkata.", "Library", "https://nationallibrary.gov.in", "images/official-services/national-library-of-india.png"),
+        ("National Digital Library", "The NDLI platform giving access to text, audio, video across disciplines.", "Library", "https://ndl.iitkgp.ac.in", "images/official-services/national-digital-library-of-india.png"),
+        ("Sangeet Natak Akademi", "India's national academy for music, dance and drama.", "Academy", "https://sangeetnatak.gov.in", "images/official-services/sangeet-natak-akademi.png"),
+        ("Lalit Kala Akademi", "India's national academy of visual arts.", "Academy", "https://lalitkala.gov.in", "images/official-services/lalit-kala-akademi.png"),
+        ("Sahitya Akademi", "India's national academy of letters.", "Academy", "https://sahitya-akademi.gov.in", "images/official-services/sahitya-akademi.png"),
+        ("Centre for Cultural Resources and Training", "Capacity building for teachers on Indian culture and heritage.", "Training", "https://ccrtindia.gov.in", "images/official-services/centre-for-cultural-resources-and-training.png"),
     ]
-    for title, desc, cat, url in apps:
-        db.add(CultureApp(title=title, description=desc, category=cat, official_url=url, action="Visit official portal"))
+    for title, desc, cat, url, img in apps:
+        db.add(CultureApp(title=title, description=desc, category=cat, official_url=url, image_url=img, action="Visit official portal"))
 
     # ------------------------------- GOVERNMENT SHOWCASE PROGRAMMES -------------------------------
     # Only verified Government of India / Ministry of Culture campaigns, portals and programmes.

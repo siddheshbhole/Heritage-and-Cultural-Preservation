@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
-from .routes import assistant, community, content, geo, search
+from .routes import assistant, community, content, geo, ministry, search, trending
 
 app = FastAPI(
     title="Ministry of Culture — Heritage & Culture Preservation Platform API",
@@ -20,7 +20,7 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-ROUTERS = [geo.router, content.router, community.router, search.router, assistant.router]
+ROUTERS = [geo.router, content.router, community.router, search.router, assistant.router, trending.router, ministry.router]
 for r in ROUTERS:
     app.include_router(r)
 

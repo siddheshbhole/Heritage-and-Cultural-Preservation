@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
-import type { HomeData, ShowcaseItem } from '../api/client'
+import type { HomeData, MinistryData, ShowcaseItem, TrendingResponse } from '../api/client'
 import Ticker from '../components/Ticker'
 import Carousel from '../components/Carousel'
-import ExploreDashboard from '../components/ExploreDashboard'
-import { Section, gradientFor, StatCard, Skeleton } from '../components/ui'
+import TrendingCarousel from '../components/TrendingCarousel'
+import MinistrySection from '../components/MinistrySection'
+import { Section, StatCard, Skeleton } from '../components/ui'
 
 const SHOWCASE_ORDER = ['150 Years of Vande Mataram', 'Gyan Bharatam Mission', 'Indian Culture Portal (Version 2.0)']
 
@@ -49,11 +50,13 @@ const SHOWCASE_META: Record<string, Partial<ShowcaseItem>> = {
 
 export default function Home() {
   const { data, loading } = useFetch<HomeData>('/home')
+  const { data: trending, loading: trendingLoading, error: trendingError } = useFetch<TrendingResponse>('/trending')
+  const { data: ministry, loading: ministryLoading } = useFetch<MinistryData>('/ministry')
 
   const stats = data?.stats
-  const featured = data?.featured_heritage ?? []
   const apps = data?.apps ?? []
   const announcements = data?.announcements ?? []
+  const trendingItems = trending?.items ?? []
   const showcase = (data?.showcase ?? [])
     .filter((s) => SHOWCASE_META[s.title])
     .map((s) => ({ ...s, ...SHOWCASE_META[s.title] }))
@@ -119,38 +122,14 @@ export default function Home() {
         title="Heritage & trending"
         action={<Link to="/heritage" className="see-all">See all heritage →</Link>}
       >
-        <div className="card-grid">
-          {loading
-            ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} />)
-            : featured.map((h) => (
-                <Link key={h.id} to={`/heritage/${h.id}`} className="feature-card">
-                  <div className="card-thumb" style={{ background: gradientFor(h.name) }}>
-                    {h.name.split(/\s+/)[0][0]}
-                  </div>
-                  <div className="fc-body">
-                    <span className="chip chip-green">{h.category}</span>
-                    <h3>{h.name}</h3>
-                    <p className="desc" style={{ color: 'var(--muted)' }}>{h.description}</p>
-                    <div className="meta">
-                      <span>{h.city_name || h.state_name || ''}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-        </div>
+        <TrendingCarousel items={trendingItems} loading={trendingLoading} error={trendingError} />
       </Section>
 
       <Section kicker="Official digital services" title="Culture, one app at a time" alt="altgreen">
         {apps.length > 0 ? <Carousel items={apps} /> : <Skeleton />}
       </Section>
 
-      <Section
-        kicker="Dashboards"
-        title="Explore the knowledge base"
-        action={<Link to="/explore" className="see-all">Open explorer →</Link>}
-      >
-        <ExploreDashboard />
-      </Section>
+      <MinistrySection data={ministry} loading={ministryLoading} />
 
       <Section kicker="Updates" title="Latest announcements">
         {loading ? (

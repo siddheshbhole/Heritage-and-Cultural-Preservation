@@ -1,0 +1,1200 @@
+"""Seed the database with prototype cultural data.
+
+Run from the backend directory:
+    python -m app.seed
+"""
+from datetime import date
+
+from .database import Base, SessionLocal, engine
+from .models import (
+    AboutEntry, Announcement, Author, Award, City, Commemoration, CommunityPost,
+    CommunityProfile, CultureApp, Document, Event, GovernmentProgramme,
+    HeritageSite, Institution, MoU, Museum, Provenance, Publication, Scheme, State,
+)
+
+TODAY = date.today().isoformat()
+
+
+def states_data():
+    return [
+        # name, code, region, capital, short description (basic)
+        ("Andaman and Nicobar Islands", "AN", "Islands", "Port Blair", "A chain of 572 islands known for pristine beaches, indigenous communities and the Cellular Jail, a symbol of India's freedom struggle."),
+        ("Andhra Pradesh", "AP", "South", "Amaravati", "Land of the Kuchipudi dance form, Tirupati temple town and a rich coastline of craft and classical music."),
+        ("Arunachal Pradesh", "AR", "Northeast", "Itanagar", "A mountainous state of tribal cultures, monasteries and the sacred Tawang region."),
+        ("Assam", "AS", "Northeast", "Dispur", "Known for the one-horned rhinoceros, Bihu festival, satras and world-famous Assam silk and tea culture."),
+        ("Bihar", "BR", "East", "Patna", "Cradle of ancient empires — Magadha, Maurya and Gupta — and the site of Bodh Gaya."),
+        ("Chandigarh", "CH", "North", "Chandigarh", "India's modernist capital city, designed by Le Corbusier, and its own Union Territory."),
+        ("Chhattisgarh", "CG", "Central", "Raipur", "A state of tribal heritage, the Bastar Dussehra and the ancient rock art of Chitradurg."),
+        ("Dadra and Nagar Haveli and Daman and Diu", "DN", "West", "Daman", "Coastal territories with fortified colonial-era structures and tribal Warlis art."),
+        ("Delhi", "DL", "North", "New Delhi", "Seven cities of history in one — Delhi is a living museum spanning 13 centuries of rule."),
+        ("Goa", "GA", "West", "Panaji", "A coastal state of Indo-Portuguese heritage, churches, temples, and Carnival festivities."),
+        ("Gujarat", "GJ", "West", "Gandhinagar", "Land of Harappan ruins at Dholavira, colourful Navratri, handicrafts and the Rann of Kutch."),
+        ("Haryana", "HR", "North", "Chandigarh", "Home to the Mahabharata battlefield of Kurukshetra and a strong rural sporting culture."),
+        ("Himachal Pradesh", "HP", "North", "Shimla", "A Himalayan state of wooden temples, handicrafts and the Kullu Dussehra festival."),
+        ("Jammu and Kashmir", "JK", "North", "Srinagar (summer)", "Known for Dal Lake, Mughal gardens, shawl handicrafts, and the legendary Kathak-Sufiyana traditions."),
+        ("Jharkhand", "JH", "East", "Ranchi", "A state of tribal art, forests, waterfalls and the Sarna beliefs of the Adivasi communities."),
+        ("Karnataka", "KA", "South", "Bengaluru", "Land of the Vijayanagara empire, classical Carnatic music, Channapatna toys and Mysuru silk."),
+        ("Kerala", "KL", "South", "Thiruvananthapuram", "God's own country — Kathakali, Kalaripayattu, backwaters and Kerala mural art."),
+        ("Ladakh", "LA", "North", "Leh", "A high-altitude land of Buddhist gompas, monasteries and the Hemis festival."),
+        ("Lakshadweep", "LD", "Islands", "Kavaratti", "A coral archipelago with a distinct island Muslim culture and traditional coral-boat building."),
+        ("Madhya Pradesh", "MP", "Central", "Bhopal", "Heart of India — home to Khajuraho, Sanchi and Gond tribal painting traditions."),
+        ("Maharashtra", "MH", "West", "Mumbai", "The land of the Marathas — forts of the Sahyadri, vibrant Ganeshotsav, tamasha theatre and the Ajanta-Ellora caves."),
+        ("Manipur", "MN", "Northeast", "Imphal", "Birthplace of Ras Lila dance and indigenous polo; a state of lush valleys and martial traditions."),
+        ("Meghalaya", "ML", "Northeast", "Shillong", "The abode of clouds — matrilineal Khasi, Jaintia and Garo cultures amidst living-root bridges."),
+        ("Mizoram", "MZ", "Northeast", "Aizawl", "A vibrant state of Mizo hymn culture, festivals like Chapchar Kut and handloom shawls."),
+        ("Nagaland", "NL", "Northeast", "Kohima", "Land of the Naga tribes, the Hornbill Festival and spectacular warrior heritage."),
+        ("Odisha", "OD", "East", "Bhubaneswar", "Land of the Sun Temple at Konark, Jagannath culture, Pattachitra art and Odissi dance."),
+        ("Puducherry", "PY", "South", "Puducherry", "A former French enclave blending Tamil traditions with boulevard architecture."),
+        ("Punjab", "PB", "North", "Chandigarh", "The land of the Gurus — Bhangra, folk music, and the sacred city of Amritsar."),
+        ("Rajasthan", "RJ", "North", "Jaipur", "The desert kingdom of forts, palaces, folk music, camel fairs and miniature painting."),
+        ("Sikkim", "SK", "Northeast", "Gangtok", "A Himalayan Buddhist state of monasteries, masked dances and the Pang Lhabsol festival."),
+        ("Tamil Nadu", "TN", "South", "Chennai", "Epicentre of Dravidian temple architecture, Bharatanatyam, and the Chola bronze tradition."),
+        ("Telangana", "TG", "South", "Hyderabad", "Land of the Qutb Shahi and Asaf Jahi courts — biryani, pearls, Deccan miniatures and Golconda."),
+        ("Tripura", "TR", "Northeast", "Agartala", "A state of royal ancestral temples (Chathuma) and the indigenous Kharchi festival."),
+        ("Uttar Pradesh", "UP", "North", "Lucknow", "Heartland of the Ganga — Varanasi's ghats, Ayodhya's faith, Mathura's Krishna and Lucknow's nawabi culture."),
+        ("Uttarakhand", "UK", "North", "Dehradun", "Land of the Char Dham shrines, resilient hill culture and the Nanda Devi Raj Jat yatra."),
+        ("West Bengal", "WB", "East", "Kolkata", "The cultural capital — Bengal Renaissance, Durga Puja, baul music and patachitra scroll art."),
+    ]
+
+
+def rich_data():
+    return {
+        "Maharashtra": {
+            "description": "The land of the Marathas — hill forts of the Sahyadri, the vibrant Ganeshotsav public festival, film heritage and the Ajanta-Ellora caves. The ministry ecosystem here includes ASI-protected forts, museums and an active archival tradition.",
+            "history": "Home to the Satavahana kingdom, the Yadavas of Devagiri, the Bahmani-Adilshahi courts and the great Maratha empire founded by Chhatrapati Shivaji Maharaj. Pune served as the seat of the Peshwas and the Maratha confederacy from the early 18th century.",
+            "culture": "Known for classical music (Gwalior and Kirana gharanas), tamasha and sangeet natak theatre, the wada architecture of the Peshwa era, and the city-based Ganpati culture started by Lokmanya Tilak.",
+            "rituals": "Ganeshotsav, Gudi Padwa, Chhatrapati Shivaji Maharaj Jayanti processions and the spectacular Shukravar peth lighting; Warkari pilgrimages to Pandharpur follow the dindi path.",
+            "handicrafts": "Paithani and Himroo textiles, Kolhapuri chappals, Mashru pattani weaves and the lacquer craft of Phullanpurwa.",
+            "food": "Puran poli, Misal pav, Vada pav, Bhelpuri, Shrikhand, Kolhapuri cuisine and the legendary family-run bakeries and Irani cafes of Pune and Mumbai.",
+            "festivals": "Ganeshotsav|Gudi Padwa|Shivaji Jayanti|Gunpowder Jatra of Nashik|Kala Ghoda Arts Festival",
+            "iconic_battles": "The Battle of Sinhagad (1670) — Tanaji Malusare's capture of the fort; the Panipat campaign (1761); the conquest of Raigad and the establishment of the Maratha Confederacy.",
+            "cities": [
+                {"name": "Pune", "latitude": 18.5204, "longitude": 73.8567,
+                 "description": "Cultural capital of Maharashtra and the seat of the Peshwas. Pune is a living archive of Maratha history — wadas, forts on the horizon, classical music gharanas and a deep literary tradition.",
+                 "history": "Pune rose to prominence as the headquarters of the Peshwas of the Maratha confederacy in the 18th century. Educational and cultural movements of the 19th century — Deccan Education Society, Kesari press and women's reform — made it a crucible of modern Indian thought.",
+                 "culture": "Home of the Kirana and Gwalior gharanas of Hindustani classical music, the Bharat Natya Mandir, Sawai Gandharva festival and vibrant university theatre.",
+                 "rituals": "The elaborate ten-day Ganeshotsav, Bhimthadi jatra, and the Rathyatra on Bund Garden road.",
+                 "handicrafts": "Paithani sarees, Kolhapuri chappal trade hubs, and traditional jewellery clusters.",
+                 "food": "Puran poli, Misal pav, Mastani (a layered fruit-ice dessert), Bakarwadi and Vada pav.",
+                 "iconic_battles": "The Battle of Sinhagad (1670) where Tanaji Malusare recaptured Kondhana fort; the frequent campaigns between the Marathas and the Mughals/Nizams across this region.",
+                 "heritage": [
+                     {"name": "Shaniwar Wada", "category": "Monument", "period": "1732", "location": "Kasba Peth",
+                      "description": "The fortified residence of the Peshwas and the political centre of the Maratha confederacy for a century.",
+                      "history": "Built by Peshwa Baji Rao I in 1732 on the rights of the Fadnis family. The palace witnessed the golden era of the Peshwas, the chilling legend of young Naro Peshwa (phantom cries), and later the great fire of 1828 that destroyed much of the structure.",
+                      "significance": "Symbol of Maratha power and the heart of Pune's Peshwa-era narrative; prime ministry-protected heritage asset.",
+                      "architecture": "A 21-metre-tall five-storey palace with teak pillars, lime-and-brick walls and the famous Dilli Darwaza; only parts of the bastion and fountains survive.",
+                      "famous_people": "Peshwa Baji Rao I, Nanasaheb Peshwa, Madhavrao Peshwa, Nana Phadnavis",
+                      "related_events": "Ganeshotsav inaugurations historically addressed from here; the 1828 fire."},
+                     {"name": "Sinhagad Fort", "category": "Fort", "period": "11th century", "location": "25 km SW of Pune",
+                      "description": "Ancient hill fort that marks the legendary victory of Tanaji Malusare over the Mughal garrison.",
+                      "history": "Formerly Kondhana, the fort changed hands between Yadavas, Mughals and Marathas. It became immortal through the 1670 battle in which Tanaji Malusare captured it and gave his life — prompting Shivaji's tribute, 'gad aala, pan sinha gela'.",
+                      "significance": "A living site of Maratha military heritage and now a city-near weekend heritage zone visited by lakhs.",
+                      "architecture": "1700-feet hill fortress with bastions, gates and the iconic Tanaji samadhi and a memorial.",
+                      "famous_people": "Chhatrapati Shivaji Maharaj, Tanaji Malusare, Raiba",
+                      "related_events": "Sinhagad battle anniversary commemorations; monsoon treks by heritage groups."},
+                     {"name": "Aga Khan Palace", "category": "Monument", "period": "1892", "location": "Yerawada, Pune",
+                      "description": "An elegant edifice famous as a national memorial to Mahatma Gandhi and the Quit India internees.",
+                      "history": "Built by Sultan Aga Khan III as a charity palace. During 1942-44 it served as a prison for Mahatma Gandhi, Kasturba (who died here) and Mahadev Desai. Kasturba's and Desai's samadhis lie within the grounds.",
+                      "significance": "A site of national importance under the Gandhi Heritage and preservation network of the Ministry of Culture.",
+                      "architecture": "A grand Italian-style colonnaded building set in 19 acres of lawns, regarded as the finest Poona palace of its era.",
+                      "famous_people": "Mahatma Gandhi, Kasturba Gandhi, Mahadev Desai, Sarojini Naidu",
+                      "related_events": "Quit India movement history; Gandhi Jayanti commemorations."},
+                     {"name": "Raja Dinkar Kelkar Museum", "category": "Museum", "period": "1970s collection", "location": "Natu Baug, Shukravar Peth",
+                      "description": "A singular museum of everyday material culture — palanquins, musical instruments, nutcrackers and lamps.",
+                      "history": "Founded by Dinkar Kelkar, who spent decades personally collecting objects; the museum was donated to the Government of Maharashtra and is a celebrated repository of Indian craftsmanship.",
+                      "significance": "Bridges documented heritage of decorative arts for researchers and students.",
+                      "architecture": "Three floors of curated galleries around the famous Mastani Mahal hall.",
+                      "famous_people": "Raja Dinkar Kelkar",
+                      "related_events": "Museum lecture series and heritage walks organised by the museum society."},
+                     {"name": "Vishrambaug Wada", "category": "Monument", "period": "1807", "location": "Narayan Peth",
+                      "description": "The elegant wada of Peshwa Baji Rao II, later a venue for dramatic and musical performances.",
+                      "history": "Built in 1807 as the chief residence of Peshwa Baji Rao II, the wada hosted Maratha court gatherings and was part of 'Sharavan Peth' cultural life before becoming a post office and municipal space.",
+                      "significance": "An important Peshwa-era urban heritage structure in the heart of the old city.",
+                      "architecture": "A two-storey wada with intricately carved wooden balconies and an oil-painted central bust of the Peshwa.",
+                      "famous_people": "Peshwa Baji Rao II",
+                      "related_events": "Old Pune heritage walks."},
+                 ],
+                 "museums": [
+                     {"name": "Raja Dinkar Kelkar Museum", "collections": "Palanquins, nutcrackers, musical instruments, lamps, sculpture", "official_url": "https://www.rajakelkarmuseum.com"},
+                     {"name": "Bhandarkar Oriental Research Institute Museum", "collections": "Manuscripts, art, artefacts of Indology", "official_url": "https://www.bori.ac.in"},
+                 ]},
+                {"name": "Mumbai", "latitude": 19.0760, "longitude": 72.8777,
+                 "description": "India's financial and cultural capital — a city of colonial-era gothic and art-deco architecture, a deep film and theatre culture, and one of the flagship museum ecosystems of the country.",
+                 "history": "Seven islands gifted to the East India Company in 1661 grew into the Bombay Presidency's centre. The 19th century left a gothic revival skyline, while the 20th century made it the heart of Hindi cinema and the Bombay cultural renaissance.",
+                 "culture": "The birthplace of Indian cinema (Dadasaheb Phalke), a hub of Marathi theatre, and a city of festivals from Ganeshotsav to the Kala Ghoda Arts Festival.",
+                 "rituals": "Ganeshotsav, Dahi Handi, Elephanta island annual fair and heritage walks of the Fort precinct.",
+                 "handicrafts": "Muharram taazia crafts, local lacquer and textile markets; gateway to Maharashtrian paithani trade.",
+                 "food": "Vada pav, Bhel puri, Batata vada, Kolhapuri thali, Parsi cafe cuisine and the Bombay sandwich.",
+                 "iconic_battles": "The defence of Bombay during Anglo-Maratha conflicts; the naval and moundAnse engagements around the Bombay harbour.",
+                 "heritage": [
+                     {"name": "Gateway of India", "category": "Monument", "period": "1924", "location": "Apollo Bunder",
+                      "description": "The iconic basalt arch on the Mumbai waterfront commemorating the visit of King George V and Queen Mary.",
+                      "history": "Unveiled in 1924 in Indo-Saracenic style; the last British troops departed through it in 1948. It anchors the city's ceremonial and tourist identity.",
+                      "significance": "One of the most photographed national landmarks; an ASI-protected monument.",
+                      "architecture": "Basalt and reinforced concrete Indo-Saracenic arch, 26 metres high.",
+                      "famous_people": "George Wittet (architect), Lord Sydenham",
+                      "related_events": "Public gatherings, heritage walks and the annual Kala Ghoda festival fringe."},
+                     {"name": "Chhatrapati Shivaji Maharaj Terminus", "category": "Monument", "period": "1887", "location": "Fort, Mumbai",
+                      "description": "A UNESCO World Heritage railway terminus and the finest example of Victorian Gothic Revival in India.",
+                      "history": "Designed by F.W. Stevens and completed in 1887 to commemorate Queen Victoria's golden jubilee; renamed after the Maratha warrior king in 1996.",
+                      "significance": "UNESCO-listed; a living monument still functioning as one of India's busiest railway stations.",
+                      "architecture": "Gothic Revival with Indian ornament — pointed arches, stained glass, and a dramatic central dome.",
+                      "famous_people": "F.W. Stevens, Axel Haig (illustrator)",
+                      "related_events": "UNESCO heritage walks during museum week."},
+                     {"name": "Elephanta Caves", "category": "Archaeological", "period": "5th–8th century", "location": "Elephanta Island",
+                      "description": "Rock-cut cave temples dedicated to Shiva, celebrated for the monumental trimurti sculpture.",
+                      "history": "Cut into basalt rock during the Kalachuri-Rashtrakuta era; the caves were documented as a World Heritage Site in 1987.",
+                      "significance": "Masterpiece of Indian rock-cut art; managed by the Archaeological Survey of India.",
+                      "architecture": "Five hypostyle cave complexes with colossal panels of Shiva as Nataraja, Ardhanarishvara and the three-faced Trimurti.",
+                      "famous_people": "— (anon rock-cut master carvers)",
+                      "related_events": "Annual Elephanta island festival dance performances."},
+                     {"name": "Dr. Bhau Daji Lad Mumbai City Museum", "category": "Museum", "period": "1872", "location": "Byculla East",
+                      "description": "Mumbai's oldest surviving museum, a treasure house of the city's 19th century decorative arts.",
+                      "history": "Opened in 1872 as the Victoria and Albert Museum, Bombay; extensively restored and reopened as the Bhau Daji Lad Museum in 2008.",
+                      "significance": "Flagship city museum preserving clay crafts, school art and archives (an ASI-grade protected building).",
+                      "architecture": "Palladian-style building listed as a Grade I heritage structure.",
+                      "famous_people": "George Birdwood (curator) and 20th-century art patrons",
+                      "related_events": "Public programming on Mumbai heritage and museum week showcases."},
+                 ],
+                 "museums": [
+                     {"name": "CSMVS (Chhatrapati Shivaji Maharaj Vastu Sangrahalaya)", "collections": "Harappan seals, miniature paintings, Buddhist art, European works", "official_url": "https://www.csmvs.in"},
+                     {"name": "Dr. Bhau Daji Lad Museum", "collections": "Mumbai decorative arts, clay models, royal artefacts", "official_url": "https://www.bdlmuseum.org"},
+                 ]},
+            ],
+        },
+        "Rajasthan": {
+            "description": "The desert kingdom of forts, palaces, folk music, camel fairs and miniature painting — one of the most heritage-dense states of India.",
+            "history": "Founded by Rajput clans — Mewar, Marwar, Jaipur and Bundi. The state preserved Rajput martial and courtly civilisations, produced the famed Rajput painting schools and contributed decisively to the freedom movement.",
+            "culture": "Rajputana court culture, miniature painting, Kathak, Langa-Manganiyar folk music, puppet traditions (kathputli) and the living craft clusters of blue pottery and bandhani.",
+            "rituals": "Gangaur, Teej, the camel fairs of Pushkar, and ornate wedding and temple rituals of Marwar.",
+            "handicrafts": "Blue pottery of Jaipur, bandhani and leheriya, silver jewellery of Bikaner, Usta art and block printing of Sanganer.",
+            "food": "Dal baati churma, Gatte ki sabzi, Laal maas, Mawa kachori and the street sweets of Jodhpur and Jaipur.",
+            "festivals": "Pushkar Camel Fair|Jaipur Literature Festival|Teej & Gangaur|Jaisalmer Desert Festival|Udaipur World Music Festival",
+            "iconic_battles": "The siege and Jauhar of Chittorgarh; the Battle of Haldighati (1576) between Maharana Pratap and Akbar's forces.",
+            "cities": [
+                {"name": "Jaipur", "latitude": 26.9124, "longitude": 75.7873,
+                 "description": "The Pink City, a planned city of Rajput grandeur and the gateway to the fort chains of Amber, Nahargarh and Jaigarh.",
+                 "history": "Founded in 1727 by Sawai Jai Singh II, who built a rationally planned city inspired by Vastu. It later became a princely capital that merged martial Rajput traditions with scientific institutions like the Jantar Mantar observatory.",
+                 "culture": "Rajput court etiquette, folk theatre, the Chand flowering of Hawa Mahal, and a thriving craft economy.",
+                 "rituals": "Gangaur processions, Teej celebrations and the annual Kite (Makar Sankranti) festival skies.",
+                 "handicrafts": "Blue pottery, block-printed textiles, gemstone cutting, Zardozi and lac bangles.",
+                 "food": "Dal baati churma, Pyaaz kachori, Ghewar and the canal-side sweet shops of Johari Bazar.",
+                 "iconic_battles": "The 16th-17th century confrontations between Amber and the Mughals.",
+                 "heritage": [
+                     {"name": "Amber Fort", "category": "Fort", "period": "1592", "location": "Amer, Jaipur",
+                      "description": "Mughal-art-and-Rajput-styled hill fort, once the capital of the Kachwaha rulers.",
+                      "history": "Constructed from 1592 under Raja Man Singh I and expanded over a century; the palace complex blends the Diwan-i-Aam, Sheesh Mahal and the Laxmi sun temple pictures.",
+                      "significance": "A UNESCO World Heritage 'Hill Forts of Rajasthan' property and pilgrimage of Rajput architecture.",
+                      "architecture": "Hindu-Rajput + Mughal synthesis with mirror mosaic (Sheesh Mahal), lattice screens and terraced gardens.",
+                      "famous_people": "Raja Man Singh I, Mirza Raja Jai Singh",
+                      "related_events": "Sound-and-light show; teej celebrations."},
+                     {"name": "Hawa Mahal", "category": "Monument", "period": "1799", "location": "Badi Choupad, Jaipur",
+                      "description": "The five-storey 'Palace of Winds' with 953 jharokha windows, made so the royal ladies could watch street processions unseen.",
+                      "history": "Built by Maharaja Sawai Pratap Singh in 1799 as an extension of the City Palace women's quarters.",
+                      "significance": "The symbol of Jaipur's skyline and a masterpiece of latticed architecture.",
+                      "architecture": "Pyramidal honeycomb of 953 small windows; the pink sandstone facade is one of India's most famous vistas.",
+                      "famous_people": "Sawai Pratap Singh; Lal Chand Ustad (architect)",
+                      "related_events": "Photographic heritage trails of the Pink City."},
+                     {"name": "Jantar Mantar", "category": "Monument", "period": "1728", "location": "City Palace Road",
+                      "description": "The largest of Jai Singh II's astronomical observatories — a stone sundial and instrument park.",
+                      "history": "Built in 1728 and still functioning as a calibrating instrument for time and stars.",
+                      "significance": "UNESCO World Heritage site; a rare fusion of science and monumental architecture.",
+                      "architecture": "Nineteen masonry instruments including the giant Samrat Yantra sundial, 27 metres high.",
+                      "famous_people": "Sawai Jai Singh II",
+                      "related_events": "Astronomy outreach on national science days."},
+                     {"name": "City Palace", "category": "Monument", "period": "18th century", "location": "Jaipur",
+                      "description": "The still-royal palace complex of Jaipur with courtyards, museums and the Chandra Mahal.",
+                      "history": "Begun under Jai Singh II and enlarged by later rulers; the palace museum was opened in 1959, displaying textiles and royal carriages.",
+                      "significance": "Dual life as ceremonial seat of the Jaipur royal family and a principal museum.",
+                      "architecture": "Rajput-Mughal court architecture with pillared pavilions, painted gateways and the Pran Prasad interior.",
+                      "famous_people": "Jaipur royal family",
+                      "related_events": "Museum season programmes and craft exhibitions."},
+                 ],
+                 "museums": [
+                     {"name": "Albert Hall Museum", "collections": "Rajput painting, artefacts, carpets and ethnographic objects", "official_url": "https://www.rajasthan.gov.in"},
+                 ]},
+            ],
+        },
+        "Tamil Nadu": {
+            "description": "Epicentre of Dravidian temple architecture, Bharatanatyam, and the lost-wax Chola bronze tradition.",
+            "history": "Tamilakam's Sangam literature, the Pallava and Chola dynasties, the Vijayanagara successor states of Madurai and Thanjavur, and the European colonial trading ports shaped a culture of extraordinary continuity.",
+            "culture": "Bharatanatyam, Carnatic music, Kuthu-folk theatre, Tamil film and literature, temple sculpture schools and the Tamil computing renaissance.",
+            "rituals": "Pongal, Margazhi music season, the Natyanjali dance festival and elaborate agamic temple worship.",
+            "handicrafts": "Chola bronzes, Tanjore paintings, Kanchipuram silks, bronze icons of Swamimalai and Chettinad woodcraft.",
+            "food": "Idli, dosa, Pongal, Chettinad cuisine, filter coffee and the December season crescendos of tiffin culture.",
+            "festivals": "Pongal|Natyanjali Dance Festival|Margazhi Music Season|Mahabalipuram Dance Festival|Thaipusam",
+            "iconic_battles": "The Battle of Takkolam (949) and the long Pallava-Chola-Chalukya contests over Kanchi and Thanjavur.",
+            "cities": [
+                {"name": "Chennai", "latitude": 13.0827, "longitude": 80.2707,
+                 "description": "Tamil Nadu's capital, a grid city of British-era institutions and the nerve centre of the Margazhi music season.",
+                 "history": "Founded around the Fort St. George settlement (1639); Chennai grew as the heart of the Madras Presidency and of the Tamil renaissance.",
+                 "culture": "Carnatic music schools, Bharatanatyam institutions, the Madras film industry and the month-long December festival.",
+                 "rituals": "Pongal kolams, Dipavali early-morning oil baths and temple chariot festivals.",
+                 "handicrafts": "Kanchipuram silk, Kalamkari (Masulipatnam-inspired), shell crafts and bronze icons.",
+                 "food": "South Indian tiffin, Chettinad specials, filter coffee in the Mylapore coffee-house tradition.",
+                 "iconic_battles": "The Anglo-French struggles for Madras (18th century); the Pallava defence of the region.",
+                 "heritage": [
+                     {"name": "Fort St. George", "category": "Monument", "period": "1644", "location": "Chennai",
+                      "description": "The first British fortress in India, containing the Fort Museum and St. Mary's Church.",
+                      "history": "Established in 1644 as the East India Company's foothold, it grew into the Madras Presidency capital and later the Indian Administrative Service's roots.",
+                      "significance": "An origin point of British India administration and a continuous museum since 1948.",
+                      "architecture": "Bastioned coastal fort with English and Mughal-era interiors.",
+                      "famous_people": "Elihu Yale, Robert Clive, Raja Sir Ramaswami Mudaliar",
+                      "related_events": "Independence day exhibitions and heritage tours."},
+                     {"name": "Kapaleeshwarar Temple", "category": "Temple", "period": "7th–17th century", "location": "Mylapore",
+                      "description": "The great Shiva shrine of Mylapore with its towering gopuram, rebuilt in the Vijayanagara idiom.",
+                      "history": "The cult site of the goddess Karpagambal has traditions going back to the Pallava period; the present structure dates to the 16th century.",
+                      "significance": "A living centre of Tamil temple culture and the Arubathimoovar procession.",
+                      "architecture": "Dravidian gopuram with tiered sculptures over a tank and mandapa court.",
+                      "famous_people": "Hindu saint Arunagirinathar (association)",
+                      "related_events": "Arubathimoovar festival and daily agamic worship.",},
+                     {"name": "Santhome Cathedral & Marina heritage precinct", "category": "Monument", "period": "16th century (present structure 1896)", "location": "Chennai coast",
+                      "description": "A neo-gothic cathedral on the reputed tomb site of St. Thomas, anchoring the Chennai coastal heritage drive.",
+                      "history": "The Portuguese founded a cathedral in 1523; the towering basilica was rebuilt in 1896 and elevated by the Church.",
+                      "significance": "One of India's major basilicas and a coastal landmark along the heritage 'Chennai shoreline'. ",
+                      "architecture": "Painted neo-gothic cathedral with stained glass and a 55-metre tower.",
+                      "famous_people": "Frei. Scientists supported marine vocation",
+                      "related_events": "Feast of St. Thomas, December flame mitigations."},
+                 ],
+                 "museums": [
+                     {"name": "Government Museum, Chennai (egmore)", "collections": "Bronze icons, Tanjore painting, Roman antiquities, children's gallery", "official_url": "https://www.chennaimuseum.org"},
+                 ]},
+                {"name": "Madurai", "latitude": 9.9252, "longitude": 78.1198,
+                 "description": "The temple city, organised around the four tanks of the Meenakshi Amman complex and a 2,500-year-old literary memory.",
+                 "history": "A Sangam-era capital of ancient Tamilakam; flourished under the Pandyas, Nayakas and later the British-adjacent Zamindari systems.",
+                 "culture": "Temple processional culture, Tamil literature, and the energetic street food and jasmine markets.",
+                 "rituals": "Meenakshi Thirukalyanam, the ten-day Chithirai festival and tank-light ceremonies.",
+                 "handicrafts": "Tamil bronzes, malligai (jasmine) garlands and temple craft.",
+                 "food": "Madurai idli-kaapi mornings, mutton kari dosa, and the famous Jigarthanda cools.",
+                 "iconic_battles": "The Nayaka struggles against the Sultanates and the later Anglo-Pandya clashes.",
+                 "heritage": [
+                     {"name": "Meenakshi Amman Temple", "category": "Temple", "period": "17th century (older origins)", "location": "Madurai city centre",
+                      "description": "A vast Dravidian temple-city of 14 gopurams, a gold-plated sanctum and the thousand-pillar mandapam.",
+                      "history": "The local shrine of the fish-eyed goddess Meenakshi was greatly expanded by the Nayakas in the 16th-17th centuries; it embodies the Tamil concept of temple-cosmos.",
+                      "significance": "One of India's most frequented pilgrimage and iconography sites, and a museological source of stone sculpture.",
+                      "architecture": "14 towered gopurams over a 14-acre precinct; the thousand-pillar hall (Meenakshi Nayakar mandapam) with life-size yali figures.",
+                      "famous_people": "Nayaka kings Vishwanatha and Thirumalai",
+                      "related_events": "Chithirai festival and daily cosmic processions.",},
+                     {"name": "Thirumalai Nayakkar Mahal", "category": "Palace", "period": "1636", "location": "Madurai",
+                      "description": "Indo-Saracenic palace of the Nayaka ruler, partly ruined, partly restored into a museum and sound-and-light venue.",
+                      "history": "Built by King Thirumalai Nayak in 1636 and once a vast 13-acre court complex; destroyed partially by his grandson before restoration under the British.",
+                      "significance": "Demonstrates the fusion of Dravidian and Islamic architecture and the royal patronage of arts.",
+                      "architecture": "Stucco arches, carved pillars and the 2-metre-diameter central courtyard dome.",
+                      "famous_people": "Thirumalai Nayak, Rani Mangammal",
+                      "related_events": "Sound-and-light show evenings; classical recitals."},
+                 ],
+                 "museums": [
+                     {"name": "Gandhi Memorial Museum, Madurai", "collections": "Gandhi artefacts, visual biography and priceless manuscripts", "official_url": "https://www.gandhimuseum.org"},
+                 ]},
+            ],
+        },
+        "West Bengal": {
+            "description": "The cultural capital of Bengal — the Renaissance, Durga Puja, baul music and patachitra scroll art.",
+            "history": "From the Pala and Sena kingdoms to the Nawabate of Murshidabad and the Bengal Presidency, Bengal was the spearhead of the 19th-century Indian Renaissance and the 1905-1947 freedom movements.",
+            "culture": "Bengali literature, Rabindra Sangeet, baul-fakir mystic music, jatra theatre, shola and conch crafts and the global-scale Durga Puja celebration.",
+            "rituals": "Durga Puja pandals, the barowari exponent body (from 1790), Saraswati Puja, Rathayatra of Mahesh and the Ganga sangeet evenings.",
+            "handicrafts": "Terracotta temples of Bishnupur, Baluchari and Tangail sarees, Shantiniketan leather craft and kantha embroidery.",
+            "food": "Macher jhol, rosogolla, mishti doi, phuchka and the winter pitha platter.",
+            "festivals": "Durga Puja|Rathayatra|Poush Mela|Kali Puja|Pohela Boishakh",
+            "iconic_battles": "The Battle of Plassey (1757) and the Battle of Buxar (1764) that decided the subcontinent's colonial fate.",
+            "cities": [
+                {"name": "Kolkata", "latitude": 22.5726, "longitude": 88.3639,
+                 "description": "The former capital of British India and the continuing cultural heart of Bengal — books, art, music and architecture.",
+                 "history": "A colonial trading town that became the seat of the Bengal Renaissance; the city gave the nation its first modern university, theatre and political movements.",
+                 "culture": "The Durga Puja autumn carnival, Boi Mela, the Calcutta School of Art and a monumental heritage of Raj-era buildings.",
+                 "rituals": "Bondhon-rules of Durga Puja observance, Charak puja and the Rathyatra festival of Mahesh.",
+                 "handicrafts": "Kantha, shola pith idols, conch shell craft and Nakhoda-style Bangladeshi-influenced jewellery.",
+                 "food": "Phuchka, Kolkata kathi roll, mishti doi and the legendary 'sondesh' confectioners.",
+                 "iconic_battles": "The two 'battles of' the colonial era (Plassey 1757, Buxar 1764).",
+                 "heritage": [
+                     {"name": "Victoria Memorial", "category": "Monument", "period": "1921", "location": "Maidan, Kolkata",
+                      "description": "A white-marble memorial to Queen Victoria that houses one of India's great museums of colonial and Indian history.",
+                      "history": "Conceived by Lord Curzon, completed in 1921; today's Victoria Memorial Hall is a museum of the Raj and modern Kolkata.",
+                      "significance": "A landmark preserve of the Indian national movement in visual form (the Durbar and pictorial galleries).",
+                      "architecture": "Indo-Saracenic revival Italianate dome in Makrana marble with attached gardens and statue gallery.",
+                      "famous_people": "Lord Curzon; Queen Victoria (honoured)",
+                      "related_events": "The museum's annual exhibitions coincide with heritage week in January.",},
+                     {"name": "Indian Museum, Kolkata", "category": "Museum", "period": "1814", "location": "Chowringhee",
+                      "description": "The oldest and largest multipurpose museum in the Asia-Pacific region, cataloguing archaeology, natural history and art.",
+                      "history": "Founded in 1814 by the Asiatic Society; the present Palladian building dates from 1875. Its collections from Bharhut and Mohenjodaro anchor South Asian archaeology.",
+                      "significance": "The single most valuable public museum for Indian antiquities and the inspiration for the ministry's museum programme.",
+                      "architecture": "Classical-revival building with a verandah around a courtyard and colonnaded galleries.",
+                      "famous_people": "Sir Stamford Raffles (patron), William Jones (Asiatic Society founder)",
+                      "related_events": "International Museum Day programmes and the annual heritage lecture series.",},
+                     {"name": "Belur Math", "category": "Monument", "period": "1938", "location": "Hooghly bank",
+                      "description": "The spiritual centre of the Ramakrishna order, an architectural synthesis of all Indian religions.",
+                      "history": "Consecrated in 1938 under Swami Vivekananda's design vision; the shrine complex symbolises Hindu, Muslim and Christian forms in one structure.",
+                      "significance": "A modern monument of India's spiritual renewal and a place of heritage-led spiritual tourism.",
+                      "architecture": "The blend of temple, mosque, church and monastery in a single dome; river-facing facade.",
+                      "famous_people": "Swami Vivekananda, Sarada Devi, Sri Ramakrishna",
+                      "related_events": "Sri Ramakrishna's birth anniversary processions; Navaratri spiritual retreats."},
+                     {"name": "Dakshineswar Kali Temple", "category": "Temple", "period": "1855", "location": "Kolkata north",
+                      "description": "The riverside Kali temple associated with Sri Ramakrishna Paramahamsa's mystic years.",
+                      "history": "Built in 1855 by Rani Rashmoni; the temple achieved legend through Sri Ramakrishna's priestly visions of the Divine Mother.",
+                      "significance": "A major pilgrimage site of modern Bengal religious culture.",
+                      "architecture": "Navaratna (nine-spired) Bengal temple architecture in riverfront setting.",
+                      "famous_people": "Rani Rashmoni, Sri Ramakrishna",
+                      "related_events": "Kali Puja and Ratha of the ancillary temples.",},
+                 ],
+                 "museums": [
+                     {"name": "Indian Museum, Kolkata", "collections": "Archaeological artefacts, Bharhut and Ajanta casts, Egyptian mummy and vast natural history", "official_url": "https://indianmuseumkolkata.org"},
+                     {"name": "Victoria Memorial Hall", "collections": "Paintings, portraits, printers' and Durbar archive", "official_url": "https://victoriamemorial-cal.org"},
+                 ]},
+            ],
+        },
+        "Assam": {
+            "description": "Known for the one-horned rhinoceros, Bihu festival, satras and world-famous Assam silk and tea culture.",
+            "history": "The fertile Brahmaputra valley nurtured the kingdoms of Pragjyotisha-Kamrupa, later the Ahom empire (13th-19th c.) which repelled repeated Mughal invasions.",
+            "culture": "Bihu dance, borgeet devotional music of the satras, Sattriya classical dance, jhumur folk songs and the annual Kesodhya literary assemblies.",
+            "rituals": "The three Bihus (Rongali, Kongali, Bhogali) and the annual satra (seat) rituals of Vaishnavism.",
+            "handicrafts": "Muga, Eri and Pat silks, cane and bamboo craft, and the 'xapkalai' terracotta of Kopili basin.",
+            "food": "Masor tenga (sour fish), pitha, khulli bhaat with chutney and pungent 'jorhat' tea culture.",
+            "festivals": "Bihu|Ambubachi Mela|Brahmaputra Beach Festival|Maji Mela|Kaziranga elephant festival",
+            "iconic_battles": "The Battle of Saraighat (1671) — the Ahom naval victory against the Mughals.",
+            "cities": [
+                {"name": "Guwahati", "latitude": 26.1445, "longitude": 91.7362,
+                 "description": "The gateway to the Northeast — an ancient city at the foot of the Kamakhya hills and the cultural capital of Assam.",
+                 "history": "From the ancient kingdom of Kamarupa through the Ahom-British eras, Guwahati has functioned as Assam's pivotal seat of learning and sanctuated pilgrimage.",
+                 "culture": "Bihu evenings on steep riverbanks, the Assamese theatre and film scene, and the colonial-era cotton college institutions.",
+                 "rituals": "Ambubachi Mela at Kamakhya, the Doul Jatra spring festival and riverine Makar Sankranti.",
+                 "handicrafts": "Muga silk weaving clusters, bell-metal (kanh) craft and bamboo workshops.",
+                 "food": "Masor tenga, pitha, duck curry and jolpaan sundries.",
+                 "iconic_battles": "Saraighat's naval battle legacy is remembered in riverfront memorials of the city.",
+                 "heritage": [
+                     {"name": "Kamakhya Temple", "category": "Temple", "period": "8th century (rebuilt 17th)", "location": "Nilachal Hill",
+                      "description": "One of the foremost Shakti shrines, famed for the Ambubachi fertility festival and its beehive-shaped dome.",
+                      "history": "The goddess Kamakhya site is present on the Nilachal hill since antiquity, rebuilt in the 17th century and continuously patronised by the Ahom kings.",
+                      "significance": "The central shrine of Tantric Shaktism in India and a keeper of Assamese temple tradition.",
+                      "architecture": "Nilachal-type temple with a beehive shikhara and sculptured panels of the Dasamahavidya.",
+                      "famous_people": "Naraka (mythic), Ahom king Siva Singha (patron)",
+                      "related_events": "Ambubachi Mela (June) — among India's largest fairs.",},
+                     {"name": "Umananda Temple", "category": "Temple", "period": "1694", "location": "Peacock Island, Brahmaputra",
+                      "description": "A small Shiva temple on the world's smallest inhabited river island.",
+                      "history": "Built in 1694 by the Ahom king Gadadhar Singha; pilgrims cross the Brahmaputra to the island, now a protected heritage precinct.",
+                      "significance": "A unique riverine sacred island, administratively protected along with the golden langur sanctuary.",
+                      "architecture": "Nilachal-style shikhara with stone carvings of Surya and Ganesha.",
+                      "famous_people": "Gadadhar Singha",
+                      "related_events": "Mahashivratri all-night festival.",},
+                     {"name": "Srimanta Sankardev Kalakshetra", "category": "Cultural", "period": "1998 (museum complex)", "location": "Panjabari, Guwahati",
+                      "description": "The premier cultural institution of the Northeast, preserving Sattriya performance and Assamese crafts.",
+                      "history": "Established in 1998 to honour the Vaishnavite saint-poet Sankardeva; museum and performance spaces are run under government recognisation.",
+                      "significance": "An open-air museum that anchors the ministry's heritage programme in the region.",
+                      "architecture": "Modern multi-gallery museum with a meditation lake and ethnographic pavilions.",
+                      "famous_people": "Srimanta Sankardeva, Madhavdeva",
+                      "related_events": "Sankardeva Jayanti and the annual Assamese craft fair.",},
+                 ],
+                 "museums": [
+                     {"name": "Assam State Museum", "collections": "Kamarupa sculpture, brass, palm-leaf and royal attire of Ahom queens", "official_url": "https://assamstate.gov.in"},
+                     {"name": "Srimanta Sankardev Kalakshetra", "collections": "Ethnographic and performing-arts materials of the Northeast", "official_url": "https://kalakshetra-assam.gov.in"},
+                 ]},
+            ],
+        },
+        "Kerala": {
+            "description": "God's own country — Kathakali, Kalaripayattu, backwaters and Kerala mural art.",
+            "history": "The Chera and Zamorin kingdoms traded spices with West Asia, Rome and China; the princely state of Travancore led literacy and social reform into the modern era.",
+            "culture": "Kathakali and Mohiniyattam, Theyyam ritual theatre, sopana music and the southern rigour of Kochi's carnival of arts.",
+            "rituals": "Theyyam performances, Onam boat races and the Vishu festival of golden blossoms.",
+            "handicrafts": "Cheriyal/Nilambur woodwork, coir craft, mural painting, and Kuthambalam temple art.",
+            "food": "Sadhya feast on plantain leaf, appam-puttu and ishtu, karimeen fry and the cheer of the toddy (kallu) shops.",
+            "festivals": "Onam|Vallam Kali|Theyyam|Kathakali Festival|Kochi-Muziris Biennale",
+            "iconic_battles": "The naval expeditions of the Zamorins and the Kozhikode-Kochi rivalry forged by the pepper trade.",
+            "cities": [
+                {"name": "Kochi", "latitude": 9.9312, "longitude": 76.2673,
+                 "description": "The queen of the Arabian Sea — a layered port of Portuguese, Dutch, Jewish and Malayali cultures.",
+                 "history": "A spice-route emporium since antiquity, Kochi's fortunes peaked under the Portuguese possession of 1503 and the later Dutch and British-era princely trades.",
+                 "culture": "The Kochi-Muziris Biennale, kathakali repertories of Ernakulam and the harbourside folk performance circuit.",
+                 "rituals": "Onam bacchanal parades and the Cochin Carnival on New Year.",
+                 "handicrafts": "Coir goods, Chendum and Kathakali headgear workshops.",
+                 "food": "Kerala sadhya, karimeen pollichathu and toddy-shop cuisine.",
+                 "iconic_battles": "The Portuguese-Dutch contest over Kochi (1663).",
+                 "heritage": [
+                     {"name": "Fort Kochi", "category": "Monument", "period": "1503", "location": "Kochi waterfront",
+                      "description": "The historic quarter of European colonial architecture — the Fort, Chinese fishing nets, Santa Cruz Basilica and Paradesi Synagogue.",
+                      "history": "The Portuguese set up India's first European fort-town here in 1503; the Dutch wrested it in 1663 and the British continued its cosmopolitan growth.",
+                      "significance": "A rare waterfront colonial ensemble protected with the entire Fort Kochi heritage zone.",
+                      "architecture": "Dutch/Portuguese gabled houses, cashew fort walls and the St. Francis church corridor.",
+                      "famous_people": "Vasco da Gama (buried here, 1524)",
+                      "related_events": "Kochi-Muziris Biennale installations across the quarter.",},
+                     {"name": "Mattancherry Palace", "category": "Palace", "period": "1555", "location": "Mattancherry",
+                      "description": "The 'Dutch Palace' gifted by the Portuguese to the Raja of Cochin, famed for Ramayana murals.",
+                      "history": "Built circa 1555 and renovated by the Dutch in the 17th century; the palace museum opened in 1985 under state archaeology.",
+                      "significance": "Keeper of the most complete series of Kerala mural art.",
+                      "architecture": "Nālukettu-style Kerala palace with carved teak ceilings and wall-to-wall murals.",
+                      "famous_people": "Raja of Cochin; Dutch patrons",
+                      "related_events": "Mural conservation workshops.",},
+                     {"name": "Santa Cruz Basilica & Paradesi Synagogue", "category": "Monument", "period": "1505 (synagogue 1568)", "location": "Fort Kochi / Mattancherry",
+                      "description": "Twin monuments of Kochi's plural heritage — the painted cathedral and the oldest Jewish synagogue of the Commonwealth.",
+                      "history": "The basilica, first laid in 1505, was elevated as cathedral by the Portuguese; the synagogue's congregation traces to the 'White Jews' of the Malabar coast.",
+                      "significance": "Evidence of the deepest Jewish-Christian-Sharing coexistence heritage of Indian shores.",
+                      "architecture": "Hand-painted interior of the basilica; Chinese-tile floors and brass-railed artwork of the synagogue.",
+                      "famous_people": "Portuguese bishopry, the Cochini community",
+                      "related_events": "Onam concerts in the synagogue courtyard.",},
+                 ],
+                 "museums": [
+                     {"name": "Napier Museum, Thiruvananthapuram", "collections": "Kerala bronzes, ivory, Koothambalam art and 19th-century European collections", "official_url": "https://www.keralamuseumrepods.in"},
+                 ]},
+            ],
+        },
+        "Gujarat": {
+            "description": "Land of Harappan ruins at Dholavira, colourful Navratri, handicrafts and the Rann of Kutch.",
+            "history": "The Harappans at Dholavira, the western Kshatrapa empires, Gujarat's medieval merchant republics, the 1857 uprising, and Mahatma Gandhi's Sabarmati years.",
+            "culture": "Garba and raas-dandiya, Vāch-Raas of folk theatre, crafts of the desert and the world of Indian textiles.",
+            "rituals": "Nine nights of Navratri garba, the Tarnetar fair, and devotion of the Narsinh Mehta bhajans.",
+            "handicrafts": "Kutch embroidery, Bandhani tie-dye, Ajrakh block printing, Rogan art of Nirona and silver filigree of Haldasar.",
+            "food": "Dhokla, Thepla, Undhiyu, Fafda-Jalebi and the swaying Bhavnagar ice-cream trade.",
+            "festivals": "Navratri Garba|Rann Utsav|Surajkund-like International Kite Festival|Tarnetar Fair|Bhadra? fair of Kutch",
+            "iconic_battles": "The medieval coastal wars of the Chaulukyas and the Portuguese confrontation at Diu (1509).",
+            "cities": [
+                {"name": "Ahmedabad", "latitude": 23.0225, "longitude": 72.5714,
+                 "description": "A UNESCO-listed walled city and the mortar of the Mahatma's ashram experiments.",
+                 "history": "Founded in 1411 by Sultan Ahmed Shah; the pol neighbourhoods and darwazas matured through three centuries of textile and craft wealth, then turned the pivot of Gandhi's nationalism.",
+                 "culture": "Dadi-communal pol life, the Navratri garba of the Manek Chowk laboratories and a heir-loomed museum scene.",
+                 "rituals": "Navratri raas at residence plinths and the Janmashthami dahi-handi festivals.",
+                 "handicrafts": "Patola silk, Bandhani, and the zari trade of western India.",
+                 "food": "Dhokla, Khaman, Fafda-Jalebi breakfast and thali of Undhiyu.",
+                 "iconic_battles": "The 1411-era founding wars and the 1772 fall of Ahmedabad to the British.",
+                 "heritage": [
+                     {"name": "Sabarmati Ashram", "category": "Monument", "period": "1917", "location": "Sabarmati riverbank",
+                      "description": "Mahatma Gandhi's home for the 1917-30 satyagraha years, now a national museum of the freedom movement.",
+                      "history": "Established 1917; the famous Dandi salt march began here in 1930. Following the Mahatma's assassination, the ashram was donated to the nation and is preserved by the Gandhi Smarak Sangrahalaya.",
+                      "significance": "One of the ministry's key Gandhi heritage sites along with the Hridaya Kunj.",
+                      "architecture": "Clusters of simple Gujarat tiles, earth-coloured kampus (huts) with a quotidian museum.",
+                      "famous_people": "Mahatma Gandhi, Kasturba Gandhi, Mirabehn",
+                      "related_events": "2 October commemorations and the Dandi-pun ceremony.",},
+                     {"name": "Bhadra Fort", "category": "Fort", "period": "1411", "location": "Ahmedabad",
+                      "description": "The Sultanate-era citadel of Ahmedabad with its Teen Darwaza gate and the Jhulta Minar-bridging clock tower complex.",
+                      "history": "The original citadel of Ahmedabad begun in 1411; layered by Mughal and Maratha re-interiorations, showcasing the survival of civic history into the present-day city.",
+                      "significance": "An urban fort that anchors the UNESCO walled-city status.",
+                      "architecture": "Fortified red-sandstone walls, royal durbar halls and connected gardens.",
+                      "famous_people": "Ahmed Shah I",
+                      "related_events": "Walled-city heritage walks begin at Teen Darwaza.",},
+                 ],
+                 "museums": [
+                     {"name": "Calico Museum of Textiles", "collections": "Mughal carpets, shawls, and rare pieces of Indian cloth art", "official_url": "https://www.calicomuseum.com"},
+                 ]},
+            ],
+        },
+        "Karnataka": {
+            "description": "Land of the Vijayanagara empire, classical Carnatic music, Channapatna toys and Mysuru silk.",
+            "history": "The Kadambas to Chalukyas to Hoysalas, the mighty Vijayanagara imperium of Hampi, the Wodeyar principality of Mysuru and Tipu Sultan's of Aaft Mode deeds.",
+            "culture": "Carnatic music of the Mysuru durbar, Yakshagana, Kuchipudi-adjacent coastal dance, and the Pune-in-Mysuru royal artisans.",
+            "rituals": "Dasara of Mysuru (the royal 9-day), Hulivesha tiger dance and the Kargil-like Hampi lamp cermonies.",
+            "handicrafts": "Channapatna wooden toys, Mysuru silk sarees, Udupi lamps and Sandalwood carving.",
+            "food": "Mysuru masala dosa, Bisi bele bath, Coorg pandi curry and the jarringly sweet Mysore pak.",
+            "festivals": "Mysuru Dasara|Hampi Utsav|Udupi Paryaya|Kambala suit-race|Ganesha Chaturthi",
+            "iconic_battles": "The Battle of Talikota (1565) which shattered Vijayanagara; the Anglo-Mysore Wars against Tipu.",
+            "cities": [
+                {"name": "Bengaluru", "latitude": 12.9716, "longitude": 77.5946,
+                 "description": "The garden city and technology capital, layered over centuries of Kempegowda-era fort and cantonment life.",
+                 "history": "From a mud fort established by Kempegowda in 1537 through Mysuru wodeyar and colonial rule to today's silicon plateau.",
+                 "culture": "Kannada theatre and Hindustani music abounds; the Lalbagh and Cubbon garden institutions anchor civic culture.",
+                 "rituals": "Karaga festival of the Tigalars and the annual Ganesha chaturthi of the Basavanagudi quarter.",
+                 "handicrafts": "Sandalwood carving, silk weaving and silk-cotton machines of Doddaballapur.",
+                 "food": "Dosa, bisi bele bath, filter coffee of old Bengaluru and the garden-city vada-paav of its migrants.",
+                 "iconic_battles": "The siege of Devanahalli where Tipu's father Hyder Ali rose; the urbanising Bangalore of Tipu's court.",
+                 "heritage": [
+                     {"name": "Bangalore Palace & Fort precinct", "category": "Monument", "period": "1878 (fort 1537)", "location": "Bengaluru",
+                      "description": "A Tudor-style palace of the Wodeyars with the surviving 16th-century Kempegowda fort gate nearby.",
+                      "history": "The Kempegowda mud fort (1537) preceded the occupier's armies; the palace, completed 1878, was modelled on Windsor Castle and remains a living royal museum.",
+                      "significance": "The most-visited private palace of South India, now a heritage venue at the heart of the IT capital.",
+                      "architecture": "Tudor-Gothic turrets, wood carvings and Belgian glass interiors.",
+                      "famous_people": "Kempegowda, Wodeyar dynasty",
+                      "related_events": "Music concerts within the palace courtyards.",},
+                     {"name": "Tipu Sultan's Summer Palace", "category": "Palace", "period": "1791", "location": "Bengaluru",
+                      "description": "The teak-columned 'Abode of Happiness' of Tipu Sultan, now a heritage museum of the Anglo-Mysore wars.",
+                      "history": "Built as Tipu's summer palace in teak and plaster typically between 1781-91; it later served as the British Residency and post-Independence as the government office.",
+                      "significance": "A centrally protected monument narrating the Mysuru Sultanate.",
+                      "architecture": "Two-storey teak columns, frescoed floral arches and balconies around a rectangular court.",
+                      "famous_people": "Tipu Sultan, Hyder Ali",
+                      "related_events": "The annual Tipu Jayanti and heritage-week tours.",},
+                 ],
+                 "museums": [
+                     {"name": "Visvesvaraya Memorial (Kempegowda Museum)", "collections": "Royal Mysuru artefacts and engraved maps", "official_url": "https://www.karnatakatourism.org"},
+                 ]},
+                {"name": "Mysuru", "latitude": 12.2958, "longitude": 76.6394,
+                 "description": "The palace city — a canvas of royal Wodeyar grandeur and the Dasara spectacle.",
+                 "history": "Under the Wodeyar and later British-adjacent rule, Mysuru became the emblematic centre of the modern royal state; the palaces and Dasara traditions are world-famous.",
+                 "culture": "Mysuru painting and ivory-inlay workshops, the royal durbar Carnatic recitals and the daily illuminated palace show.",
+                 "rituals": "The nine-day Navaratri Dasara with the golden howda procession.",
+                 "handicrafts": "Mysuru silk, rosewood inlay, sandalwood and the sandal soap factories of the palace trust.",
+                 "food": "Mysuru masala dosa, Mysore Pak, and the royal chitterraj? san of the palace kitchens.",
+                 "iconic_battles": "The 1799 Siege of Srirangapatna that ended Tipu's rule.",
+                 "heritage": [
+                     {"name": "Mysuru Palace", "category": "Monument", "period": "1912 (current form)", "location": "Mysuru",
+                      "description": "The resplendent IndoSaracenic seat of the Wodeyars and India's most-visited monument.",
+                      "history": "The present palace, completed 1912 after a fire, inherits the site of the old wooden palace. It remains the official residence of the royal family and the Dasara stage.",
+                      "significance": "The economic and emotional engine of Mysuru heritage tourism; a state-protected icon.",
+                      "architecture": "Indo-Saracenic dome extravaganza, colonnaded durbar halls and intricately carved doors.",
+                      "famous_people": "Wodeyar dynasty, Henry Irwin (architect)",
+                      "related_events": "Mysuru Dasara procession and nightly illumination.",},
+                     {"name": "Chamundi Hill Temples", "category": "Temple", "period": "17th century", "location": "Mysuru outskirts",
+                      "description": "The hill of the royal goddess Chamundeshwari with the iconic Nandi statue of the 17th century.",
+                      "history": "The temple on the hill (panoramically called the 'weather gate of Mysuru') was patronised by the Wodeyars as the family deity's abode.",
+                      "significance": "A devotional summit framing the Mysuru skyline.",
+                      "architecture": "Dravidian gopurams, the monolithic 5-metre Nandi carved in 1659, and a 1000-step stairway.",
+                      "famous_people": "Wodeyar kings",
+                      "related_events": "Dasara festivals at the hill shrine.",},
+                 ],
+                 "museums": [
+                     {"name": "Jaganmohan Palace (Art Gallery)", "collections": "Raja Ravi Varma oil paintings and Mysuru royal art", "official_url": "https://www.mysorepalace.gov.in"},
+                 ]},
+            ],
+        },
+        "Uttar Pradesh": {
+            "description": "Heartland of the Ganga — Varanasi's ghats, Ayodhya's faith, Mathura's Krishna and Lucknow's nawabi culture.",
+            "history": "The Gangetic heartland where the Buddha, Mahavira, the Guptas and the great nawabi courts of Awadh shaped two millennia of Indian civilisation.",
+            "culture": "Hindustani classical music of the Lucknow gharana, Banarasi weaving, Chikankari embroidery and the living Kumbh of sangam cities.",
+            "rituals": "Ganga arti at Dashashwamedh ghat, Dev Deepawali, Kumbh Mela congregations and the Ramnagar evenings.",
+            "handicrafts": "Banarasi silk saris, Chikankari, wooden toys of Varanasi, and the brassware of Moradabad.",
+            "food": "Kashi chaat, Lucknowi biryani, Tunday kebabs, malaiyo and the petha of Agra.",
+            "festivals": "Kumbh Mela|Dev Deepawali|Ganga Mahotsav|Lucknow Mahotsav|Kartik Mela",
+            "iconic_battles": "The Revolt of 1857 sieges of Lucknow and Kanpur; the medieval sack of Varanasi raids.",
+            "cities": [
+                {"name": "Varanasi", "latitude": 25.3176, "longitude": 82.9739,
+                 "description": "The oldest living city on earth — 88 ghats, the Kashi Vishwanath temple and a weaving eternity of Banarasi silk.",
+                 "history": "A centre of learning over 3000 years; Mark Twain's 'older than history'. Varanasi's devotional rhythms and cultural firms have never stopped.",
+                 "culture": "Ganga arti spectacles, the Benaras gharana sitar-singing, silk powerloom legacy and the sacred geography of the riverfront.",
+                 "rituals": "Evening Ganga aarti, dawn boat rituals, Dev Deepawali and the Ramnagar evenings.",
+                 "handicrafts": "Banarasi silk, wooden toy craft of Ramchhatra ghat and the zariwork of the city.",
+                 "food": "Kachori-jalebi of the temple lanes, laung-lata and the petha of the ghat side.",
+                 "iconic_battles": "The 1194 siege of Varanasi by Qutb-ud-din Aibak; the 1775 transfer to the British.",
+                 "heritage": [
+                     {"name": "Kashi Vishwanath Temple", "category": "Temple", "period": "1780 (present structure)", "location": "Vishwanath Gali",
+                      "description": "The supreme Shiva shrine of the holy city, restored across centuries and now enhanced by the Kashi Vishwanath corridor.",
+                      "history": "The current temple dates to 1776-1780 added by Ahilyabai Holkar; with the 2021 corridor it has re-opened the sacred link between the temple and the Ganga ghats.",
+                      "significance": "One of the twelve jyotirlingas and the emotional summit of Hindu pilgrimage.",
+                      "architecture": "Golden-plated spire over a dense Kashi-bearing quadrangle.",
+                      "famous_people": "Ahilyabai Holkar; Adi Shankaracharya (association)",
+                      "related_events": "Maha Shivratri and the daily arti processions.",},
+                     {"name": "Sarnath", "category": "Archaeological", "period": "3rd century BCE", "location": "10 km from Varanasi",
+                      "description": "Where the Buddha delivered his first sermon — with the Dhamek Stupa and the great Ashokan lion-capital heritage.",
+                      "history": "The Deer Park of Isipatana where the Buddha preached the first turning of the wheel of dharma; later expanded under Ashoka with stupas and monasteries.",
+                      "significance": "The most sacred Buddhist archaeological site of India, administered by the ASI.",
+                      "architecture": "The Dhamek stupa with geometric drum-carving and the Ashokan lion capital pillar base.",
+                      "famous_people": "Gautama Buddha, Emperor Ashoka",
+                      "related_events": "Buddha Purnima congregations and the annual Sarnath heritage evening.",},
+                     {"name": "Dashashwamedh Ghat & riverfront", "category": "Monument", "period": "Ancient", "location": "Ganga riverfront",
+                      "description": "The grandest of Varanasi's 88 ghats and the stage of the eternal Ganga aarti.",
+                      "history": "The riverfront steps, repaired under many rulers, have staged cremation-bound ghat life and the cadence of aarti for centuries.",
+                      "significance": "The choreography of Kashi's public devotional culture with UNESCO intangible-heritage links.",
+                      "architecture": "Wide stone terraces of steps flattening into the Ganga.",
+                      "famous_people": "—",
+                      "related_events": "Daily aarti; Dev Deepawali grand lamp processions.",},
+                 ],
+                 "museums": [
+                     {"name": "Sarnath Museum", "collections": "Ashokan lion capital, Gupta sculpture and Buddhist relics", "official_url": "https://sarnathmuseumasi.org"},
+                     {"name": "Bharat Kala Bhavan, BHU", "collections": "Miniature painting, textiles and Gandhara images", "official_url": "https://www.bhu.ac.in"},
+                 ]},
+                {"name": "Lucknow", "latitude": 26.8467, "longitude": 80.9462,
+                 "description": "A nawabi city of grand imambaras, refined Chikankari and the melodious gharanas of Awadh.",
+                 "history": "Under the Nawabs of Awadh (18-19th c.), Lucknow matured into a capital of Indo-Mughal culture; 1857 made it the pivot of the uprising.",
+                 "culture": "The Lucknow gharana of Hindustani music, Kathak of the Wajid Ali court, thumri and the exquisite chikankari embroidery.",
+                 "rituals": "Muharram processions of the Bara Imambara and the avadhipati festival of the autumn months.",
+                 "handicrafts": "Chikankari, Zardozi, clove-scented attars and the closed 'it-ar' discipline of western UP.",
+                 "food": "Lucknowi biryani, Tunday kebab, basket chaat and the sharbat culture of royal courts.",
+                 "iconic_battles": "The Siege of Lucknow (1857) — the longest defence of the Residency; the 1856 annexation.",
+                 "heritage": [
+                     {"name": "Bara Imambara", "category": "Monument", "period": "1784", "location": "Lucknow",
+                      "description": "The colossal hall of Asaf-ud-Daula with the legendary bhool-bhulaiya labyrinth and the Roof labyrinth of Nawabi architecture.",
+                      "history": "Built 1784-1791 as a famine relief work by Nawab Asaf-ud-Daula, the Imambara was meant to outlast his rule — and still stands.",
+                      "significance": "The Great Imambara district is the keystone of Lucknow's heritage zone.",
+                      "architecture": "One of the largest vaulted galleries in the world with 26-metre span and the famous maze.",
+                      "famous_people": "Nawab Asaf-ud-Daula",
+                      "related_events": "Muharram processions and the annual exhibition of awadhica.",},
+                     {"name": "Bara Rumi Darwaza", "category": "Monument", "period": "c. 1784", "location": "Lucknow",
+                      "description": "The towering gateway of the old city, modelled on a Constantinople portal.",
+                      "history": "Part of the Asafi creation of the late 18th century; the 60-foot archway greets all processions to the Great Imambara.",
+                      "significance": "Symbol of Lucknow's architectural horizon.",
+                      "architecture": "A huge square plan with an ogive arch and kiosk, all of brick and plaster.",
+                      "famous_people": "Nawab Asaf-ud-Daula",
+                      "related_events": "Marriage-season processions.",},
+                     {"name": "Chhota Imambara", "category": "Monument", "period": "1838", "location": "Lucknow",
+                      "description": "The glittering palace of lamps — the Husainabad Imambara built by Muhammad Ali Shah.",
+                      "history": "Built in 1838 as his mausoleum, it blazes with dangling chandeliers during celebrations.",
+                      "significance": "A gilded masterwork adjacent to the watch-tower of Hussainabad.",
+                      "architecture": "Golden-topped gateways and coloured-glass interiors surrounding a central court.",
+                      "famous_people": "Muhammad Ali Shah (Nawab of Awadh)",
+                      "related_events": "Husainabad lighting at Mild."},
+                 ],
+                 "museums": [
+                     {"name": "State Museum Lucknow", "collections": "Awadh art, folk railway gallery and Kushan sculpture", "official_url": "https://www.uparchaeology.org"},
+                 ]},
+            ],
+        },
+        "Delhi": {
+            "description": "Seven cities of history in one — Delhi is a living museum spanning 13 centuries of rule.",
+            "history": "From the Tomar Chauhans and the Sultans of Delhi through Mughal and British capitals to the seat of the Republic — Delhi concentrates the nation's imperial loops.",
+            "culture": "The qawwali and mehfil culture, Daryaganj's book bazaars, the crafts of Matia Mahal and the institutional museum belt of the national capital.",
+            "rituals": "The Republic and Independence day parades; the autumnal Diva nights and Chandni Chowk halvai evenings.",
+            "handicrafts": "Village-haat arts, extension of Chikankari into Delhi's ateliers, and the hand-block prints of the national crafts melas.",
+            "food": "Chhole-bhature, Chaat of Paranthe Wali Gali, galouti kebabs of old Delhi and the Irani cafe sweets.",
+            "festivals": "International Kite Festival|Garden of Five Senses festivals|Jahan-e-Khusrau|Republic Day Beating Retreat|National Crafts Fair",
+            "iconic_battles": "The battles of Tarain (1191-92) and Panipat; the Siege of Delhi 1857.",
+            "cities": [
+                {"name": "New Delhi", "latitude": 28.6139, "longitude": 77.2090,
+                 "description": "The national capital works through three historical cities: Shahjahanabad, British New Delhi and contemporary spectacle.",
+                 "history": "Founded by the British in 1911 to replace Calcutta as capital, built around the Raisina ridge over the seventh historical city of Delhi.",
+                 "culture": "Government museums, the Mandi House performing arts hub, and the contemporary bazaars of Sarojini Nagar.",
+                 "rituals": "Beating Retreat at Vijay Chowk, the Republic Day parade on Kartavya Path.",
+                 "handicrafts": "Dilli Haat and Dastkar melas host the crafts of the whole nation.",
+                 "food": "Paranthe Wali Gali, Old Delhi kebabs, and the 'Bengali sweet' corners of Chittaranjan park.",
+                 "iconic_battles": "The Siege of Delhi (1857); the 3rd Battle of Panipat (1761) on Delhi's doorstep.",
+                 "heritage": [
+                     {"name": "Red Fort", "category": "Fort", "period": "1648", "location": "Old Delhi",
+                      "description": "The Mughal imperial citadel of Shah Jahan and the national venue of Independence Day.",
+                      "history": "Completed in 1648 as the palace-fort of Shahjahanabad, the fort became the hallmark of Mughal 'repaired' power until 1857, after which British usage began.",
+                      "significance": "UNESCO World Heritage; the Prime Minister addresses the nation here on 15 August each year.",
+                      "architecture": "Red sandstone walls 2.5 km; Diwan-i-Aam, Diwan-i-Khas (with the Peacock Throne history) and the Rang Mahal.",
+                      "famous_people": "Shah Jahan, Aurangzeb, Emperor Bahadur Shah Zafar",
+                      "related_events": "Independence Day; light-and-sound retrofit.",},
+                     {"name": "Qutub Minar", "category": "Monument", "period": "12th century", "location": "Mehrauli",
+                      "description": "The 12th-century victory tower and the surrounding Quwwat-ul-Islam mosque complex of Delhi's first Sultanate.",
+                      "history": "Begun by Qutb-ud-din Aibak in 1192-1200 and completed by successor sultans; the Iron Pillar of Chandra dates centuries earlier.",
+                      "significance": "UNESCO heritage and the anchor of the Mehrauli archaeological park.",
+                      "architecture": "73-metre fluted tower of sandstone and marble with Quran inscriptions.",
+                      "famous_people": "Qutb-ud-din Aibak, Iltutmish, Ala-ud-din Khalji",
+                      "related_events": "Monument week sound shows.",},
+                     {"name": "Humayun's Tomb", "category": "Monument", "period": "1570", "location": "Nizamuddin East",
+                      "description": "The first great garden-tomb of the Mughals — the prototype of the Taj.",
+                      "history": "Commissioned by Empress Bega Begum around 1569-70 for Emperor Humayun; its chahar-bagh and double dome set the template of Mughal architecture.",
+                      "significance": "UNESCO World Heritage; a restored exemplar of the Aga Khan-ASI partnership.",
+                      "architecture": "Squat-on-dome garden tomb with red sandstone and white marble accents.",
+                      "famous_people": "Humayun, Bega Begum, Dara Shukoh (later burials)",
+                      "related_events": "Heritage walks during Delhi art weeks.",},
+                 ],
+                 "museums": [
+                     {"name": "National Museum, New Delhi", "collections": "Harappan seals, Chola bronze, miniature paintings and the Gandhara school", "official_url": "https://www.nationalmuseumindia.gov.in"},
+                     {"name": "National Gallery of Modern Art", "collections": "Modern and contemporary Indian art from the Bengal school onwards", "official_url": "https://ngmaindia.gov.in"},
+                 ]},
+            ],
+        },
+    }
+
+
+def basic_capital_notes():
+    """Capital-city notes for non-featured states."""
+    return {
+        "Bihar": "Patna — home of the Mahabodhi export world and the Gangetic heartland's shrines.",
+        "Goa": "Panaji — the Latin quarter of Iberian-influenced churches and temples.",
+        "Odisha": "Bhubaneswar — temple capital with the Lingaraja complex and the Puri-Jagannath kingdom.",
+        "Madhya Pradesh": "Bhopal — gateway to Sanchi's Buddhist stupas and the IGRMS open-air museum.",
+        "Telangana": "Hyderabad — the Qutb Shahi and Nizam capitals along the Musi river.",
+        "Punjab": "Amritsar — the Golden Temple (Harmandir Sahib) and Jallianwala Bagh.",
+        "Himachal Pradesh": "Shimla — hill stations and wooden temple heritage of the mountain courts.",
+        "Haryana": "Kurukshetra — the Dharmakshetra of the Mahabharata and the Panchkula geo-heritage.",
+        "Jammu and Kashmir": "Srinagar — Dal Lake, Mughal gardens and the Sharada-Shankaracharya peaks.",
+        "Ladakh": "Leh — the Hemis Buddhist monastery and the Changpa nomadic heritage.",
+        "Nagaland": "Kohima — the Hornbill festival stage of the Naga tribes.",
+        "Manipur": "Imphal — the Ras Lila shrines and the Ima Keithel (mothers' market).",
+        "Meghalaya": "Shillong — living-root bridges and the matrilineal Khasi customs.",
+        "Mizoram": "Aizawl — the star-crossed hymn culture and Chapchar Kut.",
+        "Tripura": "Agartala — the Ujjayanta Palace of the Manikya dynasty.",
+        "Sikkim": "Gangtok — the Rumtek monastery and Pang Lhabsol.",
+        "Arunachal Pradesh": "Itanagar — the Tawang monastery region and the tribes of the eastern Himalaya.",
+        "Uttarakhand": "Dehradun — the Char Dham gateway.",
+        "Chhattisgarh": "Raipur — the Bastar region's tribal Dussehra.",
+        "Jharkhand": "Ranchi — the Sarhul spring festival and tribal craft markets.",
+        "Andhra Pradesh": "Amaravati-Tirupati — the Dhyana Buddha heritage and the sacred hills.",
+        "Goa": "Panaji — Fontainhas and the Latin district.",
+        "Chandigarh": "The Le Corbusier Open Hand and Rock Garden squares.",
+        "Puducherry": "The French boulevard and the Bharati kala centre.",
+        "Andaman and Nicobar Islands": "Cellular Jail and the Sea Princess rituals.",
+        "Lakshadweep": "The coral-ring mosques and island rites.",
+        "Dadra and Nagar Haveli and Daman and Diu": "The Warli wall paintings of the region.",
+        "Sikkim & Ladakh": "Monasteries of the High Himalaya.",
+    }
+
+
+def build():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+
+    rich = rich_data()
+
+    # ----------------------------- STATES & CITIES -----------------------------
+    state_by_name: dict[str, State] = {}
+    for name, code, region, capital, desc in states_data():
+        st = rich.get(name, {})
+        state = State(
+            name=name, code=code, region=region, capital=capital,
+            description=st.get("description", desc),
+            history=st.get("history"),
+            culture=st.get("culture"),
+            rituals=st.get("rituals"),
+            handicrafts=st.get("handicrafts"),
+            food=st.get("food"),
+            festivals=st.get("festivals"),
+            iconic_battles=st.get("iconic_battles"),
+            image_url="",
+        )
+        db.add(state)
+        state_by_name[name] = state
+
+        for city_spec in st.get("cities", []):
+            capital_only = False
+            city = City(
+                state=state,
+                name=city_spec["name"],
+                description=city_spec.get("description"),
+                history=city_spec.get("history"),
+                culture=city_spec.get("culture"),
+                rituals=city_spec.get("rituals"),
+                handicrafts=city_spec.get("handicrafts"),
+                food=city_spec.get("food"),
+                iconic_battles=city_spec.get("iconic_battles"),
+                latitude=city_spec.get("latitude"),
+                longitude=city_spec.get("longitude"),
+                image_url="",
+            )
+            db.add(city)
+            for hs in city_spec.get("heritage", []):
+                db.add(HeritageSite(
+                    city=city, state=state,
+                    name=hs["name"], category=hs["category"],
+                    description=hs.get("description"),
+                    history=hs.get("history"),
+                    location=hs.get("location"),
+                    historical_period=hs.get("period"),
+                    architecture=hs.get("architecture"),
+                    significance=hs.get("significance"),
+                    famous_people=hs.get("famous_people"),
+                    related_events=hs.get("related_events"),
+                    latitude=city_spec.get("latitude"),
+                    longitude=city_spec.get("longitude"),
+                    featured=1 if hs.get("featured") else (1 if hs.get("featured") is None and hs["name"] in {"Shaniwar Wada", "Amber Fort", "Gateway of India", "Meenakshi Amman Temple", "Mysuru Palace", "Kashi Vishwanath Temple", "Red Fort", "Victoria Memorial"} else 0),
+                ))
+            db.flush()
+            for mus in city_spec.get("museums", []):
+                db.add(Museum(city_id=city.id, name=mus["name"], collections=mus.get("collections"), location=city_spec["name"], official_url=mus.get("official_url")))
+
+    db.flush()
+
+    # ------------------------------- MUSEUMS (extra) -------------------------------
+    extra_museums = [
+        ("National Museum, New Delhi", "Harappan objects, Chola bronzes, Indian miniatures"),
+        ("National Gallery of Modern Art", "Indian modern art, Bengal School"),
+        ("Salar Jung Museum, Hyderabad", "Mediaeval art, European paintings, world antiquities"),
+        ("IGRMS, Bhopal", "Tribal and folk culture of India"),
+        ("Sarnath Museum", "Ashokan lion capital, Buddhist sculpture"),
+        ("StateArchaeology Museum, Lucknow", "Awadh objects, Kushan art"),
+    ]
+    for name, coll in extra_museums:
+        db.add(Museum(city_id=None, name=name, collections=coll))
+
+    # Extra state-level heritage for states without rich cities
+    extra_heritage = [
+        ("Bihar", "Bodh Gaya — Mahabodhi Temple", "Temple", "3rd c. BCE–6th c. CE", "The site of the Buddha's enlightenment, a UNESCO complex with the great Vajrasana temple.", "Bodh Gaya"),
+        ("Odisha", "Konark Sun Temple", "Temple", "13th century", "The wheel-of-the-sun chariot temple of Narasimhadeva, a World Heritage masterpiece.", "Konark"),
+        ("Madhya Pradesh", "Sanchi Stupa", "Archaeological", "3rd c. BCE", "The great Ashokan stupa complex, keeper of the Buddhist relic heritage.", "Sanchi"),
+        ("Telangana", "Golconda Fort", "Fort", "16th century", "The majestic Qutb Shahi citadel built around the diamond trade.", "Hyderabad"),
+        ("Punjab", "Golden Temple (Harmandir Sahib)", "Temple", "16th century", "The holiest shrine of the Sikhs, floating in the Amrit Sarovar.", "Amritsar"),
+        ("Goa", "Basilica of Bom Jesus", "Church", "1605", "The shrine of St. Francis Xavier with the famous maintained mausoleum art.", "Old Goa"),
+        ("Himachal Pradesh", "Kullu Shrine Complex & Manikaran", "Temple", "Ancient", "The Himalayan river-side shrines of the Kullu valley.", "Kullu"),
+        ("Uttarakhand", "Char Dham — Kedarnath", "Temple", "8th century", "The Himalayan shrine of Shiva at the origin of the Mandakini.", "Kedarnath"),
+        ("Chhattisgarh", "Bastar Dussehra grounds", "Cultural", "Ancient", "The royal ten-day tribal Dussehra exclusive to the Bastar kingdom.", "Jagdalpur"),
+        ("Jharkhand", "Jagannath Temple Ranchi", "Temple", "17th century", "The Jharkhand replica of the Puri cult shrines.", "Ranchi"),
+        ("Andhra Pradesh", "Tirupati Tirumala", "Temple", "Ancient", "The richest Himalayan-like hill shrine of lord Venkateswara.", "Tirupati"),
+        ("Assam", "(Kamakhya in cities)", "Temple", "", "", ""),
+        ("Kerala", "(see cities)", "Temple", "", "", ""),
+        ("Gujarat", "Dholavira Harappan city", "Archaeological", "2600 BCE", "A five-stage planned city of the Indus civilisation, a UNESCO property.", "Dholavira, Kutch"),
+        ("Karnataka", "Hampi monuments", "Archaeological", "14th century", "The ruined capital of the Vijayanagara empire, a stone saga by the Tungabhadra.", "Hampi"),
+        ("Sikkim", "Rumtek Monastery", "Monastery", "16th century", "The seat of the Karmapa lineage in the Himalaya.", "Gangtok"),
+        ("Meghalaya", "Mawsmai living-root bridge", "Cultural", "Traditional", "The living-root bridges grown by the Khasi people.", "Cherrapunji"),
+        ("Nagaland", "Kohima War Cemetery & Heritage", "Memorial", "1944", "The battle honoured by the Kohima epitaph and Naga heritage sites.", "Kohima"),
+        ("Manipur", "Shree Govindajee Temple", "Temple", "19th century", "The royal Vaishnava temple of the Manipur kings.", "Imphal"),
+        ("Tripura", "Ujjayanta Palace", "Monument", "1901", "The Manikya royal palace, now the Tripura State Museum.", "Agartala"),
+        ("Mizoram", "Tam dil (heart-shaped lake)", "Natural", "—", "The folklore lake around the southern Mizoram heart.", "Champhai"),
+        ("Arunachal Pradesh", "Tawang Monastery", "Monastery", "17th century", "The largest monastery of the north-east, above the Tawang valley.", "Tawang"),
+        ("Haryana", "Kurukshetra Brahma Sarovar", "Sacred", "Ancient", "The sacred tank of the Mahabharata war-ground.", "Kurukshetra"),
+        ("Jammu and Kashmir", "Shankaracharya Temple", "Temple", "Ancient", "The Shiva temple over the Srinagar oak-ridge.", "Srinagar"),
+        ("Ladakh", "Hemis Monastery", "Monastery", "17th century", "The largest gompa of Ladakh hosting the June Hemis festival.", "Leh"),
+        ("Chandigarh", "Rock Garden & Open Hand", "Modern", "1970s", "Nek Chand's recycling gardens and Corbusier's Open Hand.", "Chandigarh"),
+        ("Puducherry", "Sri Aurobindo Ashram", "Spiritual", "1926", "The abode of Sri Aurobindo and the Mother.", "Puducherry"),
+        ("Andaman and Nicobar Islands", "Cellular Jail", "Memorial", "1906", "The freedom-fighters' prison transformed into a museum of martyrdom.", "Port Blair"),
+        ("Lakshadweep", "Amini Island traditions", "Cultural", "—", "The coral island craft and matrilineal customs.", "Amini"),
+        ("Dadra and Nagar Haveli and Daman and Diu", "Warli art villages", "Cultural", "Traditional", "The mural-painted tribal habitations of the territory.", "Silvassa"),
+        ("Uttar Pradesh", "(see cities)", "Temple", "", "", ""),
+        ("West Bengal", "(see cities)", "Monument", "", "", ""),
+        ("Tamil Nadu", "(see cities)", "Temple", "", "", ""),
+        ("Rajasthan", "(see cities)", "Fort", "", "", ""),
+        ("Maharashtra", "(see cities)", "Fort", "", "", ""),
+    ]
+    for state_name, label, cat, period, desc, location in extra_heritage:
+        st = state_by_name.get(state_name)
+        if not st or label.startswith("("):
+            continue
+        db.add(HeritageSite(
+            state=st, city_id=None, name=label.split(" — ")[0], category=cat,
+            description=desc, location=location, historical_period=period,
+        ))
+
+    db.flush()
+
+    # ------------------------------- EVENTS -------------------------------
+    events = [
+        ("Ganesh Chaturthi", "Festival", "2026-09-14", "2026-09-24", "Pune, Mumbai (Maharashtra)", "MH", "Pune",
+         "The ten-day public festival of the elephant-headed god, born in Pune under Lokmanya Tilak and now the greatest public festival of western India.", "Mumbai GSB Mandal & Pune Mandals", "https://www.indiaculture.gov.in"),
+        ("Ambubachi Mela", "Festival", "2026-06-22", "2026-06-26", "Guwahati (Assam)", "AS", "Guwahati",
+         "The annual fertility fair at the Kamakhya temple drawing lakhs across the northeast.", "Kamakhya Devalaya Trust", "https://www.indiaculture.gov.in"),
+        ("Durga Puja", "Festival", "2026-10-19", "2026-10-23", "Kolkata (West Bengal)", "WB", "Kolkata",
+         "The five-day carnival of the Goddess where the city of Kolkata becomes a giant open-air art gallery.", "Bengal Durga Puja Committees", "https://www.indiaculture.gov.in"),
+        ("Navratri Garba Utsav", "Festival", "2026-10-11", "2026-10-19", "Ahmedabad (Gujarat)", "GJ", "Ahmedabad",
+         "Nine nights of the raas-garba before the goddess Amba, regulated by the state's lathi-law festivals.", "Gujarat Culture Dept.", "https://www.indiaculture.gov.in"),
+        ("Mysuru Dasara", "Festival", "2026-10-11", "2026-10-20", "Mysuru (Karnataka)", "KA", "Mysuru",
+         "The royal ten-day Dasara culminating in the golden howda procession under Nadagiri the royal elephant.", "Karnataka Tourism / Palace board", "https://www.indiaculture.gov.in"),
+        ("Dev Deepawali", "Festival", "2026-11-24", "2026-11-24", "Varanasi (Uttar Pradesh)", "UP", "Varanasi",
+         "The festival of lights on the Ganga ghats when incense and a lakh of diyas answer the river.", "Varanasi Nagar Nigam", "https://www.indiaculture.gov.in"),
+        ("Pushkar Camel Fair", "Fair", "2026-11-19", "2026-11-27", "Pushkar (Rajasthan)", "RJ", "Jaipur",
+         "The great desert carnival of camels, musicians and the annual tourism convergence.", "Rajasthan Tourism", "https://www.rajasthantourism.gov.in"),
+        ("Hornbill Festival", "Festival", "2026-12-01", "2026-12-10", "Kisama, Kohima (Nagaland)", "NL", "Kohima",
+         "The 'festival of festivals' of the Nagas — warrior games, morung heritage and Naga cuisine.", "Nagaland Tourism", "https://www.nagalandtourism.in"),
+        ("Hemis Festival", "Festival", "2026-07-02", "2026-07-03", "Leh (Ladakh)", "LA", "Leh",
+         "The monastic masked dance (cham) of the Hemis Gompa on the Guru Rinpoche birthday.", "Hemis Monastery", "https://www.indiaculture.gov.in"),
+        ("Rann Utsav", "Festival", "2026-11-01", "2027-02-28", "Rann of Kutch (Gujarat)", "GJ", None,
+         "The winter white-desert festival of culture, crafts and camps.", "Kutch Tourism", "https://www.indiaculture.gov.in"),
+        ("Pongal", "Festival", "2027-01-14", "2027-01-17", "Madurai & Chennai (Tamil Nadu)", "TN", "Madurai",
+         "The harvest festival of the Sun with kolam courtyards and the jallikattu lentil-cane games.", "Tamil Nadu Culture Dept.", "https://www.tamilnaduculture.edu.in"),
+        ("Bihu", "Festival", "2027-01-14", "2027-01-16", "Guwahati (Assam)", "AS", "Guwahati",
+         "The spring harvest Bihu of bongeet, dance and the new-rice boiling of Bhogali nights.", "Assam Tourism", "https://www.assamtourism.gov.in"),
+        ("Sawai Gandharva Mahotsav", "Music", "2026-12-11", "2026-12-13", "Pune (Maharashtra)", "MH", "Pune",
+         "The classical music festival of Pune honouring the Kirloskar-Bhaskarbuwa legacy.", "Arya Sangeet Prasarak Mandal", "https://www.aryasangeet.org"),
+        ("Kala Ghoda Arts Festival", "Arts", "2027-02-06", "2027-02-14", "Mumbai (Maharashtra)", "MH", "Mumbai",
+         "The festival that transforms the Kala Ghoda precinct into a fortnight of art, dance and talks.", "Kala Ghoda Association", "https://www.kalaghodaassociation.org"),
+        ("Jaipur Literature Festival", "Literature", "2027-02-05", "2027-02-09", "Jaipur (Rajasthan)", "RJ", "Jaipur",
+         "The world's largest free literature festival at the Diggi Palace.", "Teamwork Arts", "https://jaipurliteraturefestival.org"),
+        ("Bastar Dussehra", "Festival", "2026-10-19", "2026-10-31", "Jagdalpur (Chhattisgarh)", "CG", None,
+         "The unique ten-day royal Dussehra of the Bastar kingdom without idol worship.", "Bastar Royal Family", "https://www.indiaculture.gov.in"),
+        ("Lohri", "Festival", "2027-01-13", "2027-01-13", "Amritsar, Chandigarh (Punjab)", "PB", None,
+         "The bonfire harvest festival of the Punjab.", "Punjab Culture Dept.", "https://www.indiaculture.gov.in"),
+        ("Onam", "Festival", "2026-08-23", "2026-09-04", "Kochi, Thiruvananthapuram (Kerala)", "KL", "Kochi",
+         "The harvest festival of king Mahabali with boat races, pookalam carpets and the grand sadhya.", "Kerala Tourism", "https://www.keralatourism.org"),
+        ("Thaipusam", "Festival", "2027-01-23", "2027-01-23", "Madurai, Palani (Tamil Nadu)", "TN", "Madurai",
+         "The penance festival of Murugan with kavadi processions.", "Palani Dhandayuthapani temple", "https://www.tamilnaduculture.edu.in"),
+        ("Mata Ki Chowki & Kumbh logistics", "Religious", "2026-12-01", "2027-04-30", "Prayagraj (Uttar Pradesh)", "UP", None,
+         "Special year inter-linked congregations of the Kumbh cycle at the sangam.", "UP Mela Authority", "https://www.indiaculture.gov.in"),
+    ]
+    state_id_by_code = {s.code: s.id for s in state_by_name.values()}
+    city_id_by_name = {}
+    for c in db.query(City).all():
+        city_id_by_name[c.name] = c.id
+    for name, cat, start, end, loc, code, cname, desc, org, url in events:
+        db.add(Event(
+            name=name, category=cat, start_date=start, end_date=end, location=loc,
+            state_id=state_id_by_code.get(code),
+            city_id=city_id_by_name.get(cname) if cname else None,
+            description=desc, organizer=org, official_url=url,
+        ))
+
+    # ------------------------------- ANNOUNCEMENTS -------------------------------
+    announcements = [
+        ("Ministry launches digitisation drive for rare manuscripts", "2026-08-28", "Ministry of Culture",
+         "A nationwide coordination with IGNCA and state archives to digitise over 10 lakh manuscript folios under the National Manuscript Mission.", "https://www.indiaculture.gov.in"),
+        ("Union Budget strengthens heritage conservation corpus", "2026-08-10", "Ministry of Finance",
+         "Enhanced allocation for the National Culture Fund and conservation of ASI-protected monuments.", "https://www.indiaculture.gov.in"),
+        ("Gandhi Peace Prize 2025 conferred", "2026-07-02", "Ministry of Culture",
+         "The annual prize for outstanding contribution to peace was conferred in a ceremony at Rashtrapati Bhavan.", "https://www.indiaculture.gov.in"),
+        ("Museum Modernisation Programme extended", "2026-06-15", "Ministry of Culture",
+         "Thirty more museums will be upgraded under the Scheme for Modernisation of Museums including accessibility and digital galleries.", "https://www.indiaculture.gov.in"),
+        ("Intangible heritage documentation grants announced", "2026-05-20", "Ministry of Culture",
+         "Grants for safeguarding living traditions of the states under the Scheme for Safeguarding Intangible Cultural Heritage.", "https://www.indiaculture.gov.in"),
+    ]
+    for t, d, src, summ, u in announcements:
+        db.add(Announcement(title=t, date=d, source=src, summary=summ, url=u))
+
+    # ------------------------------- CULTURE APPS -------------------------------
+    apps = [
+        ("Indian Culture Portal", "A vast portal of India's digital cultural treasures — manuscripts, paintings, music, dance and monuments.", "Portal", "https://www.indiaculture.gov.in", "images/official-services/indian-culture-portal.png"),
+        ("National Museum, New Delhi", "India's flagship national museum — artefacts from the Harappan age to the present.", "Museum", "https://www.nationalmuseumindia.gov.in", "images/official-services/national-museum-new-delhi.png"),
+        ("IGNCA Kalakosh", "The Indira Gandhi National Centre for the Arts' digital library of arts, research and conservation.", "Research", "https://ignca.gov.in", "images/official-services/indira-gandhi-national-centre-for-the-arts.png"),
+        ("ASI Monument List", "The Archaeological Survey of India's catalogue of protected monuments of national importance.", "Archaeology", "https://asi.nic.in", "images/official-services/archaeological-survey-of-india.png"),
+        ("National Library of India", "The repository of the nation's published knowledge, inaugurated at Kolkata.", "Library", "https://nationallibrary.gov.in", "images/official-services/national-library-of-india.png"),
+        ("National Digital Library", "The NDLI platform giving access to text, audio, video across disciplines.", "Library", "https://ndl.iitkgp.ac.in", "images/official-services/national-digital-library-of-india.png"),
+        ("Sangeet Natak Akademi", "India's national academy for music, dance and drama.", "Academy", "https://sangeetnatak.gov.in", "images/official-services/sangeet-natak-akademi.png"),
+        ("Lalit Kala Akademi", "India's national academy of visual arts.", "Academy", "https://lalitkala.gov.in", "images/official-services/lalit-kala-akademi.png"),
+        ("Sahitya Akademi", "India's national academy of letters.", "Academy", "https://sahitya-akademi.gov.in", "images/official-services/sahitya-akademi.png"),
+        ("Centre for Cultural Resources and Training", "Capacity building for teachers on Indian culture and heritage.", "Training", "https://ccrtindia.gov.in", "images/official-services/centre-for-cultural-resources-and-training.png"),
+    ]
+    for title, desc, cat, url, img in apps:
+        db.add(CultureApp(title=title, description=desc, category=cat, official_url=url, image_url=img, action="Visit official portal"))
+
+    # ------------------------------- GOVERNMENT SHOWCASE PROGRAMMES -------------------------------
+    # Only verified Government of India / Ministry of Culture campaigns, portals and programmes.
+    # image_url stays null until official poster assets are supplied by the Ministry (drop them
+    # under frontend/public/images/showcase/ and set image_url to the path).
+    programmes = [
+        ("150 Years of Vande Mataram",
+         "A year-long nationwide commemoration of India's National Song 'Vande Mataram' (7 November 2025 – 7 November 2026), inaugurated by the Prime Minister of India.",
+         "Commemoration",
+         "/images/campaigns/vande-mataram-showcase-square.webp", "https://www.vandemataram150.in", "Ministry of Culture",
+         "https://culture.gov.in/commemorations/150-years-vande-mataram", 1),
+        ("80 Years of India's Independence — Har Ghar Tiranga",
+         "The nationwide Har Ghar Tiranga campaign, launched by the Government of India, urging every citizen to hoist the Tiranga as India marks 80 years of independence on 15 August 2026.",
+         "Campaign",
+         "/images/campaigns/har-ghar-tiranga.jpg", "https://www.culture.gov.in", "Ministry of Culture",
+         "https://pib.gov.in", 2),
+        ("Gyan Bharatam Mission",
+         "The Ministry of Culture's national mission to survey, conserve and digitise India's manuscript heritage, including the National Manuscript Survey launched in March 2026.",
+         "Programme",
+         "/images/campaigns/gyan-bharatam-showcase-square.webp", "https://culture.gov.in/gyan-bharatam-mission", "Ministry of Culture",
+         "https://culture.gov.in/gyan-bharatam-mission", 3),
+        ("Indian Culture Portal (Version 2.0)",
+         "The Government of India's national digital platform for India's cultural heritage — manuscripts, art, monuments, museums and curated collections, upgraded in March 2026.",
+         "Portal",
+         "/images/campaigns/indian-culture-showcase-square.webp", "https://www.indianculture.gov.in", "Ministry of Culture",
+         "https://www.indianculture.gov.in", 4),
+    ]
+    for title, desc, cat, img, url, source_label, source_url, sort_order in programmes:
+        db.add(GovernmentProgramme(
+            title=title, description=desc, category=cat, image_url=img,
+            official_url=url, source_label=source_label, source_url=source_url,
+            active=1, sort_order=sort_order,
+        ))
+
+    # ------------------------------- SCHEMES -------------------------------
+    schemes = [
+        ("Tagore National Fellowship for Cultural Research (TNFR)", "One-year academic fellowships for research on Indian culture in museums, archives and libraries.", "Fellowship",
+         "Indian nationals with a research proposal; postgraduate degree preferred.", "Monthly fellowship + contingency grant; access to partner institutions.",
+         "Apply through the Annual Plan of the Ministry's Research Programmes.", "Ongoing", "Ministry of Culture", "https://www.indiaculture.gov.in/schemes"),
+        ("Scheme for Safeguarding Intangible Cultural Heritage", "Grants to institutions, NGOs and academies for documenting and preserving living cultural heritage.", "Yojana",
+         "Registered cultural bodies, universities and recognized academies.", "Financial support up to 100% of approved project cost subject to caps.",
+         "Proposals invited through the ministry's Intangible Heritage portal window.", "Ongoing", "Ministry of Culture", "https://www.indiaculture.gov.in/schemes"),
+        ("Scheme for Modernisation of Museums (SMM)", "Infrastructure, conservation and digital upgrade of museums across the country.", "Financial Assistance",
+         "Government and government-aided museums.", "Support for conservation labs, galleries, digitisation and audience programmes.",
+         "Submitted through the National Culture Fund line of the ministry.", "5th phase 2025", "Ministry of Culture", "https://www.indiaculture.gov.in/schemes"),
+        ("National Culture Fund", "Mobilises public-private partnership resources for conservation of monuments and heritage.", "Financial Assistance",
+         "Corporates under CSR; private donors; foundations.", "Tax benefit under CSR for conservation projects.",
+         "Partnerships listed on the NCF portal.", "Ongoing", "National Culture Fund", "https://culturefund.in"),
+        ("Cultural Economy and Dawn of the Cultural Sector grants", "Seed grants for crafts, music, heritage tourism and creative industries startups.", "TCC",
+         "India-registered startups and MSMEs in culture and creative sectors.", "Up to ₹25 lakh seed support + mentoring.",
+         "Online application via the ministry cultural-industry window.", "2026-27", "Ministry of Culture", "https://www.indiaculture.gov.in/schemes"),
+        ("Special Anniversary Schemes for Important Personalities", "Commemoration programmes marking the birth/death anniversaries of national personalities.", "Anniversary Schemes",
+         "Cultural institutions and academies.", "Funding for exhibitions, publications and memorial events.",
+         "Approved under the annual commemorations list.", "Annual", "Ministry of Culture", "https://www.indiaculture.gov.in/schemes"),
+    ]
+    for n, d, cat, elig, ben, appinfo, yr, org, url in schemes:
+        db.add(Scheme(name=n, description=d, category=cat, eligibility=elig, benefits=ben, application_info=appinfo, year=yr, organization=org, official_url=url))
+
+    # ------------------------------- AWARDS -------------------------------
+    awards = [
+        ("Tagore Award for Cultural Harmony", "2023", "Not announced", "Cultural Harmony", "Awarded for promotion of cultural harmony, values of universal peace and artistic endeavours in the spirit of Tagore.", "Biennial international award carrying ₹1 crore instituted on the 150th birth anniversary of the poet.", "https://www.indiaculture.gov.in"),
+        ("Gandhi Peace Prize", "2022", "Gita Press, Gorakhpur", "Peace & Social Service", "Given for promotion of non-violence and world peace in the spirit of Mahatma Gandhi.", "An annual award carrying ₹1 crore instituted in 1995.", "https://www.indiaculture.gov.in"),
+        ("Gandhi Peace Prize", "2020", "Bangladesh Awami League", "Peace & Democracy", "Recognised for upholding democratic values and the liberation legacy in the subcontinent.", "Annual award carrying ₹1 crore.", "https://www.indiaculture.gov.in"),
+        ("Tagore Award for Cultural Harmony", "2019", "V.A. Shiva Ayyadurai", "Cultural Harmony & Innovation", "Recognised for using technology in the preservation and intercultural reach of heritage.", "Biennial award carrying ₹1 crore.", "https://www.indiaculture.gov.in"),
+    ]
+    for n, y, rec, f, c, d, u in awards:
+        db.add(Award(name=n, year=y, recipient=rec, field=f, citation=c, description=d, official_url=u))
+
+    # ------------------------------- COMMEMORATIONS -------------------------------
+    commemorations = [
+        ("Mahatma Gandhi", "1869-1948", "Freedom Movement & Non-violence",
+         "Led India's non-violent struggle for freedom; his troika of truth (satya), non-violence (ahimsa) and trusteeship shaped the nation.",
+         "The Father of the Nation whose assassination led to the creation of the Gandhi Smriti and National Archives memorial circuits.",
+         "Porbandar, Rajkot, Ahmedabad, Delhi", "Kasturba Gandhi, Sardar Patel, Nehru", "Salt March 1930; Quit India 1942",
+         "Official Gandhi Heritage Portal"),
+        ("Rabindranath Tagore", "1861-1941", "Literature & Composite Culture",
+         "Poet of Gitanjali and the first Asian Nobel laureate; founder of Shantiniketan/Visva-Bharati.",
+         "India's greatest modern cultural ambassador and the symbol of the Bengal Renaissance.",
+         "Kolkata, Shantiniketan", "Mahatma Gandhi, Victoria Ocampo", "Gitanjali 1912; Nobel 1913",
+         "Ministry of Culture commemorative programmes"),
+        ("Chhatrapati Shivaji Maharaj", "1630-1680", "Statecraft & Governance",
+         "Founded the Maratha swarajya with a navy, a fortified kingdom and the Hindavi swarajya ideal.",
+         "The gear of the Maratha heritage celebrations; his forts are ASI-protected monuments.",
+         "Rajgad, Raigad, Sinhagad, Pune", "Jijabai, Tanaji Malusare, Sambhaji Maharaj", "Sinhagad 1670; Coronation 1674",
+         "ASI Fort Heritage Index"),
+        ("Swami Vivekananda", "1863-1902", "Spiritual & Cultural Revival",
+         "Carried India's spiritual heritage to the Parliament of Religions (1893) and founded the Ramakrishna Mission.",
+         "A symbol of youth energy whose birth anniversary is celebrated as National Youth Day.",
+         "Kolkata, Chennai, Belur", "Sri Ramakrishna, Sarada Devi", "Chicago Address 1893; Mission founded 1897",
+         "Ministry of Culture youth programmes"),
+        ("Tyagaraja", "1767-1847", "Carnatic Music",
+         "The composer-saint of the kritis — hundreds of devotional songs central to Carnatic music.",
+         "His annual aradhana is observed at Thiruvaiyaru as a living cultural festival.",
+         "Thiruvaiyaru, Thanjavur", "His disciples, the Thanjavur court", "Aradhana festival, January",
+         "State Culture Dept. aradhana programme"),
+    ]
+    for n, p, f, con, sig, loc, people, ev, src in commemorations:
+        db.add(Commemoration(name=n, period=p, field=f, contribution=con, significance=sig, locations=loc, people=people, related_events=ev, sources=src))
+
+    # ------------------------------- DOCUMENTS -------------------------------
+    documents = [
+        ("Ministry of Culture Annual Report 2023-24", "2023-24", "Ministry of Culture", "Performance report of the ministry's programmes, institutions and expenditure.", "Reports", "https://www.indiaculture.gov.in/reports", None, "LINK_ONLY"),
+        ("Ancient Monuments and Archaeological Sites and Remains Act, 1958", "1958", "ASI / Ministry of Culture", "The principal act for protection of monuments, sites and remains of national importance.", "Acts", "https://asi.nic.in", None, "PUBLIC_DOMAIN"),
+        ("Ancient Monuments Act Rules & Amendments", "2010", "ASI", "The 2010 amendment introducing the NMA (National Monuments Authority) framework.", "Amendments", "https://asi.nic.in", None, "PUBLIC_DOMAIN"),
+        ("National Culture Fund Rules", "1996", "National Culture Fund", "Rules governing the public-private fund for conservation of heritage properties.", "Rules", "https://culturefund.in", None, "LINK_ONLY"),
+        ("The National Mission for Manuscripts — Framework", "2003", "IGNCA", "Policy document of the manuscript-preservation mission.", "Reports", "https://namami.gov.in", None, "LINK_ONLY"),
+        ("ASI Conservation Guidelines for World Heritage Properties", "2020", "ASI", "Technical guidelines for conservation interventions on listed properties.", "Policies", "https://asi.nic.in", None, "LINK_ONLY"),
+        ("Scheme for Safeguarding Intangible Cultural Heritage — Operational Guidelines", "2022", "Ministry of Culture", "Guideline circular for implementation of the living heritage scheme.", "Circulars", "https://www.indiaculture.gov.in", None, "LINK_ONLY"),
+        ("Museum Modernisation Project — Technical Specifications", "2024", "Ministry of Culture", "Order specifying fit-outs and digitisation requirements for SMM museums.", "Orders", "https://www.indiaculture.gov.in", None, "LINK_ONLY"),
+    ]
+    for t, y, o, d, typ, src, fl, rr in documents:
+        db.add(Document(title=t, year=y, organization=o, description=d, doc_type=typ, source_url=src, file_url=fl, rights_status=rr))
+
+    # ------------------------------- AUTHORS & PUBLICATIONS -------------------------------
+    authors = [
+        ("Jawaharlal Nehru", "The first Prime Minister of India and a writer of luminous prose on Indian history.", "History & Politics", "1889-1964", "Allahabad", "Discovery of India, Glimpses of World History"),
+        ("A.L. Basham", "Cambridge historian whose survey of ancient India remains the standard introduction.", "Indology", "1914-1986", "University of London", "The Wonder That Was India"),
+        ("Rabindranath Tagore", "Poet, novelist and polymath; translated his own Gitanjali into English.", "Literature", "1861-1941", "Visva-Bharati", "Gitanjali, Gora"),
+        ("D.D. Kosambi", "Independent Marxist-mathematician historian who recast ancient Indian history.", "Indology", "1907-1966", "Bombay", "The Culture and Civilisation of Ancient India"),
+        ("C. Rajagopalachari", "The 'keeper of the conscience of India'; wrote the enduring prose Mahabharata.", "Literature & Dharma", "1878-1972", "Madras", "Ramayana/Mahabharata retellings"),
+        ("John Keay", "Scottish historian of the subcontinent and the East India Company.", "History", "1941-", "—", "India: A History"),
+        ("Kamala Sathianathan", "Early woman folklorist who documented Tamil heritage.", "Folklore", "20th century", "Madras", "Tamil folk studies"),
+        ("V. Raghavan", "Sanskritist and cultural historian of the Madras school.", "Sanskrit", "1908-1979", "University of Madras", "The Struggle for Freedom in Sanskrit Drama"),
+    ]
+    author_objs = {}
+    for n, b, f, p, inst, r in authors:
+        a = Author(name=n, biography=b, field=f, period=p, institutions=inst, research=r, image_url="")
+        db.add(a); db.flush(); author_objs[n] = a
+
+    publications = [
+        ("The Discovery of India", "Nehru", "Signet Press", "1946", "English", "History", "9780143031031",
+         "The great prose voyage through the Indic millennia written from Ahmednagar fort.", None),
+        ("The Wonder That Was India", "A.L. Basham", "Sidgwick & Jackson", "1954", "English", "Indology", "9788120835935",
+         "The classic survey of ancient Indian society, religion and art.", None),
+        ("Gitanjali (Song Offerings)", "Rabindranath Tagore", "Indian Society of Letters", "1910", "English/Bengali", "Poetry", "9789387496765",
+         "The Nobel-winning lyrics of devotion and nature.", None),
+        ("The Culture and Civilisation of Ancient India", "D.D. Kosambi", "Vikas", "1965", "English", "Indology", "9788122206261",
+         "A path-breaking materialist history of ancient India.", None),
+        ("Ramayana (prose retelling)", "C. Rajagopalachari", "Bharatiya Vidya Bhavan", "1950", "English", "Mythology", "9788172760265",
+         "The widely-read devotional retelling of Valmiki's epic.", None),
+        ("India: A History", "John Keay", "HarperCollins", "2000", "English", "History", "9780002557177",
+         "A panoramic single-volume history from the Harappans to independence.", None),
+        ("Mahabharata (prose retelling)", "C. Rajagopalachari", "Bharatiya Vidya Bhavan", "1951", "English", "Mythology", "9788172763563",
+         "The compelling prose adaptation of the great epic.", None),
+        ("The Struggle for Freedom in Sanskrit Drama", "V. Raghavan", "Madras University", "1969", "English", "Sanskrit", None,
+         "A specialist work on social reform in classical Sanskrit drama.", None),
+        ("Bharatnama", "Jawaharlal Nehru", "Jawaharlal Nehru Memorial Fund", "2007", "Hindi", "History", None,
+         "Hindi compilation of the Discovery of India excerpts.", None),
+        ("The Village of the Heart: Folk Tales of Tamil Nadu", "Kamala Sathianathan", "NBT", "1983", "English", "Folklore", None,
+         "Household tales carrying the living heritage of Tamil Nadu.", None),
+    ]
+    for t, an, pub, yr, lang, sub, isbn, desc, inst in publications:
+        db.add(Publication(
+            author_id=author_objs.get(an).id if an in author_objs else None,
+            title=t, publisher=pub, year=yr, language=lang, subject=sub, isbn=isbn, description=desc,
+            institution=inst, catalogue_url="https://nationallibrary.gov.in", digital_url=None,
+        ))
+
+    # ------------------------------- MoUs -------------------------------
+    mous = [
+        ("MoU with IGNCA for Manuscript Digitisation", "Ministry of Culture, IGNCA", "2022",
+         "Joint digitisation and conservation of rare manuscripts under the National Manuscript Mission.",
+         "Scale-up of scanned folios, sharing of the Kalakosh metadata and joint exhibitions.", "IGNCA", None, "https://www.indiaculture.gov.in", "Digitisation"),
+        ("ASK — Asia Society Korea Cultural Exchange", "Ministry of Culture, Asia Society Korea", "2023",
+         "Biennial cultural exchanges of performing arts and exhibitions between India and Korea.",
+         "K-Pop-Kathak and Kalamkari convergences, artist residencies.", "Asia Society Korea", None, "https://www.indiaculture.gov.in", "Partnership"),
+        ("MAKAIAS Academic Cooperation on Asian Studies", "Ministry of Culture, MAKAIAS", "2024",
+         "Academic-institutional cooperation on museums, archives and Indology research.",
+         "Joint fellowships, shared bibliographic resources and archival exchanges.", "MAKAIAS", None, "https://www.indiaculture.gov.in", "Academic"),
+        ("MoU with UNESCO for Conservation Capacity Building", "Ministry of Culture, UNESCO New Delhi", "2023",
+         "Capacity building, technical assistance and documentation standards for World Heritage properties.",
+         "Workshops, site management training and emergency assistance protocols.", "UNESCO", None, "https://www.indiaculture.gov.in", "International"),
+        ("MoU with National Museum for Research & Exhibition Exchange", "Ministry of Culture, National Museum", "2024",
+         "Circulation of collections, joint research and visitor-data cooperation among national museums.",
+         "Loan exhibitions, travelling blocks and conservation clinics.", "National Museum", None, "https://www.nationalmuseumindia.gov.in", "Museum"),
+        ("MoU with Sangeet Natak Akademi for Guru-Shishya Documentation", "Ministry of Culture, SNA", "2021",
+         "Recording and archiving vanishing gharana traditions of music and dance.",
+         "Audiovisual archives, fellowship tracks and accreditation of gurus.", "Sangeet Natak Akademi", None, "https://sangeetnatak.gov.in", "Academy"),
+    ]
+    for t, p, d, pur, desc, inst, du, su, cat in mous:
+        db.add(MoU(title=t, parties=p, date=d, purpose=pur, description=desc, institution=inst, document_url=du, source_url=su, category=cat))
+
+    # ------------------------------- INSTITUTIONS -------------------------------
+    institutions = [
+        ("Archaeological Survey of India", "Attached", "New Delhi", "The nodal agency for archaeological science and conservation of 3700+ protected monuments.", "Survey, excavation, conservation, epigraphy, UNESCO liaison.", "https://asi.nic.in"),
+        ("Indira Gandhi National Centre for the Arts (IGNCA)", "Autonomous", "New Delhi", "A centre for the arts, research, and the Kalakosh digital archive.", "Research, documentation, manuscript mission, fellowships.", "https://ignca.gov.in"),
+        ("National Museum (National Museum Institute)", "Attached", "New Delhi", "India's flagship national museum and its art-history deemed university.", "Curatorial research, exhibitions, conservation and museum education.", "https://www.nationalmuseumindia.gov.in"),
+        ("National Library of India", "Attached", "Kolkata", "The repository of published knowledge and the apex public library.", "Deposit collections, cataloguing, reading services.", "https://nationallibrary.gov.in"),
+        ("National Archives of India", "Attached", "New Delhi", "The custodian of the nation's official record heritage.", "Record-keeping, conservation, educational exhibitions.", "https://nationalarchives.nic.in"),
+        ("Sangeet Natak Akademi", "Autonomous", "New Delhi", "India's national academy of music, dance and drama.", "Awards, festival programming, documentation.", "https://sangeetnatak.gov.in"),
+        ("Sahitya Akademi", "Autonomous", "New Delhi", "National academy of letters in all 24 scheduled languages.", "Literary awards, translations, publications.", "https://sahitya-akademi.gov.in"),
+        ("Lalit Kala Akademi", "Autonomous", "New Delhi", "National academy of visual arts.", "Exhibitions, artists' awards, art journals.", "https://lalitkala.gov.in"),
+        ("Centre for Cultural Resources and Training", "Autonomous", "New Delhi", "Training nodal body linking education with culture.", "Teacher training, cultural posts, resource material.", "https://ccrtindia.gov.in"),
+        ("Delhi Public Library", "Subordinate", "New Delhi", "One of the largest public library systems in India.", "Public lending, community outreach, mobile services.", "https://dpl.gov.in"),
+        ("National Book Trust", "Autonomous", "New Delhi", "India's apex book-promotion agency.", "Publishing, book fairs, translations.", "https://nbtindia.gov.in"),
+        ("Anthropological Survey of India", "Attached", "Kolkata", "The nodal anthropological research organisation of the government.", "Ethnographic surveys, publications, museum displays.", "https://ansi.gov.in"),
+        ("Gandhi Smriti and Darshan Samiti", "Autonomous", "New Delhi", "Keeper of the Mahatma's memory institutions.", "Gandhi heritage management, memorial exhibitions.", "https://www.gandhismriti.gov.in"),
+        ("Prime Ministers' Museum (formerly NMML)", "Attached", "New Delhi", "Museum and library of the modern Indian political leadership.", "Archives, oral history, exhibitions.", "https://pmmlibrary.com"),
+    ]
+    for n, t, l, d, r, u in institutions:
+        db.add(Institution(name=n, type=t, location=l, description=d, responsibilities=r, official_url=u))
+
+    # ------------------------------- ABOUT -------------------------------
+    about = [
+        ("mission", "To preserve, promote and disseminate India's rich cultural heritage and make it discoverable to every citizen.", ),
+        ("mission", "To unify the scattered digital resources of the cultural ecosystem into one intelligent, accessible experience.", ),
+        ("objectives", "Unify fragmented cultural data into a single governed platform.", ),
+        ("objectives", "Enable spatial discovery of heritage through interactive mapping.", ),
+        ("objectives", "Preserve tangible and intangible heritage through digitisation and community participation.", ),
+        ("objectives", "Provide trustworthy, source-grounded cultural answers through an AI assistant.", ),
+        ("objectives", "Serve researchers, students, tourists and citizens in multiple Indian languages.", ),
+        ("functions", "Standardising and curating cultural data from ministry institutions.", ),
+        ("functions", "Managing the interactive state-city-resource exploration experience.", ),
+        ("functions", "Running a moderated community-preservation layer for photographs, experiences and reviews.", ),
+        ("functions", "Operating an attributed AI Cultural Assistant grounded in verified sources.", ),
+        ("functions", "Exposing open APIs for researchers and partner institutions.", ),
+        ("team", "Hon'ble Minister of Culture — policy leadership and guidance (prototype placeholder).", ),
+        ("team", "Minister of State — parliamentary overview.", ),
+        ("team", "Platform team — Ministry of Culture digital wing with SIH innovators.", ),
+        ("presentation", "A unified digital cultural discovery and preservation platform for the heritage and culture of India.", ),
+    ]
+    for section, content in about:
+        title = section.title()
+        db.add(AboutEntry(section=section, title=title, content=content))
+
+    # ------------------------------- COMMUNITY -------------------------------
+    community = [
+        ("photo", "Shaniwar Wada at dusk", "The illuminated fountain court of the Peshwa palace is a sight to hold. The wada's bastion shadows carry the old city's dusk prayers.",
+         "Rohan Patil", "Shaniwar Wada", "Pune"),
+        ("experience", "A monsoon trek to Sinhagad", "Clouds roll over the Khadakwasla side and the fort gates echo with the local legend of Tanaji's last stand.",
+         "Meera Deshpande", "Sinhagad Fort", "Pune"),
+        ("review", "Raja Dinkar Kelkar Museum — a cabinet of wonders", "The nut-crackers, palanquins and caste-lanthorns are proof that museums of everyday things teach the most.",
+         "Arjun Kulkarni", "Raja Dinkar Kelkar Museum", "Pune"),
+        ("story", "My grandmother's Ganeshotsav", "The wada-life of Shukravar peth — the modak steam rising with the evening aarti — is our real intangible heritage.",
+         "Sonali Joshi", None, "Pune"),
+        ("photo", "Meenakshi gopuram stones", "The 14 rainbow towers of Madurai photographed from the Pottramarai tank.",
+         "Karthik Rajan", "Meenakshi Amman Temple", "Madurai"),
+        ("experience", "Durga Puja pandal-hopping", "Kolkata in October is an outdoor museum — every pandal an exhibition of last year's craftsmanship.",
+         "Ananya Sen", None, "Kolkata"),
+        ("review", "Sarnath Museum — the lion's silence", "The Ashokan capital speaks more quietly than any lecture hall. A must-walk for students.",
+         "Devansh Shukla", "Sarnath", "Varanasi"),
+    ]
+    for k, t, c, au, res, city in community:
+        db.add(CommunityPost(kind=k, title=t, content=c, author_name=au, status="APPROVED",
+                             created_at="2026-08-20" if "dusk" not in t else "2026-08-05",
+                             related_resource=res, related_city=city, image_url=""))
+
+    profiles = [
+        ("Rohan Patil", "Photography enthusiast documenting Maratha forts.", "Forts, History, Photography"),
+        ("Meera Deshpande", "History postgraduate from Pune University and weekend trekker.", "Maratha history, Trekking, Museums"),
+        ("Karthik Rajan", "Architecture student obsessed with Dravidian sculpture.", "Temples, Architecture, Carnatic music"),
+    ]
+    for n, b, i in profiles:
+        db.add(CommunityProfile(display_name=n, bio=b, interests=i, image_url=""))
+
+    # ------------------------------- PROVENANCE -------------------------------
+    for h in db.query(HeritageSite).all():
+        db.add(Provenance(
+            resource_type="heritage_site", resource_id=h.id,
+            source_id=f"seed-{h.id}", organization="ASI / Ministry of Culture (Prototype Seed)",
+            dataset_name="Heritage Register Prototype", source_url="https://asi.nic.in",
+            retrieved_at=TODAY, last_updated=TODAY, license="CC BY 4.0",
+            rights_status="OPEN_LICENSE", verification_status="Verified (institutional source)",
+        ))
+
+    db.commit()
+    print("Seed complete.")
+    for tbl, label in [
+        (State, "states"), (City, "cities"), (HeritageSite, "heritage_sites"),
+        (Museum, "museums"), (Event, "events"), (Announcement, "announcements"),
+        (CultureApp, "culture_apps"), (Scheme, "schemes"), (Award, "awards"),
+        (Commemoration, "commemorations"), (Document, "documents"), (Author, "authors"),
+        (Publication, "publications"), (MoU, "mous"), (Institution, "institutions"),
+        (CommunityPost, "community_posts"), (CommunityProfile, "community_profiles"),
+        (GovernmentProgramme, "government_programmes"),
+    ]:
+        print(f"  - {label}: {db.query(tbl).count()}")
+
+
+if __name__ == "__main__":
+    build()

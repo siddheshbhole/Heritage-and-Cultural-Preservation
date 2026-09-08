@@ -372,6 +372,120 @@ def programme_row(p):
     }
 
 
+def media_news_row(n):
+    return {
+        "id": n.id,
+        "title": n.title,
+        "date": n.date,
+        "image_url": n.image_url,
+        "source_url": n.source_url,
+    }
+
+
+def media_album_row(a):
+    return {
+        "id": a.id,
+        "title": a.title,
+        "date": a.date,
+        "items_count": a.items_count or 0,
+        "cover_image": a.cover_image,
+        "gallery_url": a.gallery_url,
+    }
+
+
+def media_video_row(v):
+    return {
+        "id": v.id,
+        "title": v.title,
+        "date": v.date,
+        "duration": v.duration,
+        "language": v.language,
+        "youtube_id": v.youtube_id,
+        "thumbnail_url": v.thumbnail_url,
+    }
+
+
+def media_brochure_row(b):
+    return {
+        "id": b.id,
+        "title": b.title,
+        "description": b.description,
+        "image_url": b.image_url,
+        "pdf_url": b.pdf_url,
+        "source_url": b.source_url,
+    }
+
+
+def media_leader_row(l):
+    return {
+        "id": l.id,
+        "name": l.name,
+        "slug": l.slug,
+        "bio": l.bio,
+        "image_url": l.image_url,
+        "official_url": l.official_url,
+    }
+
+
+def media_monument_row(m):
+    return {
+        "id": m.id,
+        "name": m.name,
+        "image_url": m.image_url,
+        "streetview_url": m.streetview_url,
+    }
+
+
+def media_artist_row(a):
+    return {
+        "id": a.id,
+        "name": a.name,
+        "category": a.category,
+        "image_url": a.image_url,
+        "official_url": a.official_url,
+    }
+
+
+def media_sanskriti_row(s):
+    return {
+        "id": s.id,
+        "title": s.title,
+        "slug": s.slug,
+        "description": s.description,
+        "image_url": s.image_url,
+        "official_url": s.official_url,
+        "source_label": s.source_label,
+    }
+
+
+def media_event_row(e):
+    return {
+        "id": e.id,
+        "category": e.category,
+        "title": e.title,
+        "start_date": e.start_date,
+        "end_date": e.end_date,
+        "venue": e.venue,
+        "city": e.city,
+        "state": e.state,
+        "event_time": e.event_time,
+        "image_url": e.image_url,
+        "official_url": e.official_url,
+        "is_archive": bool(e.is_archive),
+    }
+
+
+def media_webcast_row(w):
+    return {
+        "id": w.id,
+        "title": w.title,
+        "date": w.date,
+        "youtube_url": w.youtube_url,
+        "is_live": bool(w.is_live),
+        "source_url": w.source_url,
+    }
+
+
 def provenance_row(p):
     if p is None:
         return None

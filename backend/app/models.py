@@ -437,3 +437,166 @@ class Provenance(Base):
     license = Column(String, nullable=True)
     rights_status = Column(String)
     verification_status = Column(String)
+
+
+# ---------------------------------------------------------------------------
+# Media section (Explore ▸ Photos / Videos / Brochure / Bharat Beat / Sanskriti /
+# Events / Latest News / Announcement / Webcast).
+#
+# Rows are populated by :mod:`app.seed_media` from the Ministry of Culture's
+# official Media pages (culture.gov.in). ``source_url`` keeps official attribution
+# on every record; image urls point at local copies under
+# ``frontend/public/images/media/`` (so the prototype works offline).
+# ---------------------------------------------------------------------------
+
+
+class MediaNews(Base):
+    """Ministry of Culture “Latest News” items (culture.gov.in/news)."""
+
+    __tablename__ = "media_news"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    date = Column(String)  # DD.MM.YYYY as published by the Ministry
+    image_url = Column(String)
+    source_url = Column(String)  # official article URL
+    display_order = Column(Integer, default=0)
+
+
+class MediaAlbum(Base):
+    """Ministry of Culture photo albums (culture.gov.in/photo-gallery)."""
+
+    __tablename__ = "media_albums"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    date = Column(String)
+    items_count = Column(Integer, default=0)
+    cover_image = Column(String)
+    gallery_url = Column(String)  # official album URL
+    display_order = Column(Integer, default=0)
+
+
+class MediaVideo(Base):
+    """Ministry of Culture video library (culture.gov.in/video-gallery)."""
+
+    __tablename__ = "media_videos"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    date = Column(String)
+    duration = Column(String)  # as published, e.g. "4MINS 17SEC"
+    language = Column(String, default="English")  # English | Hindi
+    youtube_id = Column(String)  # official embed on the Ministry's site
+    thumbnail_url = Column(String)
+    display_order = Column(Integer, default=0)
+
+
+class MediaBrochure(Base):
+    """Ministry of Culture brochures (culture.gov.in/brochure)."""
+
+    __tablename__ = "media_brochures"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    description = Column(Text)
+    image_url = Column(String)
+    pdf_url = Column(String)  # official PDF document URL
+    source_url = Column(String)
+    display_order = Column(Integer, default=0)
+
+
+class MediaLeader(Base):
+    """Bharat Beat → Leader's Corner (culture.gov.in/leaders-corner)."""
+
+    __tablename__ = "media_leaders"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, index=True)
+    slug = Column(String, index=True)
+    bio = Column(Text)
+    image_url = Column(String)
+    official_url = Column(String)
+    display_order = Column(Integer, default=0)
+
+
+class MediaMonument(Base):
+    """Bharat Beat → 360 view of Monuments (culture.gov.in/monuments)."""
+
+    __tablename__ = "media_monuments"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, index=True)
+    image_url = Column(String)
+    streetview_url = Column(String)  # Google Arts & Culture streetview
+    display_order = Column(Integer, default=0)
+
+
+class MediaArtist(Base):
+    """Bharat Beat → Various Artist (culture.gov.in/various-artist)."""
+
+    __tablename__ = "media_artists"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, index=True)
+    category = Column(String)  # Dance | Music | Painting | Poet | Sculpture | Writer
+    image_url = Column(String)
+    official_url = Column(String)
+    display_order = Column(Integer, default=0)
+
+
+class MediaSanskriti(Base):
+    """Curated collections from Sanskriti (culture.gov.in/sanskriti)."""
+
+    __tablename__ = "media_sanskriti"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    slug = Column(String, index=True)
+    description = Column(Text)
+    image_url = Column(String)
+    official_url = Column(String)
+    source_label = Column(String, default="Ministry of Culture · Sanskriti")
+    display_order = Column(Integer, default=0)
+
+
+class MediaEvent(Base):
+    """Ministry of Culture events (culture.gov.in/latests-events + /pasts-events).
+
+    ``is_archive`` distinguishes past events (the official archive) from
+    current/upcoming ones shown on the official “Events” page.
+    """
+
+    __tablename__ = "media_events"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    category = Column(String, index=True)
+    start_date = Column(String)
+    end_date = Column(String)
+    venue = Column(Text)
+    city = Column(String)
+    state = Column(String)
+    event_time = Column(String)
+    image_url = Column(String)
+    official_url = Column(String)
+    is_archive = Column(Integer, default=1)
+    display_order = Column(Integer, default=0)
+
+
+class MediaWebcast(Base):
+    """Ministry of Culture webcasts (culture.gov.in/webcast).
+
+    The official page currently lists “No Web Cast data available”; rows are
+    seeded when the Ministry publishes live/archived broadcasts.
+    """
+
+    __tablename__ = "media_webcasts"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    date = Column(String)
+    youtube_url = Column(String)
+    is_live = Column(Integer, default=0)
+    source_url = Column(String)
+    display_order = Column(Integer, default=0)

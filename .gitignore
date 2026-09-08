@@ -3,3 +3,17 @@ __pycache__/
 *.pyc
 dist/
 *.tsbuildinfo
+
+# Environment variables
+.env
+*.env
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+

@@ -1,8 +1,11 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+
+load_dotenv()
 
 # PostgreSQL is the intended persistent database for this platform (with PostGIS
 # providing geographic/spatial capabilities). Point DATABASE_URL at a PostgreSQL

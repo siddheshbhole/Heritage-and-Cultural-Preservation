@@ -11,8 +11,8 @@ from ..models import (
 )
 from ..serializers import (
     announcement_row, app_row, author_row, award_row, commemoration_row,
-    document_row, event_row, heritage_row, institution_row, mou_row,
-    museum_row, programme_row, provenance_row, publication_row, scheme_row,
+    document_row, event_row, heritage_image_row, heritage_row, institution_row,
+    mou_row, museum_row, programme_row, provenance_row, publication_row, scheme_row,
 )
 
 router = APIRouter(prefix="/api", tags=["content"])
@@ -219,13 +219,17 @@ def list_heritage(
 
 
 @router.get("/heritage/{heritage_id}")
-def get_heritage(heritage_id: int, db: Session = Depends(get_db)):
-    h = db.get(HeritageSite, heritage_id)
+def get_heritage(heritage_id: str, db: Session = Depends(get_db)):
+    if heritage_id.isdigit():
+        h = db.get(HeritageSite, int(heritage_id))
+    else:
+        h = db.query(HeritageSite).filter(HeritageSite.slug == heritage_id).first()
     if not h:
         raise HTTPException(status_code=404, detail="Heritage site not found")
     data = heritage_row(h)
     data["city_name"] = h.city.name if h.city else None
     data["state_name"] = h.state.name if h.state else None
+    data["gallery"] = [heritage_image_row(i) for i in h.images]
     data["nearby"] = [
         heritage_row(n) for n in
         db.query(HeritageSite).filter(

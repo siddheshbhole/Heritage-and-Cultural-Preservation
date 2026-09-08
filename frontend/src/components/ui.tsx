@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 export function hashSeed(s: string) {
@@ -124,5 +125,41 @@ export function StatCard({ value, label }: { value: string | number; label: stri
       <b>{value}</b>
       <span>{label}</span>
     </div>
+  )
+}
+
+export function CoverImg({
+  src,
+  alt,
+  seed,
+  style,
+}: {
+  src?: string | null
+  alt: string
+  seed: string
+  style?: React.CSSProperties
+}) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) {
+    return (
+      <div
+        className="cover-fallback"
+        style={{ background: gradientFor(seed), ...style }}
+        aria-label={alt}
+        role="img"
+      >
+        <span>{initials(seed)}</span>
+      </div>
+    )
+  }
+  return (
+    <img
+      className="cover-img"
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      style={style}
+    />
   )
 }

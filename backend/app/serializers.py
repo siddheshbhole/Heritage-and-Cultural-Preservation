@@ -96,6 +96,40 @@ def heritage_row(h):
         "related_events": h.related_events,
         "image_url": h.image_url,
         "featured": bool(h.featured),
+        "slug": h.slug,
+        "heritage_type": h.heritage_type,
+        "region": h.region,
+        "unesco_status": h.unesco_status,
+        "unesco_year": h.unesco_year,
+        "unesco_category": h.unesco_category,
+        "google_360_url": h.google_360_url,
+        "main_image": h.main_image,
+        "established": h.established,
+        "created_at": h.created_at,
+        "updated_at": h.updated_at,
+    }
+
+
+def heritage_category_row(c, count=0):
+    return {
+        "id": c.id,
+        "slug": c.slug,
+        "name": c.name,
+        "kind": c.kind,
+        "parent_slug": c.parent_slug,
+        "description": c.description,
+        "image_url": c.image_url,
+        "display_order": c.display_order,
+        "count": count,
+    }
+
+
+def heritage_image_row(i):
+    return {
+        "id": i.id,
+        "url": i.url,
+        "caption": i.caption,
+        "display_order": i.display_order,
     }
 
 

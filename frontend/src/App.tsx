@@ -14,6 +14,11 @@ import Search from './pages/Search'
 const StateDetail = lazy(() => import('./pages/StateDetail'))
 const CityDetail = lazy(() => import('./pages/CityDetail'))
 const HeritageDetail = lazy(() => import('./pages/HeritageDetail'))
+const Tangible = lazy(() => import('./pages/Tangible'))
+const TangibleCategory = lazy(() => import('./pages/TangibleCategory'))
+const Intangible = lazy(() => import('./pages/Intangible'))
+const IntangibleArtForm = lazy(() => import('./pages/IntangibleArtForm'))
+const WorldHeritage = lazy(() => import('./pages/WorldHeritage'))
 const MuseumDetail = lazy(() => import('./pages/MuseumDetail'))
 const Greats = lazy(() => import('./pages/Greats'))
 const Commemorations = lazy(() => import('./pages/Commemorations'))
@@ -51,6 +56,11 @@ export default function App() {
           <Route path="/states/:id" element={<Suspense fallback={<PageLoading />}><StateDetail /></Suspense>} />
           <Route path="/cities/:id" element={<Suspense fallback={<PageLoading />}><CityDetail /></Suspense>} />
           <Route path="/heritage" element={<Heritage />} />
+          <Route path="/heritage/tangible" element={<Suspense fallback={<PageLoading />}><Tangible /></Suspense>} />
+          <Route path="/heritage/tangible/:category" element={<Suspense fallback={<PageLoading />}><TangibleCategory /></Suspense>} />
+          <Route path="/heritage/intangible" element={<Suspense fallback={<PageLoading />}><Intangible /></Suspense>} />
+          <Route path="/heritage/intangible/:artForm" element={<Suspense fallback={<PageLoading />}><IntangibleArtForm /></Suspense>} />
+          <Route path="/heritage/world" element={<Suspense fallback={<PageLoading />}><WorldHeritage /></Suspense>} />
           <Route path="/heritage/:id" element={<Suspense fallback={<PageLoading />}><HeritageDetail /></Suspense>} />
           <Route path="/museums" element={<Museums />} />
           <Route path="/museums/:id" element={<Suspense fallback={<PageLoading />}><MuseumDetail /></Suspense>} />

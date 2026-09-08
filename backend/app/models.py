@@ -92,7 +92,7 @@ class HeritageSite(Base):
 
     id = Column(Integer, primary_key=True)
     city_id = Column(Integer, ForeignKey("cities.id"), index=True, nullable=True)
-    state_id = Column(Integer, ForeignKey("states.id"), index=True)
+    state_id = Column(Integer, ForeignKey("states.id"), index=True, nullable=True)
     name = Column(String, index=True)
     category = Column(String)  # Fort / Temple / Monument / Palace / Archaeological
     description = Column(Text)
@@ -108,8 +108,60 @@ class HeritageSite(Base):
     image_url = Column(String)
     featured = Column(Integer, default=0)
 
+    # Heritage section (added by the heritage migration)
+    slug = Column(String, index=True)
+    heritage_type = Column(String, index=True)  # tangible | intangible | world
+    region = Column(String)
+    unesco_status = Column(String)  # WORLD | TENTATIVE | NOMINATED | INTANGIBLE
+    unesco_year = Column(String)
+    unesco_category = Column(String)
+    google_360_url = Column(String)
+    main_image = Column(String)
+    established = Column(String)
+
+    created_at = Column(String)
+    updated_at = Column(String)
+
     city = relationship("City", back_populates="heritage_sites")
     state = relationship("State", back_populates="heritage_sites")
+    images = relationship(
+        "HeritageImage",
+        back_populates="site",
+        cascade="all, delete-orphan",
+        order_by="HeritageImage.display_order",
+    )
+
+
+class HeritageCategory(Base):
+    """Categories for the Heritage section.
+
+    ``kind`` groups entries:
+      * ``tangible``   -> man-made / natural / mixed
+      * ``intangible`` -> art-form / cultural-practice categories
+    """
+
+    __tablename__ = "heritage_categories"
+
+    id = Column(Integer, primary_key=True)
+    slug = Column(String, index=True)
+    name = Column(String, index=True)
+    kind = Column(String, index=True)
+    parent_slug = Column(String, nullable=True)
+    description = Column(Text)
+    image_url = Column(String)
+    display_order = Column(Integer, default=0)
+
+
+class HeritageImage(Base):
+    __tablename__ = "heritage_images"
+
+    id = Column(Integer, primary_key=True)
+    heritage_site_id = Column(Integer, ForeignKey("heritage_sites.id"), index=True)
+    url = Column(String)
+    caption = Column(String)
+    display_order = Column(Integer, default=0)
+
+    site = relationship("HeritageSite", back_populates="images")
 
 
 class Museum(Base):

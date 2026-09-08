@@ -142,7 +142,7 @@ export interface City {
 export interface Heritage {
   id: number
   city_id: number | null
-  state_id: number
+  state_id: number | null
   name: string
   category: string
   description: string | null
@@ -157,10 +157,39 @@ export interface Heritage {
   related_events: string | null
   image_url: string | null
   featured: boolean
-  city_name?: string
-  state_name?: string
+  slug?: string | null
+  heritage_type?: 'tangible' | 'intangible' | 'world' | string | null
+  region?: string | null
+  unesco_status?: string | null
+  unesco_year?: string | null
+  unesco_category?: string | null
+  google_360_url?: string | null
+  main_image?: string | null
+  established?: string | null
+  gallery?: HeritageImage[]
+  city_name?: string | null
+  state_name?: string | null
   nearby?: Heritage[]
   provenance?: Record<string, string>
+}
+
+export interface HeritageCategory {
+  id: number
+  slug: string
+  name: string
+  kind: 'tangible' | 'intangible' | string
+  parent_slug: string | null
+  description: string | null
+  image_url: string | null
+  display_order: number
+  count: number
+}
+
+export interface HeritageImage {
+  id: number
+  url: string
+  caption: string | null
+  display_order: number
 }
 
 export interface Museum {

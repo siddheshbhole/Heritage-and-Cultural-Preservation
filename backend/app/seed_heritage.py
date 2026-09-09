@@ -273,6 +273,15 @@ def build(db):
             added_cats += 1
     db.flush()
 
+<<<<<<< HEAD
+=======
+    existing_sites = db.query(HeritageSite).count()
+    if existing_sites > 0:
+        db.rollback()
+        print(f"Heritage seed skipped: database already has {existing_sites} heritage sites.")
+        return
+
+>>>>>>> origin/main
     added = 0
     for payload in tangible_sites() + intangible_items() + world_sites():
         added += insert(db, payload)

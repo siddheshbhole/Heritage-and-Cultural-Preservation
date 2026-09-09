@@ -1,15 +1,21 @@
 import os
 import sys
+<<<<<<< HEAD
 
 from dotenv import load_dotenv
+=======
+>>>>>>> origin/main
 from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+<<<<<<< HEAD
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
+=======
+>>>>>>> origin/main
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.database import Base  # noqa: E402

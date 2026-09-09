@@ -1,21 +1,15 @@
 import os
 import sys
-<<<<<<< HEAD
 
 from dotenv import load_dotenv
-=======
->>>>>>> origin/main
 from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-<<<<<<< HEAD
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-=======
->>>>>>> origin/main
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.database import Base  # noqa: E402
@@ -26,7 +20,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-url = os.environ.get("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DB_FILE = PROJECT_ROOT / "data" / "processed" / "heritage.db"
+url = os.environ.get("DATABASE_URL") or f"sqlite:///{DB_FILE.as_posix()}"
 config.set_main_option("sqlalchemy.url", url)
 
 target_metadata = Base.metadata

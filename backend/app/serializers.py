@@ -372,7 +372,6 @@ def programme_row(p):
     }
 
 
-<<<<<<< HEAD
 def media_news_row(n):
     return {
         "id": n.id,
@@ -486,9 +485,6 @@ def media_webcast_row(w):
         "source_url": w.source_url,
     }
 
-
-=======
->>>>>>> origin/main
 def provenance_row(p):
     if p is None:
         return None

@@ -2,8 +2,5 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 psycopg2-binary
-<<<<<<< HEAD
-alembicpython-dotenv
-=======
 alembic
->>>>>>> origin/main
+python-dotenv

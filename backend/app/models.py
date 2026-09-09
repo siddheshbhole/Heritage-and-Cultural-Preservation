@@ -436,7 +436,6 @@ class Provenance(Base):
     last_updated = Column(String)
     license = Column(String, nullable=True)
     rights_status = Column(String)
-<<<<<<< HEAD
     verification_status = Column(String)
 
 
@@ -601,6 +600,3 @@ class MediaWebcast(Base):
     is_live = Column(Integer, default=0)
     source_url = Column(String)
     display_order = Column(Integer, default=0)
-=======
-    verification_status = Column(String)
->>>>>>> origin/main

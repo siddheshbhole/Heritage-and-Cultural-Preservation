@@ -2,14 +2,18 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import ExploreNav, { EXPLORE_ROUTE_RE } from './ExploreNav'
 import HeritageNav, { HERITAGE_ROUTE_RE } from './HeritageNav'
+import { useAuth } from '../context/AuthContext'
+
 
 const LINKS = [
   { to: '/', label: 'Home', end: true },
   { to: '/explore', label: 'Explore', end: false },
   { to: '/heritage', label: 'Heritage', end: false },
   { to: '/culture', label: 'Culture', end: false },
+  { to: '/community', label: 'Community', end: false },
   { to: '/papers', label: 'Documents', end: false },
 ]
+
 
 const DESKTOP_BREAKPOINT = 960
 
@@ -33,6 +37,7 @@ function useMediaQuery(query: string): boolean {
 export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, isAdmin, openAuthModal, signOut } = useAuth()
   const [q, setQ] = useState('')
   const [mq, setMq] = useState('')
   const [open, setOpen] = useState(false)
@@ -179,6 +184,8 @@ export default function Header() {
   const renderSubnav = (onNavigate?: () => void) => <ExploreNav onNavigate={onNavigate} />
   const renderHeritageSubnav = (onNavigate?: () => void) => <HeritageNav onNavigate={onNavigate} />
 
+  const userInitial = (user?.user_metadata?.full_name || user?.email || 'U').slice(0, 1).toUpperCase()
+
   return (
     <header className="navbar" ref={headerRef}>
       <div className="container nav-inner">
@@ -262,6 +269,11 @@ export default function Header() {
               </NavLink>
             )
           })}
+          {isAdmin && (
+            <NavLink to="/admin" style={{ color: 'var(--saffron-primary, #d97706)', fontWeight: 600 }}>
+              Admin
+            </NavLink>
+          )}
         </nav>
 
         <form className="nav-search" onSubmit={submit} role="search">
@@ -279,6 +291,43 @@ export default function Header() {
             <option value="en">EN</option>
             <option value="hi">हिं</option>
           </select>
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--saffron-primary, #d97706)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'default',
+                }}
+                title={user.email}
+              >
+                {userInitial}
+              </span>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline"
+                onClick={() => signOut()}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline"
+              onClick={() => openAuthModal('login')}
+            >
+              Sign In
+            </button>
+          )}
           <Link to="/assistant" className="btn btn-sm btn-primary nav-ai">Ask Culture AI</Link>
           <button
             className="hamburger"
@@ -291,6 +340,7 @@ export default function Header() {
           </button>
         </div>
       </div>
+
 
       {/* Desktop Explore sub-navigation */}
       <div

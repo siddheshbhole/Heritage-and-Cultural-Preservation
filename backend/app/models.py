@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -405,6 +406,8 @@ class CommunityPost(Base):
     related_resource = Column(String, nullable=True)
     related_city = Column(String, nullable=True)
     image_url = Column(String, nullable=True)
+    supabase_user_id = Column(String, nullable=True)
+
 
 
 class GovernmentProgramme(Base):
@@ -600,3 +603,19 @@ class MediaWebcast(Base):
     is_live = Column(Integer, default=0)
     source_url = Column(String)
     display_order = Column(Integer, default=0)
+
+
+class AuditLog(Base):
+    """Audit log for administrative operations across all entities."""
+
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    user_id = Column(String, index=True)
+    user_email = Column(String, nullable=True)
+    action = Column(String, index=True)  # CREATE, UPDATE, DELETE, APPROVE, REJECT
+    model_name = Column(String, index=True)
+    record_id = Column(String, index=True)
+    details = Column(Text, nullable=True)
+

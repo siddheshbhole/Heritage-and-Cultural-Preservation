@@ -324,7 +324,9 @@ def post_row(p):
         "related_resource": p.related_resource,
         "related_city": p.related_city,
         "image_url": p.image_url,
+        "supabase_user_id": getattr(p, "supabase_user_id", None),
     }
+
 
 
 def ministry_leader_row(l):

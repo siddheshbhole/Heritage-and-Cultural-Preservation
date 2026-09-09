@@ -2,27 +2,42 @@ const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
-    throw new Error(`Server responded with status ${res.status} (${res.statusText || 'unknown'})`)
+    let errMessage = `Server responded with status ${res.status} (${res.statusText || 'unknown'})`
+    try {
+      const data = await res.json()
+      if (data && data.detail) errMessage = data.detail
+    } catch {}
+    throw new Error(errMessage)
   }
   return res.json() as Promise<T>
 }
 
-export async function get<T>(path: string): Promise<T> {
+function getAuthHeaders(token?: string | null): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  return headers
+}
+
+export async function get<T>(path: string, token?: string | null): Promise<T> {
   let res: Response
   try {
-    res = await fetch(API_BASE + path)
+    res = await fetch(API_BASE + path, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
   }
   return handle<T>(res)
 }
 
-export async function post<T>(path: string, body: unknown): Promise<T> {
+export async function post<T>(path: string, body: unknown, token?: string | null): Promise<T> {
   let res: Response
   try {
     res = await fetch(API_BASE + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(token),
       body: JSON.stringify(body),
     })
   } catch {
@@ -30,6 +45,48 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
   }
   return handle<T>(res)
 }
+
+export async function patch<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(API_BASE + path, {
+      method: 'PATCH',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(body),
+    })
+  } catch {
+    throw new Error('Cannot reach the server. Is the API running?')
+  }
+  return handle<T>(res)
+}
+
+export async function put<T>(path: string, body: unknown, token?: string | null): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(API_BASE + path, {
+      method: 'PUT',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(body),
+    })
+  } catch {
+    throw new Error('Cannot reach the server. Is the API running?')
+  }
+  return handle<T>(res)
+}
+
+export async function del<T>(path: string, token?: string | null): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(API_BASE + path, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+  } catch {
+    throw new Error('Cannot reach the server. Is the API running?')
+  }
+  return handle<T>(res)
+}
+
 
 export interface HomeData {
   apps: CultureApp[]
@@ -404,3 +461,51 @@ export interface AssistantResponse {
   trust: string
   note: string
 }
+
+export interface ModelFieldMeta {
+  name: string
+  type: string
+  primary_key: boolean
+  nullable: boolean
+  editable: boolean
+}
+
+export interface ModelMeta {
+  key: string
+  class_name: string
+  table_name: string
+  domain: string
+  count: number
+  fields: ModelFieldMeta[]
+}
+
+export interface PaginatedList<T> {
+  items: T[]
+  total: number
+  page: number
+  per_page: number
+  pages: number
+}
+
+export interface AuditLogItem {
+  id: number
+  timestamp: string
+  user_id: string
+  user_email: string | null
+  action: string
+  model_name: string
+  record_id: string
+  details: string | null
+}
+
+export interface AdminStats {
+  total_posts: number
+  pending_posts: number
+  approved_posts: number
+  rejected_posts: number
+  heritage_sites: number
+  intangible_items: number
+  artifacts: number
+  manuscripts: number
+  audit_logs_count: number
+}

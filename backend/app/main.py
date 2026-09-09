@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routes import assistant, community, content, geo, heritage, media, ministry, search, trending
+from .routes import admin, admin_audit, admin_crud, assistant, community, content, geo, heritage, media, ministry, search, trending
 
 app = FastAPI(
     title="Ministry of Culture — Heritage & Culture Preservation Platform API",
@@ -14,9 +15,21 @@ app = FastAPI(
     description="Unified cultural discovery, preservation and intelligence platform for the Ministry of Culture, Government of India.",
 )
 
+# Fix Bug 4: Explicit, safe CORS origins instead of wildcard '*' with credentials
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+extra_origins = os.getenv("ALLOWED_ORIGINS", "")
+if extra_origins:
+    allowed_origins.extend([o.strip() for o in extra_origins.split(",") if o.strip()])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,9 +37,23 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-ROUTERS = [geo.router, heritage.router, content.router, community.router, search.router, assistant.router, trending.router, ministry.router, media.router]
+ROUTERS = [
+    geo.router,
+    heritage.router,
+    content.router,
+    community.router,
+    search.router,
+    assistant.router,
+    trending.router,
+    ministry.router,
+    media.router,
+    admin.router,
+    admin_crud.router,
+    admin_audit.router,
+]
 for r in ROUTERS:
     app.include_router(r)
+
 
 
 @app.get("/api/health")

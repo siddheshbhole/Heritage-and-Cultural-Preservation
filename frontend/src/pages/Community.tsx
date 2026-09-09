@@ -4,27 +4,34 @@ import { post } from '../api/client'
 import type { CommunityPost } from '../api/client'
 import { PageHead } from './_shared'
 import { Empty, Skeleton, TrustBadge } from '../components/ui'
+import { useAuth } from '../context/AuthContext'
 
 export default function Community() {
+  const { user, token, openAuthModal } = useAuth()
   const { data: items, loading, reload } = useFetch<CommunityPost[]>('/community/posts')
   const [kind, setKind] = useState('Story')
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
   const [done, setDone] = useState('')
   const [err, setErr] = useState('')
+
+  const authorDisplayName = user?.user_metadata?.full_name || user?.email || 'Authenticated User'
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErr('')
     setDone('')
     try {
-      const r = await post<CommunityPost>('/community/posts', { kind, title, content, author_name: author })
+      const r = await post<CommunityPost>(
+        '/community/posts',
+        { kind, title, content, author_name: authorDisplayName },
+        token
+      )
       setDone(r.message || 'Thanks! Your story has been submitted for moderation.')
-      setTitle(''); setContent(''); setAuthor('')
+      setTitle(''); setContent('')
       reload()
-    } catch {
-      setErr('Could not submit — make sure the backend is connected.')
+    } catch (error: any) {
+      setErr(error.message || 'Could not submit — make sure you are logged in and backend is connected.')
     }
   }
 
@@ -69,38 +76,53 @@ export default function Community() {
         </div>
 
         <div>
-          <form className="form-card" onSubmit={submit} style={{ maxWidth: '100%', position: 'sticky', top: 84 }}>
-            <h3 style={{ marginBottom: 12 }}>Share your story</h3>
-            <div className="field">
-              <label>Type</label>
-              <select className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
-                <option>Story</option>
-                <option>Question</option>
-                <option>Memory</option>
-                <option>Review</option>
-              </select>
+          {user ? (
+            <form className="form-card" onSubmit={submit} style={{ maxWidth: '100%', position: 'sticky', top: 84 }}>
+              <h3 style={{ marginBottom: 12 }}>Share your story</h3>
+              <div className="field" style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--muted, #6b7280)' }}>Posting as</label>
+                <div style={{ fontWeight: 600, color: 'var(--text, #111827)', fontSize: 14.5 }}>
+                  {authorDisplayName} <span className="chip chip-green" style={{ fontSize: 11, marginLeft: 6 }}>Verified User</span>
+                </div>
+              </div>
+              <div className="field">
+                <label>Type</label>
+                <select className="input" value={kind} onChange={(e) => setKind(e.target.value)}>
+                  <option>Story</option>
+                  <option>Question</option>
+                  <option>Memory</option>
+                  <option>Review</option>
+                </select>
+              </div>
+              <div className="field">
+                <label>Title</label>
+                <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="A short headline" required />
+              </div>
+              <div className="field">
+                <label>Story</label>
+                <textarea className="textarea" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Tell us about your visit, memory or question…" required />
+              </div>
+              {done && <p style={{ color: 'var(--green-deep)', fontSize: 13.5 }}>✓ {done}</p>}
+              {err && <p style={{ color: 'var(--orange-deep)', fontSize: 13.5 }}>{err}</p>}
+              <button className="btn btn-primary btn-block">Submit for review</button>
+              <p className="muted small" style={{ marginTop: 8 }}>
+                Every post is reviewed and tagged with a trust level so it’s clearly distinguished from official sources.
+              </p>
+            </form>
+          ) : (
+            <div className="form-card" style={{ maxWidth: '100%', position: 'sticky', top: 84, textAlign: 'center', padding: 28 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>✍️</div>
+              <h3 style={{ marginBottom: 8 }}>Login to Contribute</h3>
+              <p className="muted" style={{ fontSize: 14, marginBottom: 20 }}>
+                Please sign in with your email or social account to submit your heritage stories and questions for moderation.
+              </p>
+              <button className="btn btn-primary btn-block" onClick={() => openAuthModal('login')}>
+                Sign In to Share Your Story
+              </button>
             </div>
-            <div className="field">
-              <label>Name</label>
-              <input className="input" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Your name" />
-            </div>
-            <div className="field">
-              <label>Title</label>
-              <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="A short headline" required />
-            </div>
-            <div className="field">
-              <label>Story</label>
-              <textarea className="textarea" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Tell us about your visit, memory or question…" required />
-            </div>
-            {done && <p style={{ color: 'var(--green-deep)', fontSize: 13.5 }}>✓ {done}</p>}
-            {err && <p style={{ color: 'var(--orange-deep)', fontSize: 13.5 }}>{err}</p>}
-            <button className="btn btn-primary btn-block">Submit for review</button>
-            <p className="muted small" style={{ marginTop: 8 }}>
-              Every post is reviewed and tagged with a trust level so it’s clearly distinguished from official sources.
-            </p>
-          </form>
+          )}
         </div>
       </div>
     </>
   )
-}
+}

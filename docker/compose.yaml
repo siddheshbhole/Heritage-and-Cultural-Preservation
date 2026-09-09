@@ -4,16 +4,16 @@ services:
     container_name: culture-postgis
     restart: unless-stopped
     environment:
-      POSTGRES_USER: culture
-      POSTGRES_PASSWORD: culture
-      POSTGRES_DB: culture
+      POSTGRES_USER: ${POSTGRES_USER:-culture}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-culture}
+      POSTGRES_DB: ${POSTGRES_DB:-culture}
     ports:
       - "5432:5432"
     volumes:
       - culture_pgdata:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U culture -d culture"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5

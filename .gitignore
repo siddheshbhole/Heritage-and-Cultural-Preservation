@@ -1,6 +1,17 @@
-﻿node_modules/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+
+# Node / Frontend
+node_modules/
 dist/
 *.tsbuildinfo
 
@@ -12,8 +23,3 @@ dist/
 *.db
 *.sqlite
 *.sqlite3
-
-# Python cache
-__pycache__/
-*.py[cod]
-

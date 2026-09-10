@@ -548,8 +548,41 @@ export interface AdminStats {
   approved_posts: number
   rejected_posts: number
   heritage_sites: number
-  intangible_items: number
-  artifacts: number
-  manuscripts: number
+  categories_count: number
   audit_logs_count: number
+  states_count: number
+  cities_count: number
+  documents_count: number
+  doc_categories_count: number
+  museums_count: number
+  events_count: number
+  trending_count: number
+  media_count: number
+}
+
+export interface AdminAnalytics {
+  sites_by_category: Record<string, number>
+  sites_by_unesco: Record<string, number>
+  sites_by_type: Record<string, number>
+  sites_by_state: Record<string, number>
+  categories_breakdown: Record<string, number>
+  moderation_breakdown: { approved: number; pending: number; rejected: number }
+  recent_activity: AuditLogItem[]
+  doc_categories: Record<string, number>
+  media_breakdown: Record<string, number>
+}
+
+export interface AdminUserSummary {
+  author_name: string
+  total_posts: number
+  approved_posts: number
+  pending_posts: number
+  rejected_posts: number
+  last_active: string | null
+}
+
+export interface AdminUsersResponse {
+  authors: AdminUserSummary[]
+  total_unique_authors: number
+  supabase_users_with_posts: number
 }

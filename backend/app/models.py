@@ -63,6 +63,20 @@ class State(Base):
     iconic_battles = Column(Text)
     image_url = Column(String)
 
+    # Extended cultural dataset
+    cultural_identity = Column(String, nullable=True)
+    historical_overview = Column(Text, nullable=True)
+    arts_and_crafts = Column(Text, nullable=True)
+    festivals_and_rituals = Column(Text, nullable=True)
+    cuisine_and_languages = Column(Text, nullable=True)
+    important_personalities = Column(Text, nullable=True)
+
+    # Source tracking
+    source_name = Column(String, nullable=True)
+    source_url = Column(String, nullable=True)
+    source_type = Column(String, nullable=True)
+    last_verified_at = Column(String, nullable=True)
+
     cities = relationship("City", back_populates="state", cascade="all, delete-orphan")
     heritage_sites = relationship("HeritageSite", back_populates="state")
 
@@ -83,6 +97,20 @@ class City(Base):
     latitude = Column(Float)
     longitude = Column(Float)
     image_url = Column(String)
+
+    # Extended cultural dataset
+    cultural_identity = Column(String, nullable=True)
+    historical_overview = Column(Text, nullable=True)
+    arts_and_crafts = Column(Text, nullable=True)
+    festivals_and_rituals = Column(Text, nullable=True)
+    cuisine_and_languages = Column(Text, nullable=True)
+    important_personalities = Column(Text, nullable=True)
+
+    # Source tracking
+    source_name = Column(String, nullable=True)
+    source_url = Column(String, nullable=True)
+    source_type = Column(String, nullable=True)
+    last_verified_at = Column(String, nullable=True)
 
     state = relationship("State", back_populates="cities")
     heritage_sites = relationship("HeritageSite", back_populates="city")

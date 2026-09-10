@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
-import type { HomeData, MinistryData, ShowcaseItem, TrendingResponse } from '../api/client'
+import type { HomeData, MinistryData, ShowcaseItem, State, TrendingResponse } from '../api/client'
 import Ticker from '../components/Ticker'
 import Carousel from '../components/Carousel'
 import TrendingCarousel from '../components/TrendingCarousel'
 import MinistrySection from '../components/MinistrySection'
+import IndiaMap from '../components/IndiaMap'
 import { Section, StatCard, Skeleton } from '../components/ui'
 
 const SHOWCASE_ORDER = ['150 Years of Vande Mataram', 'Gyan Bharatam Mission', 'Indian Culture Portal (Version 2.0)']
@@ -61,6 +63,26 @@ export default function Home() {
     .filter((s) => SHOWCASE_META[s.title])
     .map((s) => ({ ...s, ...SHOWCASE_META[s.title] }))
     .sort((a, b) => SHOWCASE_ORDER.indexOf(a.title) - SHOWCASE_ORDER.indexOf(b.title))
+
+  const { data: statesData, loading: statesLoading } = useFetch<State[]>('/states')
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [mapVisible, setMapVisible] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const el = mapRef.current
+    if (!el) return
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) { setMapVisible(true); return }
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setMapVisible(true); obs.disconnect() } },
+      { threshold: 0.15 },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  const states = statesData ?? []
 
   return (
     <>
@@ -122,9 +144,35 @@ export default function Home() {
         <TrendingCarousel items={trendingItems} loading={trendingLoading} error={trendingError} />
       </Section>
 
-      <Section kicker="Official digital services" title="Culture, one app at a time" alt="altgreen">
-        {apps.length > 0 ? <Carousel items={apps} /> : <Skeleton />}
-      </Section>
+      <section
+        ref={mapRef}
+        className={`map-entrance${mapVisible ? ' visible' : ''}`}
+        style={{ padding: '48px 0' }}
+      >
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div className="kicker">Interactive Map</div>
+            <h2 style={{ fontSize: 28, fontWeight: 700, margin: '8px 0 10px' }}>
+              Explore the Cultural Soul of Bharat
+            </h2>
+            <p style={{ color: 'var(--muted)', maxWidth: 600, margin: '0 auto', fontSize: 15 }}>
+              Journey through 28 states and 8 union territories — discover heritage sites, living
+              traditions, festivals, crafts, cuisine and the stories that shape India's cultural
+              tapestry.
+            </p>
+          </div>
+          {statesLoading ? (
+            <Skeleton style={{ height: 420 }} />
+          ) : states.length > 0 ? (
+            <div style={{ maxWidth: 680, margin: '0 auto' }}>
+              <IndiaMap states={states} onSelect={(s) => navigate(`/states/${s.id}`)} />
+            </div>
+          ) : null}
+          <div style={{ textAlign: 'center', marginTop: 18 }}>
+            <Link to="/states" className="see-all">View all states &rarr;</Link>
+          </div>
+        </div>
+      </section>
 
       <MinistrySection data={ministry} loading={ministryLoading} />
 

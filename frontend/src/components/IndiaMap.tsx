@@ -27,6 +27,19 @@ const NAME_ALIAS: Record<string, string> = {
   'Andhra Pradesh': 'Andhra Pradesh',
 }
 
+function regionAccent(region: string): string {
+  const accents: Record<string, string> = {
+    North: '#e8c87a',
+    South: '#7ab8a8',
+    East: '#c4a0d0',
+    West: '#e8a87a',
+    Northeast: '#8bc4a0',
+    Central: '#c4b07a',
+    Islands: '#7ab0c4',
+  }
+  return accents[region] || 'var(--green-soft)'
+}
+
 export default function IndiaMap({ states, onSelect }: { states: State[]; onSelect: (s: State) => void }) {
   const [hover, setHover] = useState<State | null>(null)
   const [selected, setSelected] = useState<State | null>(null)
@@ -42,17 +55,22 @@ export default function IndiaMap({ states, onSelect }: { states: State[]; onSele
     return byName.get(aliased.toLowerCase()) ?? byName.get(locName.toLowerCase())
   }
 
+  const active = hover || selected
+
   return (
     <div className="map-wrap" style={{ maxWidth: 620, margin: '0 auto' }}>
       <svg viewBox={india.viewBox} className="india-map" role="img" aria-label="Interactive map of India">
         {india.locations.map((loc) => {
           const st = resolve(loc.name)
+          const isHovered = st && st.id === hover?.id
+          const isSelected = st && st.id === selected?.id
           return (
             <path
               key={loc.id}
               id={loc.id}
               d={loc.path}
-              className={`state-path${st ? ' has-data' : ''}${st && st.id === selected?.id ? ' selected' : ''}`}
+              className={`state-path${st ? ' has-data' : ''}${isSelected ? ' selected' : ''}`}
+              fill={isSelected ? 'var(--orange)' : isHovered && st ? regionAccent(st.region) : undefined}
               onMouseEnter={() => st && setHover(st)}
               onMouseLeave={() => setHover(null)}
               onClick={() => {
@@ -61,13 +79,29 @@ export default function IndiaMap({ states, onSelect }: { states: State[]; onSele
                   onSelect(st)
                 }
               }}
+              style={{ cursor: st ? 'pointer' : 'default', transition: 'fill 0.15s ease' }}
             />
           )
         })}
       </svg>
-      {(hover || selected) && (
-        <div className="map-tooltip" style={{ left: 24, top: 8 }}>
-          {(hover || selected)!.name}
+      {active && (
+        <div className="map-tooltip" style={{ left: 24, top: 8, maxWidth: 260 }}>
+          <div style={{ fontWeight: 600, fontSize: 14 }}>{active.name}</div>
+          {active.description && (
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 3, lineHeight: 1.4 }}>
+              {active.description.length > 80 ? active.description.slice(0, 80) + '...' : active.description}
+            </div>
+          )}
+          {active.heritage_count != null && (
+            <div style={{ fontSize: 12, marginTop: 4, color: 'var(--green-deep)' }}>
+              {active.heritage_count} heritage {active.heritage_count === 1 ? 'site' : 'sites'}
+            </div>
+          )}
+          {active.capital && (
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+              Capital: {active.capital}
+            </div>
+          )}
         </div>
       )}
       <p className="map-key" style={{ justifyContent: 'center' }}>

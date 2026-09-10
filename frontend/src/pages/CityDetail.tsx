@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
 import type { City } from '../api/client'
-import { PageHead, Band, Detail, Main, Aside, Facts, Block, Show } from './_shared'
+import { PageHead, Band, Detail, Main, Aside, Facts, Provenance, Block, Show } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 
 export default function CityDetail() {
@@ -9,7 +9,7 @@ export default function CityDetail() {
   const { data: c, loading, error } = useFetch<City>(`/cities/${id}`)
 
   if (loading) return <Skeleton style={{ height: 360, marginTop: 30 }} />
-  if (error || !c) return <Empty big="🏙️" text="City not found — the dataset hasn’t been connected." error={error} />
+  if (error || !c) return <Empty big="🏙️" text="City not found — the dataset hasn't been connected." error={error} />
 
   const heritage = c.heritage ?? []
   const museums = c.museums ?? []
@@ -31,7 +31,15 @@ export default function CityDetail() {
 
       <Detail>
         <Main>
-          <Block title="History"><Show what={c.history} /></Block>
+          <Block title="History">
+            <Show what={c.historical_overview || c.history} />
+            {!c.historical_overview && !c.history && <p className="muted">History content will appear here once connected.</p>}
+          </Block>
+          {c.cultural_identity && (
+            <Block title="Cultural Identity">
+              <Show what={c.cultural_identity} />
+            </Block>
+          )}
           <Block title="Culture & Traditions"><Show what={c.culture || c.rituals} /></Block>
           {(c.handicrafts || c.food) && (
             <>
@@ -39,11 +47,15 @@ export default function CityDetail() {
               <Block title="Food"><Show what={c.food} /></Block>
             </>
           )}
+          {c.arts_and_crafts && <Block title="Arts & Crafts"><Show what={c.arts_and_crafts} /></Block>}
+          {c.cuisine_and_languages && <Block title="Cuisine & Languages"><Show what={c.cuisine_and_languages} /></Block>}
+          {c.festivals_and_rituals && <Block title="Festivals & Rituals"><Show what={c.festivals_and_rituals} /></Block>}
           {c.iconic_battles && <Block title="Iconic Battles"><Show what={c.iconic_battles} /></Block>}
+          {c.important_personalities && <Block title="Important Personalities"><Show what={c.important_personalities} /></Block>}
 
           <Block title="Heritage sites">
             {heritage.length === 0 ? (
-              <p className="muted">Heritage data hasn’t been connected.</p>
+              <p className="muted">Heritage data hasn't been connected.</p>
             ) : (
               <div className="card-grid">
                 {heritage.map((h) => (
@@ -62,7 +74,7 @@ export default function CityDetail() {
 
           <Block title="Museums">
             {museums.length === 0 ? (
-              <p className="muted">Museum data hasn’t been connected.</p>
+              <p className="muted">Museum data hasn't been connected.</p>
             ) : (
               <div className="card-grid tight">
                 {museums.map((m) => (
@@ -85,6 +97,7 @@ export default function CityDetail() {
               ...(c.latitude ? [{ k: 'Coordinates', v: `${c.latitude?.toFixed(3)}, ${c.longitude?.toFixed(3)}` }] : []),
             ]}
           />
+          <Provenance rows={c.provenance} />
         </Aside>
       </Detail>
     </>

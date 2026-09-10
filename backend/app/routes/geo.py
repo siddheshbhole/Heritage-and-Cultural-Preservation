@@ -34,6 +34,15 @@ def get_state(state_id: int, db: Session = Depends(get_db)):
     data["cities"] = cities
     data["heritage_count"] = sum(len(c["heritage"]) for c in cities)
     data["festivals"] = (s.festivals or "").split("|") if s.festivals else []
+    data["provenance"] = {}
+    if s.source_name:
+        data["provenance"]["organization"] = s.source_name
+    if s.source_url:
+        data["provenance"]["source_url"] = s.source_url
+    if s.source_type:
+        data["provenance"]["source_type"] = s.source_type
+    if s.last_verified_at:
+        data["provenance"]["last_verified_at"] = s.last_verified_at
     return data
 
 
@@ -65,4 +74,13 @@ def get_city(city_id: int, db: Session = Depends(get_db)):
     data["heritage"] = [heritage_row(h) for h in c.heritage_sites]
     data["museums"] = [museum_row(m) for m in db.query(Museum).filter(Museum.city_id == city_id).all()]
     data["state_festivals"] = (c.state.festivals or "").split("|") if c.state and c.state.festivals else []
+    data["provenance"] = {}
+    if c.source_name:
+        data["provenance"]["organization"] = c.source_name
+    if c.source_url:
+        data["provenance"]["source_url"] = c.source_url
+    if c.source_type:
+        data["provenance"]["source_type"] = c.source_type
+    if c.last_verified_at:
+        data["provenance"]["last_verified_at"] = c.last_verified_at
     return data

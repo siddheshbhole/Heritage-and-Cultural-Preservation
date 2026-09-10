@@ -1219,6 +1219,20 @@ img { max-width: 100%; }
 
 .info-banner { font-size: 14px; }
 
+/* ---------- Map Entrance Animation ---------- */
+.map-entrance {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.map-entrance.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-entrance { opacity: 1; transform: none; transition: none; }
+}
+
 @media (max-width: 960px) {
   .media-nav-items { gap: 4px; }
   .media-tab { padding: 6px 12px; font-size: 12.5px; }

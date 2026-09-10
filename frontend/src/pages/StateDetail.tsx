@@ -13,7 +13,7 @@ export default function StateDetail() {
   const { data: s, loading, error } = useFetch<State>(`/states/${id}`)
 
   if (loading) return <Skeleton style={{ height: 400, marginTop: 30 }} />
-  if (error || !s) return <Empty big="🏛️" text="State not found — the dataset hasn’t been connected." error={error} />
+  if (error || !s) return <Empty big="🏛️" text="State not found — the dataset hasn't been connected." error={error} />
 
   const cities = s.cities ?? []
   const heritage = cities.flatMap((c) => (c.heritage ?? []).map((h) => ({ ...h, city: c.name })))
@@ -46,16 +46,26 @@ export default function StateDetail() {
           {tab === 'Overview' && (
             <>
               <Block title="History">
-                <Show what={s.history} />
-                {!s.history && <p className="muted">Deep history content will appear here once the data source is connected.</p>}
+                <Show what={s.historical_overview || s.history} />
+                {!s.historical_overview && !s.history && <p className="muted">Deep history content will appear here once the data source is connected.</p>}
               </Block>
+              {s.cultural_identity && (
+                <Block title="Cultural Identity">
+                  <Show what={s.cultural_identity} />
+                </Block>
+              )}
               <Block title="Culture">
                 <Show what={s.culture} />
               </Block>
               {s.iconic_battles && <Block title="Iconic Battles & Turning Points"><Show what={s.iconic_battles} /></Block>}
               {(s.categories?.length || 0) > 0 && (
-                <Block title="What it’s known for">
+                <Block title="What it's known for">
                   <div className="hero-strip">{s.categories.map((c) => <span key={c} className="chip chip-green">{c}</span>)}</div>
+                </Block>
+              )}
+              {s.important_personalities && (
+                <Block title="Important Personalities">
+                  <Show what={s.important_personalities} />
                 </Block>
               )}
               {cities.length > 0 && (
@@ -76,7 +86,7 @@ export default function StateDetail() {
           {tab === 'Cities' && (
             <Block title={`Cities in ${s.name}`}>
               {cities.length === 0 ? (
-                <Empty text="Cities haven’t been added yet." />
+                <Empty text="Cities haven't been added yet." />
               ) : (
                 <div className="card-grid">
                   {cities.map((c) => (
@@ -99,7 +109,7 @@ export default function StateDetail() {
           {tab === 'Heritage' && (
             <Block title={`Heritage sites in ${s.name}`}>
               {heritage.length === 0 ? (
-                <Empty text="Heritage data hasn’t been connected." />
+                <Empty text="Heritage data hasn't been connected." />
               ) : (
                 <div className="card-grid">
                   {heritage.map((h) => (
@@ -126,7 +136,9 @@ export default function StateDetail() {
               <Block title="Handicrafts"><Show what={s.handicrafts} /></Block>
               <Block title="Festivals"><Show what={s.festivals} /></Block>
               <Block title="Food"><Show what={s.food} /></Block>
-              {!s.rituals && !s.handicrafts && !s.festivals && !s.food && (
+              {s.arts_and_crafts && <Block title="Arts & Crafts"><Show what={s.arts_and_crafts} /></Block>}
+              {s.cuisine_and_languages && <Block title="Cuisine & Languages"><Show what={s.cuisine_and_languages} /></Block>}
+              {!s.rituals && !s.handicrafts && !s.festivals && !s.food && !s.arts_and_crafts && !s.cuisine_and_languages && (
                 <Empty text="Culture content will appear here once connected." />
               )}
             </>
@@ -135,7 +147,7 @@ export default function StateDetail() {
           {tab === 'Museums' && (
             <Block title={`Museums in ${s.name}`}>
               {cities.flatMap((c) => (c.museums ?? []).map((m) => ({ ...m, city: c.name }))).length === 0 ? (
-                <Empty text="Museum data hasn’t been connected." />
+                <Empty text="Museum data hasn't been connected." />
               ) : (
                 <div className="card-grid">
                   {cities.flatMap((c) => (c.museums ?? []).map((m) => ({ ...m, city: c.name }))).map((m) => (

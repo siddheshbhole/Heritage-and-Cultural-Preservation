@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
 import type { Event, Heritage, Museum, State } from '../api/client'
-import IndiaMap from '../components/IndiaMap'
 import { EXPLORE_NAV } from '../components/ExploreNav'
 import { Empty, Section, Skeleton, gradientFor, initials } from '../components/ui'
 
@@ -55,7 +54,6 @@ export default function Explore() {
   const eventsQ = useFetch<Event[]>('/events')
   const museumsQ = useFetch<Museum[]>('/museums')
   const navigate = useNavigate()
-  const [query, setQuery] = useState('')
 
   const states = regionQ.data ?? []
   const heritage = heritageQ.data ?? []
@@ -74,14 +72,6 @@ export default function Explore() {
         .slice(0, 8),
     [events],
   )
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return states
-    return states.filter(
-      (s) => s.name.toLowerCase().includes(q) || (s.region || '').toLowerCase().includes(q),
-    )
-  }, [states, query])
 
   const anyError = regionQ.error || heritageQ.error || eventsQ.error || museumsQ.error
   const anyRetry = () => {
@@ -102,7 +92,7 @@ export default function Explore() {
         <div className="container">
           <div className="eh-inner">
             <span className="eyebrow">Explore Bharat · Ministry of Culture</span>
-            <h1>India’s Heritage,<br />Our Shared Pride</h1>
+            <h1>India's Heritage,<br />Our Shared Pride</h1>
             <p className="eh-sub">
               Discover, experience and preserve the rich cultural heritage of India through monuments,
               festivals, traditions, music, crafts and stories.
@@ -111,9 +101,9 @@ export default function Explore() {
               <Link to="/heritage" className="btn" style={{ background: 'var(--gold)', color: '#4a3703', fontWeight: 700 }}>
                 Explore Heritage
               </Link>
-              <a href="#map-explorer" className="btn" style={{ background: 'rgba(255,255,255,0.14)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
-                Explore on the Map
-              </a>
+              <Link to="/states" className="btn" style={{ background: 'rgba(255,255,255,0.14)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)' }}>
+                Browse by State
+              </Link>
             </div>
             <div className="eh-strip">
               <div className="eh-stat"><b>28+8</b><span>States & UTs</span></div>
@@ -125,79 +115,6 @@ export default function Explore() {
         </div>
         <div className="eh-scroll" aria-hidden />
       </section>
-
-      {/* Map + quick stats */}
-      <Section
-        kicker="Map Explorer"
-        title="Choose your state, find your story"
-        action={<Link to="/states" className="see-all">List view →</Link>}
-      >
-        <div className="map-shell" id="map-explorer">
-          <div className="map-panel">
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 14 }}>
-              <input
-                className="input"
-                style={{ maxWidth: 320 }}
-                placeholder="Search by state or region…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                aria-label="Filter states"
-              />
-            </div>
-            {regionQ.loading ? (
-              <Skeleton style={{ height: 400 }} />
-            ) : states.length > 0 ? (
-              <IndiaMap states={states} onSelect={(s) => navigate(`/states/${s.id}`)} />
-            ) : (
-              <Empty big="—" text="State dataset not loaded." error={regionQ.error} onRetry={regionQ.reload} />
-            )}
-            {!regionQ.loading && filtered.length > 0 && (
-              <div className="explore-side" style={{ marginTop: 16, alignItems: 'stretch' }}>
-                <div className="card-grid tight">
-                  {filtered.map((s) => (
-                    <Link key={s.id} to={`/states/${s.id}`} className="feature-card">
-                      <div className="fc-body">
-                        <div className="meta">
-                          <span className="chip chip-green">{s.region || 'State'}</span>
-                        </div>
-                        <h3>{s.name}</h3>
-                        <p className="desc">
-                          {s.capital || ''}
-                          {s.heritage_count ? ` · ${s.heritage_count} heritage sites` : ''}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="explore-side">
-            <div className="pm-card">
-              <h3>Explore Bharat</h3>
-              <p>
-                28 states, 8 union territories and a living civilisation. Journey from the Himalayas
-                to the seas through the culture portal of the Ministry of Culture.
-              </p>
-              <Link to="/assistant" className="btn btn-sm btn-gold">Ask Culture AI</Link>
-            </div>
-            <div className="explore-stat-row">
-              {[
-                { v: states.length, l: 'States & UTs' },
-                { v: heritage.length, l: 'Heritage sites' },
-                { v: museums.length, l: 'Museums' },
-                { v: upcoming.length, l: 'Upcoming festivals' },
-              ].map((s) => (
-                <div key={s.l} className="stat">
-                  <b>{s.v || '—'}</b>
-                  <span>{s.l}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Section>
 
       {/* Discover by category */}
       <Section kicker="Discover" title="Explore Bharat by theme" alt="alt">

@@ -171,6 +171,16 @@ export interface State {
   categories: string[]
   cities?: City[]
   heritage_count?: number
+  cultural_identity?: string | null
+  historical_overview?: string | null
+  arts_and_crafts?: string | null
+  festivals_and_rituals?: string | null
+  cuisine_and_languages?: string | null
+  important_personalities?: string | null
+  source_name?: string | null
+  source_url?: string | null
+  source_type?: string | null
+  last_verified_at?: string | null
   provenance?: Record<string, string>
 }
 
@@ -193,6 +203,16 @@ export interface City {
   heritage?: Heritage[]
   museums?: Museum[]
   state_festivals?: string[]
+  cultural_identity?: string | null
+  historical_overview?: string | null
+  arts_and_crafts?: string | null
+  festivals_and_rituals?: string | null
+  cuisine_and_languages?: string | null
+  important_personalities?: string | null
+  source_name?: string | null
+  source_url?: string | null
+  source_type?: string | null
+  last_verified_at?: string | null
   provenance?: Record<string, string>
 }
 

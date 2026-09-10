@@ -88,7 +88,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       },
     })
-    return { error: res.error, data: res.data }
+    if (res.error) {
+      return { error: res.error, data: res.data }
+    }
+    // If Supabase requires email confirmation, sign in explicitly after signup
+    if (!res.data.session) {
+      const signInRes = await supabase.auth.signInWithPassword({ email, password: pass })
+      return { error: signInRes.error, data: signInRes.data }
+    }
+    return { error: null, data: res.data }
   }
 
   const signInWithOtp = async (email: string) => {

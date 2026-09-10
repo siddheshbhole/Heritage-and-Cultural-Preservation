@@ -131,29 +131,40 @@ def http_json(method: str, url: str, token: str, body: bytes | None = None, head
     legacy JWT keys — the modern ``sb_secret_...`` format is not a JWT and must
     not be sent as a bearer token.
     """
-    req_headers = {"apikey": token}
+    headers = dict(headers or {})
+    headers["apikey"] = token
     if not token.startswith("sb_secret_"):
-        req_headers["Authorization"] = f"Bearer {token}"
-    if headers:
-        req_headers.update(headers)
-    if body is not None and "Content-Type" not in req_headers:
-        req_headers["Content-Type"] = "application/json"
-    req = urllib.request.Request(url, data=body, headers=req_headers, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            raw = resp.read()
-            try:
-                return json.loads(raw) if raw else {}
-            except ValueError:
-                return {"ok": raw.decode("utf-8", "replace")}
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")[:400]
-        raise RuntimeError(f"{method} {url} -> HTTP {e.code}: {detail}") from e
+        headers["Authorization"] = f"Bearer {token}"
+    if body is not None and "Content-Type" not in headers:
+        headers["Content-Type"] = "application/json"
+
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    
+    # Retry loop for network operations against Supabase storage
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                raw = resp.read().decode("utf-8")
+                try:
+                    return resp.status, json.loads(raw) if raw else {}
+                except Exception:
+                    return resp.status, raw
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="replace")
+            # If 409 Conflict (file exists), return status
+            if e.code == 409:
+                return 409, err_body
+            if attempt == 2:
+                raise RuntimeError(f"HTTP {e.code} for {method} {url}: {err_body}") from e
+        except (urllib.error.URLError, TimeoutError, Exception) as e:
+            if attempt == 2:
+                raise RuntimeError(f"Request failed for {method} {url}: {str(e)}") from e
+    return 500, "Max retries exceeded"
 
 
 def ensure_bucket(url: str, token: str, bucket: str) -> None:
     """Create the bucket if missing, and make sure it is public."""
-    buckets = http_json("GET", f"{url}/storage/v1/bucket", token)
+    _, buckets = http_json("GET", f"{url}/storage/v1/bucket", token)
     existing = next((b for b in buckets if b.get("id") == bucket or b.get("name") == bucket), None)
     if existing is None:
         payload = json.dumps({"id": bucket, "name": bucket, "public": True}).encode()

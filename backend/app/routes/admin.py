@@ -7,14 +7,16 @@ from sqlalchemy.orm import Session
 
 from ..auth import require_admin
 from ..database import get_db
+from ..serializers import post_row
 from ..models import (
-    CommunityPost, Provenance, HeritageSite, HeritageCategory, AuditLog,
-    State, City, DocumentItem, DocumentCategory, TrendingItem,
-    Museum, MediaNews, MediaAlbum, MediaVideo, MediaBrochure,
-    MediaLeader, MediaMonument, MediaArtist, MediaSanskriti,
-    MediaEvent, MediaWebcast, Event, Scheme, Award, Commemoration,
-    Author, Publication, MoU, Institution, CultureApp,
-    Announcement, MinistryProfile, MinistryLeader,
+    AuditLog,
+    Artifact,
+    Discussion,
+    Contribution,
+    CulturalStory,
+    CommunityPost,
+    User,
+    SiteAnalytics,
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -27,8 +29,8 @@ class StatusUpdateIn(BaseModel):
 def _log_admin_action(db: Session, admin_user: dict, action: str, record_id: str, details: dict):
     try:
         log = AuditLog(
-            user_id=admin_user.get("sub", "admin"),
-            user_email=admin_user.get("email", "admin@heritage.gov.in"),
+            user_id=admin_user.get("id", "admin"),
+            user_email=admin_user.get("email", ""),
             action=action,
             model_name="community_posts",
             record_id=str(record_id),
@@ -121,7 +123,7 @@ def delete_post(
             detail=f"Community post #{post_id} not found.",
         )
 
-    old_data = {"title": post.title, "author_name": post.author_name, "category": post.category}
+    old_data = {"title": post.title, "author_name": post.author_name, "kind": post.kind}
     # Delete provenance record
     db.query(Provenance).filter(
         Provenance.resource_type == "community_post",

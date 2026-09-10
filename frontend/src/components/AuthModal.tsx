@@ -42,12 +42,7 @@ export default function AuthModal() {
       if (tab === 'login') {
         const { error } = await signInWithEmail(email, password)
         if (error) {
-          const message = (error.message || '').toLowerCase()
-          setErrorMsg(
-            message.includes('email not confirmed')
-              ? 'Your email is not confirmed yet. Please check your inbox and confirm your account before signing in.'
-              : error.message
-          )
+          setErrorMsg(error.message)
         } else {
           setSuccessMsg('Successfully signed in!')
           setTimeout(() => closeAuthModal(), 1000)
@@ -60,7 +55,8 @@ export default function AuthModal() {
           setSuccessMsg('Account created and signed in successfully!')
           setTimeout(() => closeAuthModal(), 1200)
         } else {
-          setSuccessMsg('Account created successfully! A confirmation email has been sent. Please verify before signing in.')
+          // Should not happen with auto-login enabled; keep modal open safely.
+          setErrorMsg('Unable to establish a session. Please try signing in.')
         }
       } else if (tab === 'magic') {
         const { error } = await signInWithOtp(email)

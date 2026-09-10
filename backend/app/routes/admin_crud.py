@@ -115,8 +115,8 @@ def _model_to_dict(obj) -> Dict[str, Any]:
 def _log_audit(db: Session, admin_user: dict, action: str, model_name: str, record_id: str, details: dict):
     try:
         log = AuditLog(
-            user_id=admin_user.get("sub", "admin"),
-            user_email=admin_user.get("email", "admin@heritage.gov.in"),
+            user_id=admin_user.get("id", "admin"),
+            user_email=admin_user.get("email", ""),
             action=action,
             model_name=model_name,
             record_id=str(record_id),

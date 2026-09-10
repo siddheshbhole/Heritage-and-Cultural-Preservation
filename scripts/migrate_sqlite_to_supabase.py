@@ -106,12 +106,11 @@ def pg_row_count(pg_conn, table: str) -> int:
 
 def pg_sequence_for_table(pg_conn, table: str) -> str | None:
     """Return the sequence name backing a table's id column, if any."""
-    cur = pg_conn.cursor()
-    cur.execute(
-        "SELECT pg_get_serial_sequence('public.%s', 'id')", (table,)
-    )
-    row = cur.fetchone()
-    cur.close()
+    with pg_conn.cursor() as cur:
+        cur.execute(
+            "SELECT pg_get_serial_sequence(%s, 'id')", (f"public.{table}",)
+        )
+        row = cur.fetchone()
     return row[0] if row and row[0] else None
 
 

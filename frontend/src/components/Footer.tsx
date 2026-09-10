@@ -158,7 +158,7 @@ export default function Footer() {
         <div>
           <h4>Knowledge</h4>
           <ul>
-            <li><Link to="/papers">Archival Documents</Link></li>
+            <li><Link to="/documents">Official Documents</Link></li>
             <li><Link to="/eternities">Scholars & Authors</Link></li>
             <li><Link to="/commemorations">Commemorations</Link></li>
             <li><Link to="/awards">Awards & Honours</Link></li>

@@ -30,3 +30,5 @@ backend/.env
 *.db
 *.sqlite
 *.sqlite3
+Kanak.zip
+data/documents/

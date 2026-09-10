@@ -400,6 +400,30 @@ export interface Document {
   rights_status: string
 }
 
+export interface DocumentCategory {
+  id: number
+  slug: string
+  name: string
+  description: string | null
+  icon: string | null
+  display_order: number
+  count: number
+}
+
+export interface DocumentItem {
+  id: number
+  title: string
+  slug: string
+  category: string
+  file_url: string | null
+  file_type: string
+  file_size: number
+  published_date: string | null
+  description: string | null
+  sort_order: number
+  created_at: string | null
+}
+
 export interface Author {
   id: number
   name: string

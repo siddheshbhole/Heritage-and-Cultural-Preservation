@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routes import admin, admin_audit, admin_crud, assistant, community, content, geo, heritage, media, ministry, search, trending
+from .routes import admin, admin_audit, admin_crud, assistant, community, content, documents, geo, heritage, media, ministry, search, trending
 
 app = FastAPI(
     title="Ministry of Culture — Heritage & Culture Preservation Platform API",
@@ -47,12 +47,20 @@ ROUTERS = [
     trending.router,
     ministry.router,
     media.router,
+    documents.router,
     admin.router,
     admin_crud.router,
     admin_audit.router,
 ]
 for r in ROUTERS:
     app.include_router(r)
+
+# Serve the extracted Ministry of Culture documents under /static/documents.
+# Registered *before* the SPA catch-all below so file URLs are not swallowed.
+from .routes.documents import DOCUMENTS_ROOT  # noqa: E402
+
+DOCUMENTS_ROOT.mkdir(parents=True, exist_ok=True)
+app.mount("/static/documents", StaticFiles(directory=DOCUMENTS_ROOT), name="documents")
 
 
 

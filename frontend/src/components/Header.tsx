@@ -2,6 +2,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import ExploreNav, { EXPLORE_ROUTE_RE } from './ExploreNav'
 import HeritageNav, { HERITAGE_ROUTE_RE } from './HeritageNav'
+import DocumentsNav, { DOCUMENTS_ROUTE_RE } from './DocumentsNav'
 import { useAuth } from '../context/AuthContext'
 
 
@@ -11,7 +12,7 @@ const LINKS = [
   { to: '/heritage', label: 'Heritage', end: false },
   { to: '/culture', label: 'Culture', end: false },
   { to: '/community', label: 'Community', end: false },
-  { to: '/papers', label: 'Documents', end: false },
+  { to: '/documents', label: 'Documents', end: false },
 ]
 
 
@@ -43,14 +44,17 @@ export default function Header() {
   const [open, setOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
   const [heritageOpen, setHeritageOpen] = useState(false)
+  const [documentsOpen, setDocumentsOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [heritageExpanded, setHeritageExpanded] = useState(false)
+  const [documentsExpanded, setDocumentsExpanded] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   const closeTimer = useRef<number | null>(null)
   const isDesktop = useMediaQuery(`(min-width: ${DESKTOP_BREAKPOINT}px)`)
 
   const onExploreRoute = EXPLORE_ROUTE_RE.test(location.pathname)
   const onHeritageRoute = HERITAGE_ROUTE_RE.test(location.pathname)
+  const onDocumentsRoute = DOCUMENTS_ROUTE_RE.test(location.pathname)
 
   const closeExplore = () => {
     if (closeTimer.current) {
@@ -70,11 +74,21 @@ export default function Header() {
     setHeritageExpanded(false)
   }
 
+  const closeDocuments = () => {
+    if (closeTimer.current) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+    setDocumentsOpen(false)
+    setDocumentsExpanded(false)
+  }
+
   const scheduleClose = () => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current)
     closeTimer.current = window.setTimeout(() => {
       setExploreOpen(false)
       setHeritageOpen(false)
+      setDocumentsOpen(false)
     }, 180)
   }
 
@@ -89,6 +103,7 @@ export default function Header() {
     setOpen(false)
     closeExplore()
     closeHeritage()
+    closeDocuments()
   }, [location.pathname])
 
   useEffect(() => {
@@ -144,6 +159,28 @@ export default function Header() {
     }
   }, [heritageOpen])
 
+  useEffect(() => {
+    if (!documentsOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeDocuments()
+        const el = headerRef.current?.querySelector<HTMLAnchorElement>('[data-documents-link]')
+        el?.focus()
+      }
+    }
+    const onClickOutside = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        closeDocuments()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onClickOutside)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onClickOutside)
+    }
+  }, [documentsOpen])
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     if (q.trim()) {
@@ -181,8 +218,20 @@ export default function Header() {
     }
   }
 
+  const handleDocumentsClick = (e: React.MouseEvent) => {
+    if (isDesktop && !documentsOpen) {
+      e.preventDefault()
+      setDocumentsOpen(true)
+      setExploreOpen(false)
+      setHeritageOpen(false)
+    } else if (isDesktop && documentsOpen) {
+      closeDocuments()
+    }
+  }
+
   const renderSubnav = (onNavigate?: () => void) => <ExploreNav onNavigate={onNavigate} />
   const renderHeritageSubnav = (onNavigate?: () => void) => <HeritageNav onNavigate={onNavigate} />
+  const renderDocumentsSubnav = (onNavigate?: () => void) => <DocumentsNav onNavigate={onNavigate} />
 
   const userInitial = (user?.user_metadata?.full_name || user?.email || 'U').slice(0, 1).toUpperCase()
 
@@ -255,6 +304,38 @@ export default function Header() {
                         setExploreOpen(false)
                       } else if (e.key === 'Enter' || e.key === ' ') {
                         setHeritageOpen(false)
+                      }
+                    }}
+                  >
+                    {l.label} <span className="caret" aria-hidden>▾</span>
+                  </NavLink>
+                </div>
+              )
+            }
+            if (l.to === '/documents') {
+              return (
+                <div
+                  className={`nav-item-wrap${onDocumentsRoute ? ' has-active' : ''}${documentsOpen ? ' open' : ''}`}
+                  key={l.to}
+                  onMouseEnter={() => isDesktop && (cancelClose(), setDocumentsOpen(true), setExploreOpen(false), setHeritageOpen(false))}
+                  onMouseLeave={() => isDesktop && scheduleClose()}
+                >
+                  <NavLink
+                    to={l.to}
+                    end={l.end}
+                    data-documents-link
+                    aria-haspopup="true"
+                    aria-expanded={documentsOpen}
+                    aria-controls="documents-subnav"
+                    onClick={handleDocumentsClick}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault()
+                        setDocumentsOpen(true)
+                        setExploreOpen(false)
+                        setHeritageOpen(false)
+                      } else if (e.key === 'Enter' || e.key === ' ') {
+                        setDocumentsOpen(false)
                       }
                     }}
                   >
@@ -366,6 +447,18 @@ export default function Header() {
         <div className="container">{renderHeritageSubnav()}</div>
       </div>
 
+      {/* Desktop Documents sub-navigation */}
+      <div
+        id="documents-subnav"
+        className="explore-subnav documents-subnav"
+        aria-label="Documents sub-navigation"
+        style={{ display: documentsOpen ? 'block' : 'none' }}
+        onMouseEnter={() => isDesktop && cancelClose()}
+        onMouseLeave={() => isDesktop && scheduleClose()}
+      >
+        <div className="container">{renderDocumentsSubnav()}</div>
+      </div>
+
       <nav
         id="mobile-menu"
         className="mobile-menu"
@@ -449,6 +542,41 @@ export default function Header() {
                     style={{ display: heritageExpanded ? 'block' : 'none' }}
                   >
                     {renderHeritageSubnav(() => setOpen(false))}
+                  </div>
+                </div>
+              )
+            }
+            if (l.to === '/documents') {
+              return (
+                <div key={l.to} className="mobile-explore">
+                  <div className="mobile-explore-head">
+                    <NavLink
+                      to={l.to}
+                      end={l.end}
+                      onClick={() => {
+                        setOpen(false)
+                        setDocumentsExpanded(false)
+                      }}
+                    >
+                      {l.label}
+                    </NavLink>
+                    <button
+                      className="mobile-explore-toggle"
+                      aria-expanded={documentsExpanded}
+                      aria-controls="mobile-documents-panel"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setDocumentsExpanded((v) => !v)
+                      }}
+                    >
+                      {documentsExpanded ? '−' : '+'}
+                    </button>
+                  </div>
+                  <div
+                    id="mobile-documents-panel"
+                    style={{ display: documentsExpanded ? 'block' : 'none' }}
+                  >
+                    {renderDocumentsSubnav(() => setOpen(false))}
                   </div>
                 </div>
               )

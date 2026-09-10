@@ -11,7 +11,6 @@ import States from './pages/States'
 import Heritage from './pages/Heritage'
 import Museums from './pages/Museums'
 import Culture from './pages/Culture'
-import Papers from './pages/Papers'
 import Search from './pages/Search'
 import MediaLayout from './pages/media/MediaLayout'
 
@@ -47,6 +46,8 @@ const MediaEvents = lazy(() => import('./pages/media/MediaEvents'))
 const MediaNews = lazy(() => import('./pages/media/MediaNews'))
 const MediaAnnouncement = lazy(() => import('./pages/media/MediaAnnouncement'))
 const MediaWebcast = lazy(() => import('./pages/media/MediaWebcast'))
+const DocumentsHome = lazy(() => import('./pages/documents/DocumentsHome'))
+const DocumentCategoryPage = lazy(() => import('./pages/documents/DocumentCategoryPage'))
 
 import { useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
@@ -111,7 +112,8 @@ export default function App() {
             <Route path="/greats" element={<Suspense fallback={<PageLoading />}><Greats /></Suspense>} />
             <Route path="/commemorations" element={<Suspense fallback={<PageLoading />}><Commemorations /></Suspense>} />
             <Route path="/publications" element={<Suspense fallback={<PageLoading />}><Publications /></Suspense>} />
-            <Route path="/papers" element={<Papers />} />
+            <Route path="/documents" element={<Suspense fallback={<PageLoading />}><DocumentsHome /></Suspense>} />
+            <Route path="/documents/:categorySlug" element={<Suspense fallback={<PageLoading />}><DocumentCategoryPage /></Suspense>} />
             <Route path="/schemes" element={<Suspense fallback={<PageLoading />}><Schemes /></Suspense>} />
             <Route path="/awards" element={<Suspense fallback={<PageLoading />}><Awards /></Suspense>} />
             <Route path="/eternities" element={<Suspense fallback={<PageLoading />}><Eternities /></Suspense>} />

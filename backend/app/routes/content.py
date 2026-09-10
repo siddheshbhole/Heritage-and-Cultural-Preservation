@@ -6,12 +6,12 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import (
     AboutEntry, Announcement, Author, Award, City, Commemoration, CultureApp,
-    Document, Event, GovernmentProgramme, HeritageSite, Institution, MoU, Museum,
+    Event, GovernmentProgramme, HeritageSite, Institution, MoU, Museum,
     Provenance, Publication, Scheme, State,
 )
 from ..serializers import (
     announcement_row, app_row, author_row, award_row, commemoration_row,
-    document_row, event_row, heritage_image_row, heritage_row, institution_row,
+    event_row, heritage_image_row, heritage_row, institution_row,
     mou_row, museum_row, programme_row, provenance_row, publication_row, scheme_row,
 )
 
@@ -128,23 +128,6 @@ def list_awards(db: Session = Depends(get_db)):
 @router.get("/commemorations")
 def list_commemorations(db: Session = Depends(get_db)):
     return [commemoration_row(c) for c in db.query(Commemoration).order_by(Commemoration.name).all()]
-
-
-@router.get("/documents")
-def list_documents(
-    doc_type: str | None = None,
-    year: str | None = None,
-    organization: str | None = None,
-    db: Session = Depends(get_db),
-):
-    q = db.query(Document)
-    if doc_type:
-        q = q.filter(Document.doc_type == doc_type)
-    if year:
-        q = q.filter(Document.year == year)
-    if organization:
-        q = q.filter(Document.organization == organization)
-    return [document_row(d) for d in q.all()]
 
 
 @router.get("/publications")

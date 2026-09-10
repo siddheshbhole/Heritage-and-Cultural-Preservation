@@ -275,6 +275,41 @@ def document_row(d):
     }
 
 
+def document_category_row(c, count: int = 0):
+    return {
+        "id": c.id,
+        "slug": c.slug,
+        "name": c.name,
+        "description": c.description,
+        "icon": c.icon,
+        "display_order": c.display_order,
+        "count": count,
+    }
+
+
+def document_item_row(d):
+    # Public/CDN URLs (e.g. Supabase Storage) are passed through untouched;
+    # local files known to the backend are served through the proxy endpoint.
+    file_url = d.file_url
+    if file_url and file_url.startswith(("http://", "https://")):
+        pass  # external URL (Supabase Storage CDN / remote archive)
+    elif d.file_path:
+        file_url = f"/api/documents/file/{d.id}"
+    return {
+        "id": d.id,
+        "title": d.title,
+        "slug": d.slug,
+        "category": d.category,
+        "file_url": file_url,
+        "file_type": (d.file_type or "").upper(),
+        "file_size": d.file_size or 0,
+        "published_date": d.published_date,
+        "description": d.description,
+        "sort_order": d.sort_order,
+        "created_at": d.created_at,
+    }
+
+
 def author_row(a):
     return {
         "id": a.id,

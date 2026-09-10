@@ -304,6 +304,49 @@ class Document(Base):
     rights_status = Column(String, default="LINK_ONLY")
 
 
+class DocumentCategory(Base):
+    """One of the Ministry of Culture document categories (Reports, Schemes …).
+
+    ``slug`` is the canonical URL segment used by the frontend
+    (e.g. ``circular-orders-notices``). ``display_order`` keeps the strict
+    ordering used in the site navigation.
+    """
+
+    __tablename__ = "document_categories"
+
+    id = Column(Integer, primary_key=True)
+    slug = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
+    description = Column(Text)
+    icon = Column(String, nullable=True)
+    display_order = Column(Integer, default=0)
+
+
+class DocumentItem(Base):
+    """An official Ministry of Culture document served by the Documents section.
+
+    The actual file lives under ``data/documents/`` (extracted from the Ministry
+    archive by :mod:`scripts.ingest_documents`); ``file_path`` stores the path
+    relative to that root and ``file_url`` the public URL through which it is
+    served by ``GET /api/documents/file/{id}``.
+    """
+
+    __tablename__ = "document_items"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String, index=True)
+    slug = Column(String, index=True)
+    category = Column(String, index=True)  # DocumentCategory.slug
+    file_path = Column(String)
+    file_url = Column(String, nullable=True)
+    file_type = Column(String)  # pdf / docx / doc / pptx …
+    file_size = Column(Integer, default=0)
+    published_date = Column(String, nullable=True)
+    description = Column(Text, nullable=True)
+    sort_order = Column(Integer, default=0)
+    created_at = Column(String)
+
+
 class Author(Base):
     __tablename__ = "authors"
 

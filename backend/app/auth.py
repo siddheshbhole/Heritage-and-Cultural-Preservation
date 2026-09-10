@@ -8,7 +8,7 @@ security = HTTPBearer(auto_error=False)
 
 def get_admin_emails() -> list[str]:
     raw = os.getenv("ADMIN_EMAILS", "admin@example.com")
-    return [e.strip().lower() for e in raw.split(",") if e.strip()]
+    return list(dict.fromkeys(e.strip().lower() for e in raw.split(",") if e.strip()))
 
 
 def verify_supabase_jwt(token: str) -> dict:

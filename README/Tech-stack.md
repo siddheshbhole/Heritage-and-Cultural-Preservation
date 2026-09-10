@@ -1345,3 +1345,52 @@ PostgreSQL
 ```
 
 The SIH prototype should demonstrate the core product clearly before introducing production-scale infrastructure.
+
+---
+
+## Appendix — Documents Storage & Migration Workflow
+
+The Ministry of Culture **Documents** section stores binaries in a public
+Supabase Storage bucket and metadata in PostgreSQL, so the feature survives
+ephemeral cloud filesystems (Vercel, Render, Railway).
+
+```
+Kanak.zip
+   │  1. scripts/ingest_documents.py      (extract + seed metadata)
+   ▼
+data/documents/  ──(local dev only)──►  FastAPI /api/documents/file/{id}
+   │
+   │  2. scripts/upload_documents_to_supabase.py
+   ▼
+Supabase Storage bucket "documents" (public)
+   └── https://<ref>.supabase.co/storage/v1/object/public/documents/<path>
+          │
+          ▼
+document_items.file_url = public CDN URL   ◄── serializer passes HTTP(S) URLs
+                                                 through untouched
+```
+
+Commands (from the repository root, using the backend venv Python):
+
+```
+backend\\.venv\\Scripts\\python.exe scripts\\ingest_documents.py
+backend\\.venv\\Scripts\\python.exe scripts\\upload_documents_to_supabase.py --dry-run
+backend\\.venv\\Scripts\\python.exe scripts\\upload_documents_to_supabase.py
+```
+
+Environment variables required by the upload script (see `.env.example`):
+
+- `SUPABASE_URL` — project URL, e.g. `https://<ref>.supabase.co`
+- `SUPABASE_SERVICE_ROLE_KEY` — preferred for bucket creation + uploads (bypasses
+  RLS); falls back to `SUPABASE_STORAGE_KEY`, then `SUPABASE_ANON_KEY`.
+
+Behaviour notes:
+
+- The upload script is idempotent (bucket upsert + `x-upsert: true`), so it can
+  be re-run after the archive changes.
+- `backend/app/serializers.py::document_item_row` returns any `http(s)://`
+  `file_url` verbatim; rows whose `file_url` is a local path are rewritten to
+  `/api/documents/file/{id}`.
+- `GET /api/documents/file/{id}` serves the local file when present and
+  otherwise returns a `308` redirect to the CDN URL, so the in-browser viewer
+  keeps working in both local and cloud environments.

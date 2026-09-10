@@ -13,9 +13,9 @@ interface AuthContextType {
   openAuthModal: (tab?: 'login' | 'signup') => void
   closeAuthModal: () => void
   signIn: (email: string, pass: string) => Promise<{ error: any }>
-  signUp: (email: string, pass: string, fullName?: string) => Promise<{ error: any }>
+  signUp: (email: string, pass: string, fullName?: string) => Promise<{ error: any; data: any }>
   signInWithEmail: (email: string, pass: string) => Promise<{ error: any }>
-  signUpWithEmail: (email: string, pass: string, fullName?: string) => Promise<{ error: any }>
+  signUpWithEmail: (email: string, pass: string, fullName?: string) => Promise<{ error: any; data: any }>
   signInWithOtp: (email: string) => Promise<{ error: any }>
   signInWithOAuth: (provider: 'google' | 'github') => Promise<{ error: any }>
   signOut: () => Promise<{ error: any }>
@@ -55,6 +55,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe()
   }, [])
 
+  // Parse optional comma-separated admin emails from env, normalized to lowercase
+  const envAdminEmails = (import.meta.env.VITE_ADMIN_EMAIL || '')
+    .split(',')
+    .map((e: string) => e.trim().toLowerCase())
+    .filter(Boolean)
+
   // Check admin status
   const isAdmin = Boolean(
     user &&
@@ -62,8 +68,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user.app_metadata?.role === 'admin' ||
       user.user_metadata?.role === 'admin' ||
       user.email?.toLowerCase().endsWith('@culture.gov.in') ||
-      user.email === 'admin@example.com' ||
-      user.email === import.meta.env.VITE_ADMIN_EMAIL
+      user.email?.toLowerCase() === 'admin@example.com' ||
+      (user.email && envAdminEmails.includes(user.email.toLowerCase()))
     )
   )
 
@@ -82,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       },
     })
-    return { error: res.error }
+    return { error: res.error, data: res.data }
   }
 
   const signInWithOtp = async (email: string) => {

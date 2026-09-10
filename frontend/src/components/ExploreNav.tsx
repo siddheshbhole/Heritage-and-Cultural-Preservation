@@ -8,18 +8,15 @@ export interface ExploreNavItem {
 }
 
 export const EXPLORE_NAV: ExploreNavItem[] = [
-  { to: '/heritage', label: 'Heritage Sites', desc: 'Monuments, temples, forts and living stones of Bharat' },
-  { to: '/heritage', label: 'Monuments & Architecture', desc: 'Iconic forts, palaces and architectural marvels' },
-  { to: '/museums', label: 'Museums & Galleries', desc: 'Collections, artefacts and gallery experiences' },
-  { to: '/culture', label: 'Festivals & Celebrations', desc: 'Colourful festivals, melas and seasonal celebrations' },
-  { to: '/culture', label: 'Music & Performing Arts', desc: 'Classical ragas, folk music and staged arts' },
-  { to: '/culture', label: 'Dance Traditions', desc: 'Bharatanatyam, Kathak, Odissi and folk dance forms' },
-  { to: '/explore', label: 'Handicrafts & Artisans', desc: 'Weaves, crafts and living artisan traditions' },
-  { to: '/explore', label: 'Food & Cuisine', desc: 'Regional cuisines, sweets and culinary heritage' },
-  { to: '/papers', label: 'Languages & Literature', desc: 'Scripts, manuscripts and literary traditions' },
-  { to: '/heritage', label: 'Spiritual & Religious Heritage', desc: 'Temples, pilgrimages and spiritual centres' },
-  { to: '/explore', label: 'States & Regions', desc: '28 states, 8 UTs and their distinct cultures' },
-  { to: '/community', label: 'Cultural Stories & Blogs', desc: 'Stories, essays and community voices' },
+  { to: '/media/photos', label: 'Photos', desc: 'Photo galleries from the Ministry of Culture' },
+  { to: '/media/videos', label: 'Videos', desc: 'Official video archive and cultural films' },
+  { to: '/media/brochure', label: 'Brochure', desc: 'Ministry of Culture brochures and publications' },
+  { to: '/media/bharat-beat', label: 'Bharat Beat', desc: 'Leaders, monuments, artists and cultural icons' },
+  { to: '/media/sanskriti', label: 'Sanskriti', desc: 'Curated cultural collections and heritage stories' },
+  { to: '/media/events', label: 'Events', desc: 'Cultural events, seminars and celebrations' },
+  { to: '/media/latest-news', label: 'Latest News', desc: 'Press releases and news from the Ministry' },
+  { to: '/media/announcement', label: 'Announcement', desc: 'Official announcements, tenders and notices' },
+  { to: '/media/webcast', label: 'Webcast', desc: 'Live and archived Ministry webcasts' },
 ]
 
 const NAV_ROUTES = Array.from(new Set(EXPLORE_NAV.map((n) => n.to)))
@@ -34,7 +31,7 @@ const LEGACY_ROUTES = [
   '/institutions',
 ]
 const ESCAPED = [...NAV_ROUTES, ...LEGACY_ROUTES, '/explore'].filter((r) => r !== '/').join('|').replace(/\//g, '\\/')
-export const EXPLORE_ROUTE_RE = new RegExp(`^(?:${ESCAPED})$`)
+export const EXPLORE_ROUTE_RE = new RegExp(`^(?:${ESCAPED}|\\/media(?:\\/[^\\s]*)?)$`)
 
 interface FeaturedDest {
   img: string
@@ -126,7 +123,7 @@ export default function ExploreNav({ onNavigate }: { onNavigate?: () => void }) 
       <div className="mega-grid">
         <div className="mega-items">
           {EXPLORE_NAV.map((n) => {
-            const active = pathname === n.to || (n.to === '/explore' && pathname.startsWith('/explore'))
+            const active = pathname === n.to || (n.to === '/media/photos' && pathname.startsWith('/media'))
             return (
               <Link
                 key={n.label}

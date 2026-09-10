@@ -1170,7 +1170,59 @@ img { max-width: 100%; }
 }
 .lightbox-nav button:hover { background: rgba(255, 255, 255, 0.24); }
 
-/* Responsive heritage blocks */
+/* ---------- Media Section ---------- */
+.media-section { padding-bottom: 44px; }
+.media-nav-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 24px; padding-top: 8px; }
+.media-nav-items { display: flex; gap: 6px; white-space: nowrap; }
+.media-tab {
+  display: inline-block;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.media-tab:hover { background: var(--green-tint); color: var(--green-deep); text-decoration: none; }
+.media-tab.active { background: var(--green-deep); color: #fff; border-color: var(--green-deep); }
+.media-tab-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.media-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.lightbox-inner {
+  background: var(--white);
+  border-radius: var(--radius);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+}
+.lightbox-close {
+  position: absolute; top: 10px; right: 14px; z-index: 10;
+  background: rgba(0, 0, 0, 0.5); color: #fff;
+  border: none; border-radius: 50%; width: 32px; height: 32px;
+  font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lightbox-close:hover { background: rgba(0, 0, 0, 0.7); }
+.lightbox-info { padding: 16px 20px; }
+.lightbox-info h3 { margin: 0 0 6px; font-size: 16px; }
+.lightbox-info p { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; }
+
+.info-banner { font-size: 14px; }
+
+@media (max-width: 960px) {
+  .media-nav-items { gap: 4px; }
+  .media-tab { padding: 6px 12px; font-size: 12.5px; }
+}
 @media (max-width: 960px) {
   .heritage-mega-items { grid-template-columns: 1fr; gap: 4px; }
   .heritage-hero-cards { grid-template-columns: 1fr; gap: 16px; }

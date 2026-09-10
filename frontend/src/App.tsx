@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import AuthModal from './components/AuthModal'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -13,6 +13,7 @@ import Museums from './pages/Museums'
 import Culture from './pages/Culture'
 import Papers from './pages/Papers'
 import Search from './pages/Search'
+import MediaLayout from './pages/media/MediaLayout'
 
 const StateDetail = lazy(() => import('./pages/StateDetail'))
 const CityDetail = lazy(() => import('./pages/CityDetail'))
@@ -37,6 +38,15 @@ const About = lazy(() => import('./pages/About'))
 const Extended = lazy(() => import('./pages/Extended'))
 const Admin = lazy(() => import('./pages/Admin'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const MediaPhotos = lazy(() => import('./pages/media/MediaPhotos'))
+const MediaVideos = lazy(() => import('./pages/media/MediaVideos'))
+const MediaBrochure = lazy(() => import('./pages/media/MediaBrochure'))
+const MediaBharatBeat = lazy(() => import('./pages/media/MediaBharatBeat'))
+const MediaSanskriti = lazy(() => import('./pages/media/MediaSanskriti'))
+const MediaEvents = lazy(() => import('./pages/media/MediaEvents'))
+const MediaNews = lazy(() => import('./pages/media/MediaNews'))
+const MediaAnnouncement = lazy(() => import('./pages/media/MediaAnnouncement'))
+const MediaWebcast = lazy(() => import('./pages/media/MediaWebcast'))
 
 import { useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
@@ -107,6 +117,18 @@ export default function App() {
             <Route path="/eternities" element={<Suspense fallback={<PageLoading />}><Eternities /></Suspense>} />
             <Route path="/mous" element={<Suspense fallback={<PageLoading />}><Mous /></Suspense>} />
             <Route path="/institutions" element={<Suspense fallback={<PageLoading />}><Institutions /></Suspense>} />
+            <Route path="/media" element={<MediaLayout />}>
+              <Route index element={<Navigate to="/media/photos" replace />} />
+              <Route path="photos" element={<Suspense fallback={<PageLoading />}><MediaPhotos /></Suspense>} />
+              <Route path="videos" element={<Suspense fallback={<PageLoading />}><MediaVideos /></Suspense>} />
+              <Route path="brochure" element={<Suspense fallback={<PageLoading />}><MediaBrochure /></Suspense>} />
+              <Route path="bharat-beat" element={<Suspense fallback={<PageLoading />}><MediaBharatBeat /></Suspense>} />
+              <Route path="sanskriti" element={<Suspense fallback={<PageLoading />}><MediaSanskriti /></Suspense>} />
+              <Route path="events" element={<Suspense fallback={<PageLoading />}><MediaEvents /></Suspense>} />
+              <Route path="latest-news" element={<Suspense fallback={<PageLoading />}><MediaNews /></Suspense>} />
+              <Route path="announcement" element={<Suspense fallback={<PageLoading />}><MediaAnnouncement /></Suspense>} />
+              <Route path="webcast" element={<Suspense fallback={<PageLoading />}><MediaWebcast /></Suspense>} />
+            </Route>
             <Route path="/assistant" element={<Suspense fallback={<PageLoading />}><AssistantPage /></Suspense>} />
             <Route path="/community" element={<Suspense fallback={<PageLoading />}><Community /></Suspense>} />
             <Route

@@ -1198,3 +1198,5 @@ def build():
 
 if __name__ == "__main__":
     build()
+    from . import seed_media
+    seed_media.main()

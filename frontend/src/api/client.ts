@@ -549,12 +549,73 @@ export async function getSearchSuggestions(query: string, limit = 8): Promise<Se
   return get<SearchSuggestionResult>(`/search/suggest?q=${encodeURIComponent(query)}&limit=${limit}`)
 }
 
+export interface AssistantRecommendation {
+  id: number
+  name: string
+  slug: string | null
+  category: string | null
+  location: string | null
+  description: string | null
+  match_reasons: string[]
+  image_url: string | null
+  heritage_type?: string | null
+  period?: string | null
+  unesco_status?: string | null
+  state_name?: string | null
+  city_name?: string | null
+  distance_km?: number | null
+}
+
+export interface AssistantItineraryStop {
+  id: number
+  name: string
+  slug: string | null
+  category: string | null
+  location: string | null
+  description?: string | null
+  city_name?: string | null
+  state_name?: string | null
+  distance_km?: number | null
+  match_reasons?: string[]
+  image_url?: string | null
+}
+
+export interface AssistantItineraryDay {
+  day: number
+  area: string
+  stops: AssistantItineraryStop[]
+}
+
+export interface AssistantProfile {
+  id: number
+  name: string
+  slug: string | null
+  category: string | null
+  location: string | null
+  city_name: string | null
+  state_name: string | null
+  description: string | null
+  history: string | null
+  significance: string | null
+  architecture: string | null
+  period: string | null
+  unesco_status: string | null
+  unesco_year: string | null
+  heritage_type: string | null
+  image_url: string | null
+}
+
 export interface AssistantResponse {
   question: string
   intent: string
   place: string | null
   answer: string
   sources: Array<{ type: string; id: number; label: string; url: string | null }>
+  recommendations: AssistantRecommendation[]
+  itinerary: AssistantItineraryDay[]
+  profile: AssistantProfile | null
+  interpreted: Record<string, unknown> | null
+  matched_count: number
   trust: string
   note: string
 }

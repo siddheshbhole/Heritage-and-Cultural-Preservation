@@ -314,7 +314,19 @@ export default function Header() {
   const userInitial = (user?.user_metadata?.full_name || user?.email || 'U').slice(0, 1).toUpperCase()
 
   return (
-    <header className="navbar" ref={headerRef}>
+    <>
+      <div className="gov-strip" role="banner">
+        <div className="container">
+          <span className="muted" style={{ color: '#fdf6ee' }}>
+            <b>Ministry of Culture</b> · Government of India
+          </span>
+          <span className="gov-strip-right">
+            <span>Digital Heritage Portal</span>
+            <span>संस्कृति मंत्रालय</span>
+          </span>
+        </div>
+      </div>
+      <header className="navbar" ref={headerRef}>
       <div className="container nav-inner">
         <Link to="/" className="brand" aria-label="Sanskriti Setu — Home">
           <img
@@ -512,7 +524,6 @@ export default function Header() {
               Sign In
             </button>
           )}
-          <Link to="/assistant" className="btn btn-sm btn-primary nav-ai">Ask Culture AI</Link>
           <button
             className="hamburger"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -690,9 +701,9 @@ export default function Header() {
               </NavLink>
             )
           })}
-          <Link to="/assistant">Ask Culture AI</Link>
         </div>
       </nav>
-    </header>
+      </header>
+    </>
   )
 }

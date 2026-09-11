@@ -11,8 +11,8 @@ export function MiniIndia() {
         <path
           key={loc.id}
           d={loc.path}
-          fill="var(--green-soft)"
-          stroke="#fff"
+          fill="var(--ivory-deep)"
+          stroke="var(--archival-line)"
           strokeWidth={1}
         />
       ))}
@@ -31,15 +31,15 @@ const NAME_ALIAS: Record<string, string> = {
 
 function regionAccent(region: string): string {
   const accents: Record<string, string> = {
-    North: '#e8c87a',
-    South: '#7ab8a8',
-    East: '#c4a0d0',
-    West: '#e8a87a',
-    Northeast: '#8bc4a0',
-    Central: '#c4b07a',
-    Islands: '#7ab0c4',
+    North: '#b38728',
+    South: '#7a9b7e',
+    East: '#a58a8a',
+    West: '#b5823f',
+    Northeast: '#7f9c8a',
+    Central: '#a89a6c',
+    Islands: '#6f8aa0',
   }
-  return accents[region] || 'var(--green-soft)'
+  return accents[region] || 'var(--ivory-deep)'
 }
 
 /**
@@ -317,7 +317,7 @@ export default function IndiaMap({ states, onSelect }: { states: State[]; onSele
               const theme = st ? themeForState(st.name) : undefined
 
               let fill: string | undefined
-              if (isSelected || isHovered) fill = 'var(--orange)'
+              if (isSelected || isHovered) fill = 'var(--terracotta)'
 
               return (
                 <g key={loc.id}>
@@ -370,8 +370,8 @@ export default function IndiaMap({ states, onSelect }: { states: State[]; onSele
       </div>
 
       <p className="map-key" style={{ justifyContent: 'center' }}>
-        <span><i style={{ background: '#fdf3ea', border: '1px solid #eee' }} aria-hidden /> State</span>
-        <span><i style={{ background: 'var(--orange)' }} aria-hidden /> Hovered / selected</span>
+        <span><i style={{ background: '#F1E8DA', border: '1px solid #d8cdba' }} aria-hidden /> State</span>
+        <span><i style={{ background: 'var(--terracotta)' }} aria-hidden /> Hovered / selected</span>
       </p>
     </div>
   )

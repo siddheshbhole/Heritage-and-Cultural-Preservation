@@ -4,13 +4,12 @@ export interface HeritageNavItem {
   to: string
   label: string
   desc: string
-  icon: string
 }
 
 export const HERITAGE_NAV: HeritageNavItem[] = [
-  { to: '/heritage/tangible', label: 'Tangible Cultural Heritage', desc: 'Monuments, temples, forts and natural wonders', icon: '🏛️' },
-  { to: '/heritage/intangible', label: 'Intangible Cultural Heritage', desc: 'Dance, music, crafts and living traditions', icon: '🎭' },
-  { to: '/heritage/world', label: 'World Heritage', desc: 'UNESCO-listed heritage of national pride', icon: '🌍' },
+  { to: '/heritage/tangible', label: 'Tangible Cultural Heritage', desc: 'Monuments, temples, forts and natural wonders' },
+  { to: '/heritage/intangible', label: 'Intangible Cultural Heritage', desc: 'Dance, music, crafts and living traditions' },
+  { to: '/heritage/world', label: 'World Heritage', desc: 'UNESCO-listed heritage of national pride' },
 ]
 
 export const HERITAGE_ROUTE_RE = /^\/heritage(\/|$)/
@@ -38,7 +37,6 @@ export default function HeritageNav({ onNavigate }: { onNavigate?: () => void })
               aria-current={active ? 'page' : undefined}
               onClick={onNavigate}
             >
-              <span className="heritage-mega-icon" aria-hidden>{n.icon}</span>
               <span className="heritage-mega-label">{n.label}</span>
               <span className="heritage-mega-desc">{n.desc}</span>
             </Link>

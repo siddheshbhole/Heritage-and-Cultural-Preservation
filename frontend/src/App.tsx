@@ -13,6 +13,7 @@ import Museums from './pages/Museums'
 import Culture from './pages/Culture'
 import Search from './pages/Search'
 import MediaLayout from './pages/media/MediaLayout'
+import AIHeritageGuide from './components/AIHeritageGuide'
 
 const StateDetail = lazy(() => import('./pages/StateDetail'))
 const CityDetail = lazy(() => import('./pages/CityDetail'))
@@ -90,6 +91,7 @@ export default function App() {
       <BrowserRouter>
         <ScrollToTop />
         <AuthModal />
+        <AIHeritageGuide />
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />

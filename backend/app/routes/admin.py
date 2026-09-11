@@ -10,7 +10,27 @@ from ..database import get_db
 from ..serializers import post_row
 from ..models import (
     AuditLog,
+    City,
     CommunityPost,
+    DocumentCategory,
+    DocumentItem,
+    Event,
+    HeritageCategory,
+    HeritageSite,
+    MediaAlbum,
+    MediaArtist,
+    MediaBrochure,
+    MediaEvent,
+    MediaLeader,
+    MediaMonument,
+    MediaNews,
+    MediaSanskriti,
+    MediaVideo,
+    MediaWebcast,
+    Museum,
+    Provenance,
+    State,
+    TrendingItem,
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])

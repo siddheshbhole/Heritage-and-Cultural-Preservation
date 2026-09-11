@@ -490,10 +490,63 @@ export interface CommunityPost {
   message?: string
 }
 
-export interface SearchResult {
+export interface SearchInterpretedIntent {
+  state?: string
+  city?: string
+  category?: string
+  religion?: string
+  period?: string
+  heritage_type?: string
+}
+
+export interface EnhancedSearchResultItem {
+  type: string
+  label: string
+  summary: string
+  rank: number
+  match_reasons?: string[]
+  data: Record<string, unknown>
+}
+
+export interface EnhancedSearchResult {
   query: string
   total: number
-  results: Array<{ type: string; label: string; summary: string; data: Record<string, unknown>; rank: number }>
+  interpreted?: SearchInterpretedIntent
+  did_you_mean?: string
+  suggestions?: string[]
+  results: EnhancedSearchResultItem[]
+}
+
+export interface SearchSuggestion {
+  type: string
+  label: string
+  query: string
+}
+
+export interface SearchSuggestionResult {
+  query: string
+  suggestions: SearchSuggestion[]
+}
+
+export async function searchHeritage(
+  query: string,
+  filters?: { kind?: string; state_id?: number; city_id?: number; heritage_type?: string; period?: string; limit?: number; offset?: number }
+): Promise<EnhancedSearchResult> {
+  const params = new URLSearchParams({ q: query })
+  if (filters) {
+    if (filters.kind) params.set('kind', filters.kind)
+    if (filters.state_id) params.set('state_id', String(filters.state_id))
+    if (filters.city_id) params.set('city_id', String(filters.city_id))
+    if (filters.heritage_type) params.set('heritage_type', filters.heritage_type)
+    if (filters.period) params.set('period', filters.period)
+    if (filters.limit) params.set('limit', String(filters.limit))
+    if (filters.offset) params.set('offset', String(filters.offset))
+  }
+  return get<EnhancedSearchResult>(`/search?${params.toString()}`)
+}
+
+export async function getSearchSuggestions(query: string, limit = 8): Promise<SearchSuggestionResult> {
+  return get<SearchSuggestionResult>(`/search/suggest?q=${encodeURIComponent(query)}&limit=${limit}`)
 }
 
 export interface AssistantResponse {

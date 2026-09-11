@@ -1,9 +1,11 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import ExploreNav, { EXPLORE_ROUTE_RE } from './ExploreNav'
 import HeritageNav, { HERITAGE_ROUTE_RE } from './HeritageNav'
 import DocumentsNav, { DOCUMENTS_ROUTE_RE } from './DocumentsNav'
 import { useAuth } from '../context/AuthContext'
+import { getSearchSuggestions } from '../api/client'
+import type { SearchSuggestion } from '../api/client'
 
 
 const LINKS = [
@@ -51,6 +53,59 @@ export default function Header() {
   const headerRef = useRef<HTMLElement>(null)
   const closeTimer = useRef<number | null>(null)
   const isDesktop = useMediaQuery(`(min-width: ${DESKTOP_BREAKPOINT}px)`)
+
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
+  const [suggestOpen, setSuggestOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const searchWrapRef = useRef<HTMLDivElement>(null)
+  const debounceTimer = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (debounceTimer.current) {
+      window.clearTimeout(debounceTimer.current)
+      debounceTimer.current = null
+    }
+    const trimmed = q.trim()
+    if (trimmed.length < 2) {
+      setSuggestions([])
+      setSuggestOpen(false)
+      setActiveIndex(-1)
+      return
+    }
+    debounceTimer.current = window.setTimeout(() => {
+      getSearchSuggestions(trimmed)
+        .then((res) => {
+          setSuggestions(res.suggestions)
+          setSuggestOpen(true)
+          setActiveIndex(-1)
+        })
+        .catch(() => {
+          setSuggestions([])
+          setSuggestOpen(false)
+        })
+    }, 220)
+    return () => {
+      if (debounceTimer.current) {
+        window.clearTimeout(debounceTimer.current)
+        debounceTimer.current = null
+      }
+    }
+  }, [q])
+
+  const closeSuggestions = useCallback(() => {
+    setSuggestOpen(false)
+    setActiveIndex(-1)
+  }, [])
+
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        closeSuggestions()
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [closeSuggestions])
 
   const onExploreRoute = EXPLORE_ROUTE_RE.test(location.pathname)
   const onHeritageRoute = HERITAGE_ROUTE_RE.test(location.pathname)
@@ -184,8 +239,31 @@ export default function Header() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     if (q.trim()) {
+      closeSuggestions()
       setQ('')
       navigate('/search?q=' + encodeURIComponent(q.trim()))
+    }
+  }
+
+  const submitSuggestion = (s: SearchSuggestion) => {
+    closeSuggestions()
+    setQ('')
+    navigate(s.query ? `/search?q=${encodeURIComponent(s.query)}` : `/search?q=${encodeURIComponent(s.label)}`)
+  }
+
+  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestOpen || suggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIndex((i) => (i + 1) % suggestions.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIndex((i) => (i <= 0 ? suggestions.length - 1 : i - 1))
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault()
+      submitSuggestion(suggestions[activeIndex])
+    } else if (e.key === 'Escape') {
+      closeSuggestions()
     }
   }
 
@@ -358,13 +436,38 @@ export default function Header() {
         </nav>
 
         <form className="nav-search" onSubmit={submit} role="search">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search culture…"
-            aria-label="Search"
-          />
-          <button>Search</button>
+          <div className="nav-search-wrap" ref={searchWrapRef}>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onFocus={() => q.trim().length >= 2 && setSuggestOpen(true)}
+              onKeyDown={onSearchKeyDown}
+              placeholder="Search culture…"
+              aria-label="Search"
+              autoComplete="off"
+            />
+            <button>Search</button>
+            {suggestOpen && suggestions.length > 0 && (
+              <ul className="nav-search-suggest" role="listbox">
+                {suggestions.map((s, i) => (
+                  <li
+                    key={`${s.type}-${s.label}-${i}`}
+                    role="option"
+                    aria-selected={i === activeIndex}
+                    className={`nav-search-suggest-item${i === activeIndex ? ' active' : ''}`}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      submitSuggestion(s)
+                    }}
+                    onMouseEnter={() => setActiveIndex(i)}
+                  >
+                    <span className="chip chip-outline">{s.type}</span>
+                    <span>{s.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </form>
 
         <div className="nav-actions">

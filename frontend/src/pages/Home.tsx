@@ -164,7 +164,7 @@ export default function Home() {
           {statesLoading ? (
             <Skeleton style={{ height: 420 }} />
           ) : states.length > 0 ? (
-            <div style={{ maxWidth: 680, margin: '0 auto' }}>
+            <div style={{ maxWidth: 980, margin: '0 auto' }}>
               <IndiaMap states={states} onSelect={(s) => navigate(`/states/${s.id}`)} />
             </div>
           ) : null}

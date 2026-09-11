@@ -34,6 +34,24 @@ echo.
 :: -------------------------------------------------------
 echo [3/4] Starting Backend server (FastAPI on port 8000)...
 cd /d "%~dp0backend"
+
+if not exist ".venv\Scripts\python.exe" (
+    echo    First-time setup: creating Python virtual environment...
+    python -m venv .venv
+    if errorlevel 1 (
+        echo    [ERROR] Failed to create virtual environment. Is Python installed and on PATH?
+        echo    Press any key to continue...
+        pause >nul
+        exit /b 1
+    )
+    echo    Installing backend dependencies...
+    ".venv\Scripts\python.exe" -m pip install --upgrade pip
+    ".venv\Scripts\python.exe" -m pip install -r requirements.txt
+    echo    [OK] Backend dependencies installed.
+) else (
+    echo    [OK] Backend virtual environment found.
+)
+
 start "Backend - FastAPI" cmd /k ".venv\Scripts\python.exe run_server.py"
 echo [OK] Backend server launched in a new window.
 echo.
@@ -43,6 +61,21 @@ echo.
 :: -------------------------------------------------------
 echo [4/4] Starting Frontend dev server (Vite on port 5173)...
 cd /d "%~dp0frontend"
+
+if not exist "node_modules\vite\bin\vite.js" (
+    echo    First-time setup: installing frontend dependencies...
+    call npm install
+    if errorlevel 1 (
+        echo    [ERROR] npm install failed. Is Node.js/npm installed?
+        echo    Press any key to continue...
+        pause >nul
+        exit /b 1
+    )
+    echo    [OK] Frontend dependencies installed.
+) else (
+    echo    [OK] Frontend dependencies found.
+)
+
 start "Frontend - Vite" cmd /k "npm run dev"
 echo [OK] Frontend dev server launched in a new window.
 echo.

@@ -1,0 +1,41 @@
+--- VERIFYING MIGRATION ---
+[OK] trending_items: 12 rows in both
+[OK] states: 36 rows in both
+[OK] heritage_categories: 20 rows in both
+[OK] museums: 26 rows in both
+[OK] events: 20 rows in both
+[OK] announcements: 5 rows in both
+[OK] culture_apps: 10 rows in both
+[OK] schemes: 6 rows in both
+[OK] awards: 4 rows in both
+[OK] commemorations: 5 rows in both
+[OK] documents: 8 rows in both
+[OK] document_categories: 10 rows in both
+[OK] document_items: 131 rows in both
+[OK] authors: 8 rows in both
+[OK] mous: 6 rows in both
+[OK] institutions: 14 rows in both
+[OK] ministry_profile: 1 rows in both
+[OK] ministry_leaders: 2 rows in both
+[OK] about_entries: 16 rows in both
+[OK] community_profiles: 3 rows in both
+[OK] community_posts: 8 rows in both
+[OK] government_programmes: 4 rows in both
+[OK] provenance: 72 rows in both
+[OK] media_news: 12 rows in both
+[OK] media_albums: 12 rows in both
+[OK] media_videos: 12 rows in both
+[OK] media_brochures: 4 rows in both
+[OK] media_leaders: 3 rows in both
+[OK] media_monuments: 12 rows in both
+[OK] media_artists: 12 rows in both
+[OK] media_sanskriti: 5 rows in both
+[OK] media_events: 12 rows in both
+[OK] media_webcasts: 0 rows in both
+[OK] audit_logs: 0 rows in both
+[OK] cities: 14 rows in both
+[OK] publications: 10 rows in both
+[OK] heritage_sites: 178 rows in both
+[OK] heritage_images: 121 rows in both
+
+SUCCESS: All table counts match between SQLite and Supabase!

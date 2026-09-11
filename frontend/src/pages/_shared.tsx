@@ -20,11 +20,23 @@ export function Band({ label }: { label: string }) {
   )
 }
 
-export function Show({ what, text }: { what?: string | null; text?: string }) {
-  if (!what || !what.trim()) return null
-  return (
-    <p style={{ color: 'var(--muted)', fontSize: 14.5 }}>{text ? `${text}: ${what}` : what}</p>
-  )
+export function Show({
+  what,
+  text,
+}: {
+  what?: string | number | ReadonlyArray<unknown> | null
+  text?: string
+}) {
+  let val = ''
+  if (Array.isArray(what)) {
+    val = what.filter(Boolean).join('; ')
+  } else if (typeof what === 'string') {
+    val = what
+  } else if (what !== null && what !== undefined) {
+    val = String(what)
+  }
+  if (!val.trim()) return null
+  return <p style={{ color: 'var(--muted)', fontSize: 14.5 }}>{text ? `${text}: ${val}` : val}</p>
 }
 
 export function Block({ title, children }: { title: string; children: ReactNode }) {

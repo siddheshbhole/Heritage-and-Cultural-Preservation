@@ -176,6 +176,22 @@ def event_status(e, today=None):
     return "UPCOMING"
 
 
+def _event_gallery(e):
+    if not getattr(e, "gallery_images", None):
+        return []
+    import json as _json
+    try:
+        data = _json.loads(e.gallery_images)
+    except Exception:
+        return []
+    if isinstance(data, list):
+        return [i for i in data if isinstance(i, str) and i.strip()]
+    if isinstance(data, dict):
+        first = [i for i in data.get("images", []) if i]
+        return first if isinstance(first, list) else []
+    return []
+
+
 def event_row(e):
     return {
         "id": e.id,
@@ -191,8 +207,19 @@ def event_row(e):
         "organizer": e.organizer,
         "official_url": e.official_url,
         "registration_url": e.registration_url,
+        "state_name": getattr(e, "state_name", None),
+        "city_name": getattr(e, "city_name", None),
+        "gallery_images": _event_gallery(e),
         "status": event_status(e),
     }
+
+
+def event_row_detailed(e):
+    row = event_row(e)
+    row["historical_background"] = getattr(e, "historical_background", None)
+    row["cultural_significance"] = getattr(e, "cultural_significance", None)
+    row["rituals_traditions"] = getattr(e, "rituals_traditions", None)
+    return row
 
 
 def announcement_row(a):

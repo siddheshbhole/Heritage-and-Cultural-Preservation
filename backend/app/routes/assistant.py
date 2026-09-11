@@ -1,8 +1,10 @@
 import math
+import os
 import re
 from collections import OrderedDict
 from datetime import date
 
+import httpx
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -16,12 +18,228 @@ from ..search_engine import normalize, parse_query, search
 router = APIRouter(prefix="/api", tags=["assistant"])
 
 
+class MessageHistoryItem(BaseModel):
+    role: str  # "user" or "assistant"
+    text: str
+
+
+class PageContext(BaseModel):
+    pathname: str | None = None
+    entity_name: str | None = None
+    entity_type: str | None = None
+    location: str | None = None
+
+
 class QueryIn(BaseModel):
     question: str
-    context_type: str | None = None
-    context_id: int | None = None
+    history: list[MessageHistoryItem] | None = None
+    page_context: PageContext | None = None
     lat: float | None = None
     lng: float | None = None
+    lang: str | None = "en"
+    # legacy fields, kept for backward compatibility
+    context_type: str | None = None
+    context_id: int | None = None
+
+
+
+# ---------------------------------------------------------------------------
+# Gemini (Google generative AI) integration — backend-only, key never leaves
+# the server. Requests fire only when the user submits a message; conversation
+# history is capped at the last 6 messages (3 turns) to stay token-efficient.
+# ---------------------------------------------------------------------------
+
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+_GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+_MAX_HISTORY = 6
+_MAX_GROUNDING_CHARS = 6000
+
+
+def _call_gemini_api(prompt: str, system_instruction: str,
+                     history: list[MessageHistoryItem]) -> tuple[str | None, str]:
+    """Ask Gemini to generate a conversational answer.
+
+    Returns ``(answer_text_or_None, status)``. ``status`` is ``"no key"`` when
+    ``GEMINI_API_KEY`` is unset, an error string on failure, or empty on success.
+    """
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        return None, "no key"
+
+    contents = []
+    for h in (history or [])[-_MAX_HISTORY:]:
+        role = "model" if (h.role or "").lower() == "assistant" else "user"
+        text = (h.text or "").strip()
+        if text:
+            contents.append({"role": role, "parts": [{"text": text}]})
+    contents.append({"role": "user", "parts": [{"text": prompt}]})
+
+    payload = {
+        "contents": contents,
+        "systemInstruction": {"parts": [{"text": system_instruction}]},
+        "generationConfig": {"temperature": 0.55, "maxOutputTokens": 700, "topP": 0.95},
+    }
+    headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
+    url = _GEMINI_URL.format(model=GEMINI_MODEL)
+
+    try:
+        resp = httpx.post(url, headers=headers, json=payload, timeout=25.0)
+    except httpx.HTTPError:
+        return None, "network error"
+    except Exception:
+        return None, "request error"
+    if resp.status_code != 200:
+        return None, f"HTTP {resp.status_code}"
+    try:
+        data = resp.json()
+        candidates = data.get("candidates") or []
+        if not candidates:
+            return None, "empty response"
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        text = "".join(p.get("text", "") for p in parts).strip()
+        return (text or None), ""
+    except Exception:
+        return None, "parse error"
+
+
+def _flat_profile(profile: dict) -> str:
+    """Render a heritage-site profile as compact grounding text."""
+    bits = []
+    for key, label in (
+        ("name", "Name"), ("category", "Category"), ("period", "Period"),
+        ("location", "Location"), ("city_name", "City"), ("state_name", "State"),
+        ("unesco_status", "UNESCO"), ("heritage_type", "Heritage type"),
+        ("history", "History"), ("significance", "Significance"),
+        ("architecture", "Architecture"), ("description", "Description"),
+    ):
+        val = profile.get(key)
+        if val:
+            bits.append(f"{label}: {str(val).strip()[:400]}")
+    return " | ".join(bits)
+
+
+def _page_profile(h: HeritageSite) -> dict:
+    """Compact heritage-site profile mirroring the ``_profile_answer`` shape."""
+    return {
+        "id": h.id,
+        "name": h.name,
+        "slug": h.slug,
+        "category": h.category,
+        "location": h.location,
+        "city_name": h.city.name if h.city else None,
+        "state_name": h.state.name if h.state else None,
+        "description": (h.description or "").strip()[:400],
+        "history": (h.history or "").strip()[:400],
+        "significance": (h.significance or "").strip()[:260],
+        "architecture": (h.architecture or "").strip()[:400],
+        "period": h.historical_period,
+        "unesco_status": h.unesco_status,
+        "unesco_year": h.unesco_year,
+        "heritage_type": h.heritage_type,
+        "image_url": h.image_url or h.main_image or None,
+    }
+
+
+def _page_entity(db: Session, page_context: PageContext | None) -> dict | None:
+    """Resolve the currently viewed page ('entity_name') to a platform record."""
+    if not page_context or not page_context.entity_name:
+        return None
+    nm = re.sub(r"[-_]+", " ", page_context.entity_name).strip().lower()
+    if not nm:
+        return None
+    h = (
+        db.query(HeritageSite)
+        .filter((HeritageSite.name.ilike(f"%{nm}%")) | (HeritageSite.slug == nm))
+        .order_by(HeritageSite.id)
+        .first()
+    )
+    if h:
+        return {"kind": "heritage", "label": h.name, "profile": _page_profile(h)}
+    m = db.query(Museum).filter(Museum.name.ilike(f"%{nm}%")).first()
+    if m:
+        return {"kind": "museum", "label": m.name, "profile": {
+            "name": m.name, "category": "Museum", "location": m.location,
+            "city_name": None, "state_name": None,
+            "description": (m.description or m.collections or "")[:400],
+        }}
+    s = db.query(State).filter(State.name.ilike(f"%{nm}%")).first()
+    if s:
+        return {"kind": "state", "label": s.name, "profile": {
+            "name": s.name, "category": "State", "location": s.name,
+            "description": (s.description or "")[:400],
+        }}
+    c = db.query(City).filter(City.name.ilike(f"%{nm}%")).first()
+    if c:
+        return {"kind": "city", "label": c.name, "profile": {
+            "name": c.name, "category": "City", "location": c.name,
+            "description": None,
+        }}
+    return None
+
+
+def _build_grounding_text(sources: list[dict], recommendations: list[dict],
+                          profile: dict | None, primary_topic: str | None,
+                          page_context: PageContext | None,
+                          itinerary: list[dict],
+                          page_entity: dict | None = None) -> str:
+    """Filter the retrieved platform records into a compact grounding block."""
+    chunks: list[str] = []
+    if page_entity:
+        chunks.append(
+            f"The user is currently viewing the {page_entity['kind']} \"{page_entity['label']}\"."
+        )
+        pages_profile = _flat_profile(page_entity.get("profile") or {})
+        if pages_profile:
+            chunks.append("Current page profile:")
+            chunks.append("  " + pages_profile.replace("\n", " "))
+    if page_context and (page_context.entity_name or page_context.entity_type):
+        bits = [b for b in (page_context.entity_name, page_context.entity_type,
+                            page_context.location) if b]
+        if bits:
+            chunks.append("The user is currently viewing " + " — ".join(bits) + ".")
+    if primary_topic:
+        chunks.append(f"Primary topic identified for this query: {primary_topic}.")
+    if profile:
+        chunks.append("Profile of the main heritage site:")
+        chunks.append("  " + _flat_profile(profile).replace("\n", " "))
+    if recommendations:
+        chunks.append("Top matching records from the platform database:")
+        for r in recommendations[:8]:
+            line = f"- {r.get('name')} ({r.get('category') or 'heritage'})"
+            loc = r.get("location") or r.get("city_name") or r.get("state_name")
+            if loc:
+                line += f", {loc}"
+            if r.get("period"):
+                line += f", {r['period']}"
+            if r.get("unesco_status"):
+                line += ", UNESCO listed"
+            if r.get("description"):
+                line += f". {r['description'][:220]}"
+            chunks.append(line)
+    if itinerary:
+        chunks.append("Suggested itinerary:")
+        for d in itinerary[:4]:
+            stops = ", ".join(s["name"] for s in d["stops"])
+            chunks.append(f"- Day {d['day']} ({d['area']}): {stops}")
+    if not chunks:
+        chunks.append("No exact database record matched this query.")
+    return "\n".join(chunks)[:_MAX_GROUNDING_CHARS]
+
+
+SYSTEM_INSTRUCTION = (
+    "You are Sanskriti AI, the warm, knowledgeable heritage guide of 'Sanskriti Setu', "
+    "an Indian heritage & cultural preservation platform."
+    "Always answer in a natural, friendly, conversational tone, as if chatting with a traveller."
+    "Ground every factual claim in the DATABASE CONTEXT block below."
+    "If asked about something not covered by the provided context, say so honestly and suggest "
+    "how to explore it — never invent specific facts, dates or names."
+    "Resolve follow-up references such as 'it', 'this site', 'they' or 'the festival' using the "
+    "conversation history and the page the user is currently viewing."
+    "Be concise yet engaging: roughly 2-5 short sentences unless the user asks for more detail."
+    "A light, warm touch (e.g. 'Namaste', 'That is one for the bucket list!') is welcome but do "
+    "not overdo emojis or exclamations.\n\n"
+    "DATABASE CONTEXT:\n{grounding}"
+)
 
 
 def _find_place(question: str, db: Session):
@@ -317,6 +535,7 @@ def assistant_query(payload: QueryIn, db: Session = Depends(get_db)):
     profile = None
     interpreted = None
     matched_count = 0
+    primary = None
 
     if intent == "books":
         pubs = db.query(Publication).order_by(Publication.year).all()
@@ -448,10 +667,59 @@ def assistant_query(payload: QueryIn, db: Session = Depends(get_db)):
             sources = []
         recommendations = recs
 
-    answer = "\n".join(detail_lines) if detail_lines else (
-        "I could not find a confident answer in the verified cultural database. "
-        "I prefer to say I don't know rather than guess."
+    # ------------------------------------------------------------------
+    # 2. Gemini integration (when GEMINI_API_KEY is configured)
+    #
+    # The deterministically computed data above (detail_lines, sources,
+    # recommendations, profile, itinerary) is reused both as (a) the
+    # grounding context block injected into the Gemini system prompt, and
+    # (b) the fallback answer when Gemini is unavailable.
+    # ------------------------------------------------------------------
+    page_entity = _page_entity(db, payload.page_context)
+    grounding = _build_grounding_text(
+        sources=sources,
+        recommendations=recommendations,
+        profile=profile,
+        primary_topic=resp_place,
+        page_context=payload.page_context,
+        itinerary=itinerary,
+        page_entity=page_entity,
     )
+    system_instruction = SYSTEM_INSTRUCTION.format(grounding=grounding)
+    if payload.lang == "hi":
+        system_instruction += "\n\nIMPORTANT INSTRUCTION: Output your response fluently in Devanagari Hindi (हिन्दी)."
+    elif payload.lang == "kn":
+        system_instruction += "\n\nIMPORTANT INSTRUCTION: Output your response fluently in Kannada script (ಕನ್ನಡ)."
+    gemini_text, gemini_status = _call_gemini_api(question, system_instruction, payload.history or [])
+
+    if gemini_text:
+        answer = gemini_text
+        trust = "GEMINI — natural answer generated by Gemini, grounded in platform records."
+        note = (
+            f"Model {GEMINI_MODEL} · last {min(len(payload.history or []), _MAX_HISTORY)} messages in context · "
+            f"{matched_count} platform records used as grounding."
+        )
+    else:
+        answer = "\n".join(detail_lines) if detail_lines else (
+            "I could not find a confident answer in the verified cultural database. "
+            "I prefer to say I don't know rather than guess."
+        )
+        trust = "GROUNDED — answer uses retrieved records from the governed platform data."
+        if gemini_status == "no key":
+            note = "GEMINI_API_KEY is not configured — fell back to the grounded retrieval assistant."
+        elif gemini_status:
+            note = f"Gemini unavailable ({gemini_status}) — fell back to the grounded retrieval assistant."
+        else:
+            note = "Prototype retrieval-based assistant. Production will upgrade to full RAG over curated corpora."
+        if primary is None and page_entity:
+            detail_lines.append(
+                f"From the page you are viewing ({page_entity['kind']}): {page_entity['label']}"
+            )
+            fp = _flat_profile(page_entity.get("profile") or {})
+            if fp:
+                detail_lines.append("  " + fp[:_MAX_GROUNDING_CHARS])
+            if detail_lines:
+                answer = "\n".join(detail_lines)
 
     return {
         "question": question,
@@ -464,6 +732,6 @@ def assistant_query(payload: QueryIn, db: Session = Depends(get_db)):
         "profile": profile,
         "interpreted": interpreted,
         "matched_count": matched_count,
-        "trust": "GROUNDED — answer uses retrieved records from the governed platform data.",
-        "note": "Prototype retrieval-based assistant. Production will upgrade to full RAG over curated corpora.",
+        "trust": trust,
+        "note": note,
     }

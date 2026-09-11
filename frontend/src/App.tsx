@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { LanguageProvider } from './context/LanguageContext'
 import AuthModal from './components/AuthModal'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
@@ -24,6 +25,7 @@ const Intangible = lazy(() => import('./pages/Intangible'))
 const IntangibleArtForm = lazy(() => import('./pages/IntangibleArtForm'))
 const WorldHeritage = lazy(() => import('./pages/WorldHeritage'))
 const MuseumDetail = lazy(() => import('./pages/MuseumDetail'))
+const CultureDetail = lazy(() => import('./pages/CultureDetail'))
 const Greats = lazy(() => import('./pages/Greats'))
 const Commemorations = lazy(() => import('./pages/Commemorations'))
 const Publications = lazy(() => import('./pages/Publications'))
@@ -88,71 +90,73 @@ function AuthRedirect({ tab }: { tab: 'login' | 'signup' }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <AuthModal />
-        <AIHeritageGuide />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/login" element={<AuthRedirect tab="login" />} />
-            <Route path="/signup" element={<AuthRedirect tab="signup" />} />
-            <Route path="/states" element={<States />} />
-            <Route path="/states/:id" element={<Suspense fallback={<PageLoading />}><StateDetail /></Suspense>} />
-            <Route path="/cities/:id" element={<Suspense fallback={<PageLoading />}><CityDetail /></Suspense>} />
-            <Route path="/heritage" element={<Heritage />} />
-            <Route path="/heritage/tangible" element={<Suspense fallback={<PageLoading />}><Tangible /></Suspense>} />
-            <Route path="/heritage/tangible/:category" element={<Suspense fallback={<PageLoading />}><TangibleCategory /></Suspense>} />
-            <Route path="/heritage/intangible" element={<Suspense fallback={<PageLoading />}><Intangible /></Suspense>} />
-            <Route path="/heritage/intangible/:artForm" element={<Suspense fallback={<PageLoading />}><IntangibleArtForm /></Suspense>} />
-            <Route path="/heritage/world" element={<Suspense fallback={<PageLoading />}><WorldHeritage /></Suspense>} />
-            <Route path="/heritage/:id" element={<Suspense fallback={<PageLoading />}><HeritageDetail /></Suspense>} />
-            <Route path="/museums" element={<Museums />} />
-            <Route path="/museums/:id" element={<Suspense fallback={<PageLoading />}><MuseumDetail /></Suspense>} />
-            <Route path="/culture" element={<Culture />} />
-            <Route path="/greats" element={<Suspense fallback={<PageLoading />}><Greats /></Suspense>} />
-            <Route path="/commemorations" element={<Suspense fallback={<PageLoading />}><Commemorations /></Suspense>} />
-            <Route path="/publications" element={<Suspense fallback={<PageLoading />}><Publications /></Suspense>} />
-            <Route path="/documents" element={<Suspense fallback={<PageLoading />}><DocumentsHome /></Suspense>} />
-            <Route path="/documents/:categorySlug" element={<Suspense fallback={<PageLoading />}><DocumentCategoryPage /></Suspense>} />
-            <Route path="/schemes" element={<Suspense fallback={<PageLoading />}><Schemes /></Suspense>} />
-            <Route path="/awards" element={<Suspense fallback={<PageLoading />}><Awards /></Suspense>} />
-            <Route path="/eternities" element={<Suspense fallback={<PageLoading />}><Eternities /></Suspense>} />
-            <Route path="/mous" element={<Suspense fallback={<PageLoading />}><Mous /></Suspense>} />
-            <Route path="/institutions" element={<Suspense fallback={<PageLoading />}><Institutions /></Suspense>} />
-            <Route path="/media" element={<MediaLayout />}>
-              <Route index element={<Navigate to="/media/photos" replace />} />
-              <Route path="photos" element={<Suspense fallback={<PageLoading />}><MediaPhotos /></Suspense>} />
-              <Route path="videos" element={<Suspense fallback={<PageLoading />}><MediaVideos /></Suspense>} />
-              <Route path="brochure" element={<Suspense fallback={<PageLoading />}><MediaBrochure /></Suspense>} />
-              <Route path="bharat-beat" element={<Suspense fallback={<PageLoading />}><MediaBharatBeat /></Suspense>} />
-              <Route path="sanskriti" element={<Suspense fallback={<PageLoading />}><MediaSanskriti /></Suspense>} />
-              <Route path="events" element={<Suspense fallback={<PageLoading />}><MediaEvents /></Suspense>} />
-              <Route path="latest-news" element={<Suspense fallback={<PageLoading />}><MediaNews /></Suspense>} />
-              <Route path="announcement" element={<Suspense fallback={<PageLoading />}><MediaAnnouncement /></Suspense>} />
-              <Route path="webcast" element={<Suspense fallback={<PageLoading />}><MediaWebcast /></Suspense>} />
+      <LanguageProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <AuthModal />
+          <AIHeritageGuide />
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/login" element={<AuthRedirect tab="login" />} />
+              <Route path="/signup" element={<AuthRedirect tab="signup" />} />
+              <Route path="/states" element={<States />} />
+              <Route path="/states/:id" element={<Suspense fallback={<PageLoading />}><StateDetail /></Suspense>} />
+              <Route path="/cities/:id" element={<Suspense fallback={<PageLoading />}><CityDetail /></Suspense>} />
+              <Route path="/heritage" element={<Heritage />} />
+              <Route path="/heritage/tangible" element={<Suspense fallback={<PageLoading />}><Tangible /></Suspense>} />
+              <Route path="/heritage/tangible/:category" element={<Suspense fallback={<PageLoading />}><TangibleCategory /></Suspense>} />
+              <Route path="/heritage/intangible" element={<Suspense fallback={<PageLoading />}><Intangible /></Suspense>} />
+              <Route path="/heritage/intangible/:artForm" element={<Suspense fallback={<PageLoading />}><IntangibleArtForm /></Suspense>} />
+              <Route path="/heritage/world" element={<Suspense fallback={<PageLoading />}><WorldHeritage /></Suspense>} />
+              <Route path="/heritage/:id" element={<Suspense fallback={<PageLoading />}><HeritageDetail /></Suspense>} />
+              <Route path="/museums" element={<Museums />} />
+              <Route path="/museums/:id" element={<Suspense fallback={<PageLoading />}><MuseumDetail /></Suspense>} />
+              <Route path="/culture" element={<Culture />} />
+              <Route path="/culture/:id" element={<Suspense fallback={<PageLoading />}><CultureDetail /></Suspense>} />
+              <Route path="/greats" element={<Suspense fallback={<PageLoading />}><Greats /></Suspense>} />
+              <Route path="/commemorations" element={<Suspense fallback={<PageLoading />}><Commemorations /></Suspense>} />
+              <Route path="/publications" element={<Suspense fallback={<PageLoading />}><Publications /></Suspense>} />
+              <Route path="/documents" element={<Suspense fallback={<PageLoading />}><DocumentsHome /></Suspense>} />
+              <Route path="/documents/:categorySlug" element={<Suspense fallback={<PageLoading />}><DocumentCategoryPage /></Suspense>} />
+              <Route path="/schemes" element={<Suspense fallback={<PageLoading />}><Schemes /></Suspense>} />
+              <Route path="/awards" element={<Suspense fallback={<PageLoading />}><Awards /></Suspense>} />
+              <Route path="/eternities" element={<Suspense fallback={<PageLoading />}><Eternities /></Suspense>} />
+              <Route path="/mous" element={<Suspense fallback={<PageLoading />}><Mous /></Suspense>} />
+              <Route path="/institutions" element={<Suspense fallback={<PageLoading />}><Institutions /></Suspense>} />
+              <Route path="/media" element={<MediaLayout />}>
+                <Route index element={<Navigate to="/media/photos" replace />} />
+                <Route path="photos" element={<Suspense fallback={<PageLoading />}><MediaPhotos /></Suspense>} />
+                <Route path="videos" element={<Suspense fallback={<PageLoading />}><MediaVideos /></Suspense>} />
+                <Route path="brochure" element={<Suspense fallback={<PageLoading />}><MediaBrochure /></Suspense>} />
+                <Route path="bharat-beat" element={<Suspense fallback={<PageLoading />}><MediaBharatBeat /></Suspense>} />
+                <Route path="sanskriti" element={<Suspense fallback={<PageLoading />}><MediaSanskriti /></Suspense>} />
+                <Route path="events" element={<Suspense fallback={<PageLoading />}><MediaEvents /></Suspense>} />
+                <Route path="latest-news" element={<Suspense fallback={<PageLoading />}><MediaNews /></Suspense>} />
+                <Route path="announcement" element={<Suspense fallback={<PageLoading />}><MediaAnnouncement /></Suspense>} />
+                <Route path="webcast" element={<Suspense fallback={<PageLoading />}><MediaWebcast /></Suspense>} />
+              </Route>
+              <Route path="/assistant" element={<Suspense fallback={<PageLoading />}><AssistantPage /></Suspense>} />
+              <Route path="/community" element={<Suspense fallback={<PageLoading />}><Community /></Suspense>} />
+              <Route
+                path="/admin"
+                element={
+                  <Suspense fallback={<PageLoading />}>
+                    <ProtectedRoute requireAdmin={true}>
+                      <Admin />
+                    </ProtectedRoute>
+                  </Suspense>
+                }
+              />
+              <Route path="/about" element={<Suspense fallback={<PageLoading />}><About /></Suspense>} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/extended" element={<Suspense fallback={<PageLoading />}><Extended /></Suspense>} />
+              <Route path="*" element={<Suspense fallback={<PageLoading />}><NotFound /></Suspense>} />
             </Route>
-            <Route path="/assistant" element={<Suspense fallback={<PageLoading />}><AssistantPage /></Suspense>} />
-            <Route path="/community" element={<Suspense fallback={<PageLoading />}><Community /></Suspense>} />
-            <Route
-              path="/admin"
-              element={
-                <Suspense fallback={<PageLoading />}>
-                  <ProtectedRoute requireAdmin={true}>
-                    <Admin />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route path="/about" element={<Suspense fallback={<PageLoading />}><About /></Suspense>} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/extended" element={<Suspense fallback={<PageLoading />}><Extended /></Suspense>} />
-            <Route path="*" element={<Suspense fallback={<PageLoading />}><NotFound /></Suspense>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </LanguageProvider>
     </AuthProvider>
   )
 }
-

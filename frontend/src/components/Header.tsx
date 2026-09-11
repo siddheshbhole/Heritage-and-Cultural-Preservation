@@ -4,6 +4,7 @@ import ExploreNav, { EXPLORE_ROUTE_RE } from './ExploreNav'
 import HeritageNav, { HERITAGE_ROUTE_RE } from './HeritageNav'
 import DocumentsNav, { DOCUMENTS_ROUTE_RE } from './DocumentsNav'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getSearchSuggestions } from '../api/client'
 import type { SearchSuggestion } from '../api/client'
 
@@ -41,6 +42,17 @@ export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAdmin, openAuthModal, signOut } = useAuth()
+  const { lang, setLang, t, languages } = useLanguage()
+
+  const links = [
+    { to: '/', label: t('nav_home'), end: true },
+    { to: '/explore', label: t('nav_explore'), end: false },
+    { to: '/heritage', label: t('nav_heritage'), end: false },
+    { to: '/culture', label: t('nav_culture'), end: false },
+    { to: '/community', label: t('nav_community'), end: false },
+    { to: '/documents', label: t('nav_documents'), end: false },
+  ]
+
   const [q, setQ] = useState('')
   const [mq, setMq] = useState('')
   const [open, setOpen] = useState(false)
@@ -53,6 +65,7 @@ export default function Header() {
   const headerRef = useRef<HTMLElement>(null)
   const closeTimer = useRef<number | null>(null)
   const isDesktop = useMediaQuery(`(min-width: ${DESKTOP_BREAKPOINT}px)`)
+
 
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [suggestOpen, setSuggestOpen] = useState(false)
@@ -339,7 +352,7 @@ export default function Header() {
         </Link>
 
         <nav className="nav-links" aria-label="Primary">
-          {LINKS.map((l) => {
+          {links.map((l) => {
             if (l.to === '/explore') {
               return (
                 <div
@@ -454,11 +467,11 @@ export default function Header() {
               onChange={(e) => setQ(e.target.value)}
               onFocus={() => q.trim().length >= 2 && setSuggestOpen(true)}
               onKeyDown={onSearchKeyDown}
-              placeholder="Search culture…"
+              placeholder={t('search_placeholder')}
               aria-label="Search"
               autoComplete="off"
             />
-            <button>Search</button>
+            <button>{t('btn_search')}</button>
             {suggestOpen && suggestions.length > 0 && (
               <ul className="nav-search-suggest" role="listbox">
                 {suggestions.map((s, i) => (
@@ -483,9 +496,17 @@ export default function Header() {
         </form>
 
         <div className="nav-actions">
-          <select className="langs" aria-label="Language" defaultValue="en">
-            <option value="en">EN</option>
-            <option value="hi">हिं</option>
+          <select
+            className="langs"
+            aria-label="Language"
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+          >
+            {languages.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.code === 'en' ? 'EN' : l.code === 'hi' ? 'हिं' : l.code === 'kn' ? 'ಕನ್ನ' : l.nativeName}
+              </option>
+            ))}
           </select>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -512,7 +533,7 @@ export default function Header() {
                 className="btn btn-sm btn-outline"
                 onClick={() => signOut()}
               >
-                Logout
+                {t('nav_sign_out')}
               </button>
             </div>
           ) : (
@@ -521,7 +542,7 @@ export default function Header() {
               className="btn btn-sm btn-outline"
               onClick={() => openAuthModal('login')}
             >
-              Sign In
+              {t('nav_sign_in')}
             </button>
           )}
           <button

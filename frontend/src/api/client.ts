@@ -337,6 +337,12 @@ export interface Event {
   official_url: string | null
   registration_url: string | null
   status: 'UPCOMING' | 'ONGOING' | 'COMPLETED'
+  historical_background?: string | null
+  cultural_significance?: string | null
+  rituals_traditions?: string | null
+  gallery_images?: string[] | null
+  state_name?: string | null
+  city_name?: string | null
 }
 
 export interface Scheme {
@@ -547,6 +553,28 @@ export async function searchHeritage(
 
 export async function getSearchSuggestions(query: string, limit = 8): Promise<SearchSuggestionResult> {
   return get<SearchSuggestionResult>(`/search/suggest?q=${encodeURIComponent(query)}&limit=${limit}`)
+}
+
+export interface AssistantMessageHistory {
+  role: 'user' | 'assistant'
+  text: string
+}
+
+export interface AssistantPageContext {
+  pathname?: string | null
+  entity_name?: string | null
+  entity_type?: string | null
+  location?: string | null
+}
+
+export interface AssistantQueryRequest {
+  question: string
+  history?: AssistantMessageHistory[]
+  page_context?: AssistantPageContext
+  lat?: number
+  lng?: number
+  context_type?: string
+  context_id?: number
 }
 
 export interface AssistantRecommendation {

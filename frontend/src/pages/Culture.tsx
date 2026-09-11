@@ -75,12 +75,11 @@ export default function Culture() {
                   <span>📅 {fmtDate(e.start_date)}{e.end_date && e.end_date !== e.start_date ? ` – ${fmtDate(e.end_date)}` : ''}</span>
                   <span>{e.location}</span>
                 </div>
-                {(e.registration_url || e.official_url) && (
-                  <div className="hero-strip" style={{ marginTop: 8 }}>
-                    {e.registration_url && <a className="btn btn-sm btn-primary" href={e.registration_url} target="_blank" rel="noreferrer">Register →</a>}
-                    {e.official_url && <a className="btn btn-sm btn-outline" href={e.official_url} target="_blank" rel="noreferrer">Details</a>}
-                  </div>
-                )}
+                <div className="hero-strip" style={{ marginTop: 8 }}>
+                  {e.registration_url && <a className="btn btn-sm btn-primary" href={e.registration_url} target="_blank" rel="noreferrer">Register →</a>}
+                  <Link className="btn btn-sm btn-outline" to={`/culture/${e.id}`}>Details</Link>
+                  {e.official_url && <a className="btn btn-sm btn-ghost" href={e.official_url} target="_blank" rel="noreferrer">Official ↗</a>}
+                </div>
               </div>
             ))}
           </div>

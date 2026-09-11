@@ -39,6 +39,142 @@ GALLERIES = {
 }
 
 
+# ---- Verified Wikimedia thumbnail URLs (corrected dataset) ----
+# Keyed by heritage site slug; used to overwrite any stale image_urls
+VERIFIED_SITES = {
+    "agra-fort-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/20191204_Moat_and_walls_of_Agra_Fort_0925_6582.jpg/960px-20191204_Moat_and_walls_of_Agra_Fort_0925_6582.jpg",
+    "ajanta-caves": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Bodhisattva_Padmapani%2C_cave_1%2C_Ajanta%2C_India.jpg/960px-Bodhisattva_Padmapani%2C_cave_1%2C_Ajanta%2C_India.jpg",
+    "ajanta-caves-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Bodhisattva_Padmapani%2C_cave_1%2C_Ajanta%2C_India.jpg/960px-Bodhisattva_Padmapani%2C_cave_1%2C_Ajanta%2C_India.jpg",
+    "amber-fort": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Jaipur_03-2016_02_Amber_Fort.jpg/960px-Jaipur_03-2016_02_Amber_Fort.jpg",
+    "baul-music": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Baul_Folk_Singers_of_Bengal.png/960px-Baul_Folk_Singers_of_Bengal.png",
+    "bhangra-giddha": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Bhangra-dance.jpg/960px-Bhangra-dance.jpg",
+    "bharatanatyam": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bharata_Natyam_Performance_DS.jpg/960px-Bharata_Natyam_Performance_DS.jpg",
+    "bhimbetka-rock-shelters": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Rock_Shelter_8%2C_Bhimbetka_02.jpg/960px-Rock_Shelter_8%2C_Bhimbetka_02.jpg",
+    "bhimbetka-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Rock_Shelter_8%2C_Bhimbetka_02.jpg/960px-Rock_Shelter_8%2C_Bhimbetka_02.jpg",
+    "bidriware": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Bidriware_vases_and_decanter.jpg/960px-Bidriware_vases_and_decanter.jpg",
+    "bihu": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Bihu_Dance_%2C_Festival_of_India.jpg/960px-Bihu_Dance_%2C_Festival_of_India.jpg",
+    "blue-pottery": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Blue_Pottery%2C_Jaipur_School_of_Art.jpg/960px-Blue_Pottery%2C_Jaipur_School_of_Art.jpg",
+    "brihadeeswara-temple": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Brihadeeswara_Temple_Thanjavur.png/960px-Brihadeeswara_Temple_Thanjavur.png",
+    "burrakatha": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Burrakatha_Artist.jpg/960px-Burrakatha_Artist.jpg",
+    "capitol-complex": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Palace_of_Assembly_Chandigarh_2006.jpg/960px-Palace_of_Assembly_Chandigarh_2006.jpg",
+    "carnatic-music": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/A_Carnatic_Music_Concert_by_Parassala_Ponnammal_and_group.jpg/960px-A_Carnatic_Music_Concert_by_Parassala_Ponnammal_and_group.jpg",
+    "champaner-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Jami_Masjid_-_Champaner-Pavagadh_Archaeological_Park_-_Gujarat_-_DSC027.jpg/960px-Jami_Masjid_-_Champaner-Pavagadh_Archaeological_Park_-_Gujarat_-_DSC027.jpg",
+    "chettinad": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Chettinad_Snacks-WUS-04525.jpg/960px-Chettinad_Snacks-WUS-04525.jpg",
+    "chhau": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Performance_of_Chhau_dance_of_Purulia.jpg/960px-Performance_of_Chhau_dance_of_Purulia.jpg",
+    "chhau-performing-arts": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Performance_of_Chhau_dance_of_Purulia.jpg/960px-Performance_of_Chhau_dance_of_Purulia.jpg",
+    "chilika": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/A_motorboat_on_the_Chilika_Lake%2C_Odisha%2C_India.jpg/960px-A_motorboat_on_the_Chilika_Lake%2C_Odisha%2C_India.jpg",
+    "chittorgarh-fort": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Kalika_Mata_Temple%2C_Chittorgarh_Fort.jpg/960px-Kalika_Mata_Temple%2C_Chittorgarh_Fort.jpg",
+    "churches-of-goa": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Side_Elevation_of_Basilica_of_Bom_Jesus.jpg/960px-Side_Elevation_of_Basilica_of_Bom_Jesus.jpg",
+    "cst-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Chhatrapati_Shivaji_Terminus_%28Victoria_Terminus%29.jpg/960px-Chhatrapati_Shivaji_Terminus_%28Victoria_Terminus%29.jpg",
+    "dholavira": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Dholavira_gujarat.jpg/960px-Dholavira_gujarat.jpg",
+    "dokra-metal-craft": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Tribal_Anklets_called_Andu_made_of_Bell_Metal_using_Dhokra_Craft_Technique%2C_Orissa.jpg/960px-Tribal_Anklets_called_Andu_made_of_Bell_Metal_using_Dhokra_Craft_Technique%2C_Orissa.jpg",
+    "durga-puja": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Durga_Puja_Festival_-_Kolkata_October_2025.jpg/960px-Durga_Puja_Festival_-_Kolkata_October_2025.jpg",
+    "elephanta-caves": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Elephanta_-_Mahesh_Murti.jpg/960px-Elephanta_-_Mahesh_Murti.jpg",
+    "ellora-caves": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Courtyard_and_Mahabharata_Reliefs_at_the_Kailasa_Temple%2C_Ellora_01.jpg/960px-Courtyard_and_Mahabharata_Reliefs_at_the_Kailasa_Temple%2C_Ellora_01.jpg",
+    "ellora-caves-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Courtyard_and_Mahabharata_Reliefs_at_the_Kailasa_Temple%2C_Ellora_01.jpg/960px-Courtyard_and_Mahabharata_Reliefs_at_the_Kailasa_Temple%2C_Ellora_01.jpg",
+    "fatehpur-sikri": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Fatehput_Sikiri_Buland_Darwaza_gate_2010.jpg/960px-Fatehput_Sikiri_Buland_Darwaza_gate_2010.jpg",
+    "fatehpur-sikri-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Fatehput_Sikiri_Buland_Darwaza_gate_2010.jpg/960px-Fatehput_Sikiri_Buland_Darwaza_gate_2010.jpg",
+    "ganga-aarti": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Ganga_Aarti_at_Varanasi_in_the_evening.jpg/960px-Ganga_Aarti_at_Varanasi_in_the_evening.jpg",
+    "garba-dandiya": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Garba_Navratri_03.jpg/960px-Garba_Navratri_03.jpg",
+    "great-himalayan": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Himalayan_National_park_Himachal_Pradesh.jpg/960px-Great_Himalayan_National_park_Himachal_Pradesh.jpg",
+    "great-himalayan-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Himalayan_National_park_Himachal_Pradesh.jpg/960px-Great_Himalayan_National_park_Himachal_Pradesh.jpg",
+    "great-living-chola-temples": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Gangaikondacholapuram_Temple_4.jpg/960px-Gangaikondacholapuram_Temple_4.jpg",
+    "hampi": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Stone_Chariot_at_Hampi%2C_Karnataka.jpg/960px-Stone_Chariot_at_Hampi%2C_Karnataka.jpg",
+    "hampi-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Stone_Chariot_at_Hampi%2C_Karnataka.jpg/960px-Stone_Chariot_at_Hampi%2C_Karnataka.jpg",
+    "hawa-mahal": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg/960px-East_facade_Hawa_Mahal_Jaipur_from_ground_level_%28July_2022%29_-_img_01.jpg",
+    "hill-forts-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Kalika_Mata_Temple%2C_Chittorgarh_Fort.jpg/960px-Kalika_Mata_Temple%2C_Chittorgarh_Fort.jpg",
+    "hindustani-classical": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Ravi_Shankar.jpg/960px-Ravi_Shankar.jpg",
+    "humayuns-tomb": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Tomb_of_Humayun%2C_Delhi.jpg/960px-Tomb_of_Humayun%2C_Delhi.jpg",
+    "jaipur-city-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Jaipur_03-2016_20_City_Palace_complex.jpg/960px-Jaipur_03-2016_20_City_Palace_complex.jpg",
+    "jantar-mantar-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Jaipur_Jantar_Mantar_panorama_2011.jpg/960px-Jaipur_Jantar_Mantar_panorama_2011.jpg",
+    "jim-corbett": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/116_Indian_elephant_in_Jim_Corbett_National_Park_Photo_by_Giles_Laurent.jpg/960px-116_Indian_elephant_in_Jim_Corbett_National_Park_Photo_by_Giles_Laurent.jpg",
+    "kalaripayattu": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Kalaripayattu_mock_combat_in_rural_Kerala.jpg/960px-Kalaripayattu_mock_combat_in_rural_Kerala.jpg",
+    "kalbelia": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kalbelia_Woman.jpg/960px-Kalbelia_Woman.jpg",
+    "kanjeevaram": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Silk_Sari_Weaving_at_Kanchipuram%2C_Tamil_Nadu.jpg/960px-Silk_Sari_Weaving_at_Kanchipuram%2C_Tamil_Nadu.jpg",
+    "kathak": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Kathak_Solo_Performance_%2815%29.jpg/960px-Kathak_Solo_Performance_%2815%29.jpg",
+    "kathakali": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kathakali_of_Kerala_at_Nishagandhi_dance_festival_2024_%28266%29.jpg/960px-Kathakali_of_Kerala_at_Nishagandhi_dance_festival_2024_%28266%29.jpg",
+    "kaziranga": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Asian_Barred_Owlet_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_01.jpg/960px-Asian_Barred_Owlet_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_01.jpg",
+    "kaziranga-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Asian_Barred_Owlet_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_01.jpg/960px-Asian_Barred_Owlet_in_Kaziranga_National_Park_March_2025_by_Tisha_Mukherjee_01.jpg",
+    "keoladeo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Sunset_with_Painted_stork_family_at_Keoladeo_national_park_%28Dec%2C_2024%29_01.jpg/960px-Sunset_with_Painted_stork_family_at_Keoladeo_national_park_%28Dec%2C_2024%29_01.jpg",
+    "keoladeo-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Sunset_with_Painted_stork_family_at_Keoladeo_national_park_%28Dec%2C_2024%29_01.jpg/960px-Sunset_with_Painted_stork_family_at_Keoladeo_national_park_%28Dec%2C_2024%29_01.jpg",
+    "khajuraho": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Lakshmana_Temple_at_Khajuraho.JPG/960px-Lakshmana_Temple_at_Khajuraho.JPG",
+    "khangchendzonga": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Yellow-rumped_Honeyguide_Khangchendzonga_National_Park_West_Sikkim_Sikkim_India_17.02.2016.jpg/960px-Yellow-rumped_Honeyguide_Khangchendzonga_National_Park_West_Sikkim_Sikkim_India_17.02.2016.jpg",
+    "khangchendzonga-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Yellow-rumped_Honeyguide_Khangchendzonga_National_Park_West_Sikkim_Sikkim_India_17.02.2016.jpg/960px-Yellow-rumped_Honeyguide_Khangchendzonga_National_Park_West_Sikkim_Sikkim_India_17.02.2016.jpg",
+    "konark-sun-temple": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/13th_Century_sculptures_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg/960px-13th_Century_sculptures_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg",
+    "konark-sun-temple-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/13th_Century_sculptures_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg/960px-13th_Century_sculptures_at_Konark_Sun_Temple_Puri_district%2C_Odisha%2C_India.jpg",
+    "kondapalli-toys": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Kondapalli_toys_at_a_house_in_Vijayawada.jpg/960px-Kondapalli_toys_at_a_house_in_Vijayawada.jpg",
+    "kuchipudi": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Kuchipudi_Dance_2.jpg/960px-Kuchipudi_Dance_2.jpg",
+    "kumbh-mela": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/2019_Kumbh_Mela_-_People_in_Allahabad.jpg/960px-2019_Kumbh_Mela_-_People_in_Allahabad.jpg",
+    "kutiyattam": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/A_Sanskrit_manuscript_folio_on_Kutiyattam_Natya_theatre%2C_found_in_a_Thrissur_Hindu_monastery%2C_Malayalam_script_-_1.jpg/960px-A_Sanskrit_manuscript_folio_on_Kutiyattam_Natya_theatre%2C_found_in_a_Thrissur_Hindu_monastery%2C_Malayalam_script_-_1.jpg",
+    "lavani": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Lavani_2.jpg/960px-Lavani_2.jpg",
+    "living-root-bridges": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Living_root_bridge%2C_Maghalaya%2C_India1.jpg/960px-Living_root_bridge%2C_Maghalaya%2C_India1.jpg",
+    "madhubani": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Madhubani_painting_by_Bhuvana_Meenakshi.jpg/960px-Madhubani_painting_by_Bhuvana_Meenakshi.jpg",
+    "mahabalipuram-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Descent_of_the_Ganges_01.jpg/960px-Descent_of_the_Ganges_01.jpg",
+    "mahabodhi-temple": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Votive_Stupas_-_Mahabodhi_Temple_Complex_-_Bodh_Gaya_%2813%29.jpg/960px-Votive_Stupas_-_Mahabodhi_Temple_Complex_-_Bodh_Gaya_%2813%29.jpg",
+    "manipuri": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Lord_Krishna_in_Manipuri_Ras_Lila_dance_01.jpg/960px-Lord_Krishna_in_Manipuri_Ras_Lila_dance_01.jpg",
+    "meenakshi-temple": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Sri_Meenakshi_Devasthanam_Temple_from_courtyard.jpg/960px-Sri_Meenakshi_Devasthanam_Temple_from_courtyard.jpg",
+    "mountain-railways-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Darjeeling_Himalayan_Railway%2Ctoy_train_%288%29.jpg/960px-Darjeeling_Himalayan_Railway%2Ctoy_train_%288%29.jpg",
+    "mysuru-palace": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/960px-Mysore_Palace_Morning.jpg",
+    "naga-maram-traditions": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Kabui_Dance.jpg/960px-Kabui_Dance.jpg",
+    "nanda-devi": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Valley_of_flowers_national_park%2C_Uttarakhand%2C_India.jpg/960px-Valley_of_flowers_national_park%2C_Uttarakhand%2C_India.jpg",
+    "nanda-devi-valley-of-flowers-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Valley_of_flowers_national_park%2C_Uttarakhand%2C_India.jpg/960px-Valley_of_flowers_national_park%2C_Uttarakhand%2C_India.jpg",
+    "navratri-dussehra": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Garba_Navratri_03.jpg/960px-Garba_Navratri_03.jpg",
+    "odissi": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Odissi_Performance_DS.jpg/960px-Odissi_Performance_DS.jpg",
+    "onam": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Onam_Thriuvathira_Dance.jpg/960px-Onam_Thriuvathira_Dance.jpg",
+    "pandavani": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/A_folk_theatre_artist.jpg/960px-A_folk_theatre_artist.jpg",
+    "pashmina": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Pashmina_scarf_with_woven_elephant_design_03.jpg/960px-Pashmina_scarf_with_woven_elephant_design_03.jpg",
+    "pattachitra": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mathura_Vijay_-_Pattachitra_of_Odisha.jpg/960px-Mathura_Vijay_-_Pattachitra_of_Odisha.jpg",
+    "pattadakal": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Sangameshwar_Temple%2C_Pattadakal%2C_Karnataka%2C_India.jpg/960px-Sangameshwar_Temple%2C_Pattadakal%2C_Karnataka%2C_India.jpg",
+    "phulkari": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Embroidery_on_a_shawl_from_Punjab_05.jpg/960px-Embroidery_on_a_shawl_from_Punjab_05.jpg",
+    "puppetry": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Kathputli_%28puppetry%29%2C_Rajasthan%2C_India%2C_2023.jpg/960px-Kathputli_%28puppetry%29%2C_Rajasthan%2C_India%2C_2023.jpg",
+    "qutb-minar": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Qutub_Minar_in_Delhi_03-2016.jpg/960px-Qutub_Minar_in_Delhi_03-2016.jpg",
+    "qutb-minar-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Qutub_Minar_in_Delhi_03-2016.jpg/960px-Qutub_Minar_in_Delhi_03-2016.jpg",
+    "ramappa-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Ramappa_Temple_8.jpg/960px-Ramappa_Temple_8.jpg",
+    "ramlila": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Ramlila_Maidan%2C_Janadesh_2007%2C_Delhi.jpg/960px-Ramlila_Maidan%2C_Janadesh_2007%2C_Delhi.jpg",
+    "rani-ki-vav": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg/960px-Rani_ki_vav_-_Patan_-_Gujarat_-_Wall_Decorations.jpg",
+    "ranthambore": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/080_Bengal_tiger_in_Ranthambore_National_Park_Photo_by_Giles_Laurent.jpg/960px-080_Bengal_tiger_in_Ranthambore_National_Park_Photo_by_Giles_Laurent.jpg",
+    "red-fort": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Red_Fort_in_Delhi_03-2016_img3.jpg/960px-Red_Fort_in_Delhi_03-2016_img3.jpg",
+    "red-fort-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Red_Fort_in_Delhi_03-2016_img3.jpg/960px-Red_Fort_in_Delhi_03-2016_img3.jpg",
+    "sanchi-stupa": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Stupa_1%2C_Sanchi_02.jpg/960px-Stupa_1%2C_Sanchi_02.jpg",
+    "sanchi-stupa-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Stupa_1%2C_Sanchi_02.jpg/960px-Stupa_1%2C_Sanchi_02.jpg",
+    "sundarbans": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Dense_Mangrove_Forest_of_the_Sundarban_Tiger_Reserve_during_High_Tide%2C_West_Bengal%2C_India_03.jpg/960px-Dense_Mangrove_Forest_of_the_Sundarban_Tiger_Reserve_during_High_Tide%2C_West_Bengal%2C_India_03.jpg",
+    "sundarbans-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Dense_Mangrove_Forest_of_the_Sundarban_Tiger_Reserve_during_High_Tide%2C_West_Bengal%2C_India_03.jpg/960px-Dense_Mangrove_Forest_of_the_Sundarban_Tiger_Reserve_during_High_Tide%2C_West_Bengal%2C_India_03.jpg",
+    "taj-mahal": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/El_Taj_Mahal-Agra_India0023.JPG/960px-El_Taj_Mahal-Agra_India0023.JPG",
+    "taj-mahal-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/El_Taj_Mahal-Agra_India0023.JPG/960px-El_Taj_Mahal-Agra_India0023.JPG",
+    "thali-culture": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/%275%27_A_vegetarian_thali%2C_traditional_style_of_serving_a_meal_in_India.jpg/960px-%275%27_A_vegetarian_thali%2C_traditional_style_of_serving_a_meal_in_India.jpg",
+    "traditional-medicine": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Ayurveda.jpg/960px-Ayurveda.jpg",
+    "vedic-chanting": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Vedic_Chanting_by_Brahmacharins_%2815885243999%29.jpg/960px-Vedic_Chanting_by_Brahmacharins_%2815885243999%29.jpg",
+    "victorian-gothic-mumbai": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Chhatrapati_Shivaji_Terminus_%28Victoria_Terminus%29.jpg/960px-Chhatrapati_Shivaji_Terminus_%28Victoria_Terminus%29.jpg",
+    "warli": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Warli_painting.jpg/960px-Warli_painting.jpg",
+    "western-ghats": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Tea_Western_Ghats_Calvary_Mount_Idukki_Kerala_Mar22_R16_05624.jpg/960px-Tea_Western_Ghats_Calvary_Mount_Idukki_Kerala_Mar22_R16_05624.jpg",
+    "western-ghats-world": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Tea_Western_Ghats_Calvary_Mount_Idukki_Kerala_Mar22_R16_05624.jpg/960px-Tea_Western_Ghats_Calvary_Mount_Idukki_Kerala_Mar22_R16_05624.jpg",
+    "yoga": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Ambigram_Body_Yoga%2C_mirror_symmetry.png/960px-Ambigram_Body_Yoga%2C_mirror_symmetry.png",
+}
+
+VERIFIED_CATEGORIES = {
+    "classical-dance": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bharata_Natyam_Performance_DS.jpg/960px-Bharata_Natyam_Performance_DS.jpg",
+    "classical-music": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Ravi_Shankar.jpg/960px-Ravi_Shankar.jpg",
+    "culinary": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/North_Indian_Vegetarian_Thali-MB51.jpg/960px-North_Indian_Vegetarian_Thali-MB51.jpg",
+    "festivals-cultural-practices": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Durga_Puja_Festival_-_Kolkata_October_2025.jpg/960px-Durga_Puja_Festival_-_Kolkata_October_2025.jpg",
+    "folk-dance": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/GARBA_DANCE_GUJARAT.jpg/960px-GARBA_DANCE_GUJARAT.jpg",
+    "folk-music": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Rajasthani_folk_singer_at_Mehrangarh_fort.jpg/960px-Rajasthani_folk_singer_at_Mehrangarh_fort.jpg",
+    "folk-songs": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Mahim_Fakir_Baul_Singer.jpg/960px-Mahim_Fakir_Baul_Singer.jpg",
+    "handicrafts": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Papier-m%C3%A2ch%C3%A9_mask_at_Odisha_Crafts_Museum%2C_Bhubaneswar%2C_Odisha%2C_India_01.jpg/960px-Papier-m%C3%A2ch%C3%A9_mask_at_Odisha_Crafts_Museum%2C_Bhubaneswar%2C_Odisha%2C_India_01.jpg",
+    "man-made": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/20191203_Naubat_Khana%2C_Red_Fort%2C_Delhi_0456_6348_DxO.jpg/960px-20191203_Naubat_Khana%2C_Red_Fort%2C_Delhi_0456_6348_DxO.jpg",
+    "mixed": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Panorama_North_Nilgiris_Range_Bokkapuram_Sep22_A7C_02938-42_Pano.jpg/960px-Panorama_North_Nilgiris_Range_Bokkapuram_Sep22_A7C_02938-42_Pano.jpg",
+    "natural": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Rhino_in_Kaziranga_TR_AJTJ_P1070307.jpg/960px-Rhino_in_Kaziranga_TR_AJTJ_P1070307.jpg",
+    "oral-traditions": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Kathakeerthan_Nirupama_Rajendra_storytellers_traditional_costume.jpg/960px-Kathakeerthan_Nirupama_Rajendra_storytellers_traditional_costume.jpg",
+    "rituals-traditions": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Ganga_Aarti_at_Varanasi_in_the_evening.jpg/960px-Ganga_Aarti_at_Varanasi_in_the_evening.jpg",
+    "storytelling": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Harikatha_play.jpg/960px-Harikatha_play.jpg",
+    "textiles": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Complicated_hand-loom_for_silk_weaving%2C_Kanchipuram%2C_Tamil_Nadu.jpg/960px-Complicated_hand-loom_for_silk_weaving%2C_Kanchipuram%2C_Tamil_Nadu.jpg",
+    "theatre": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/A_Sanskrit_manuscript_folio_on_Kutiyattam_Natya_theatre%2C_found_in_a_Thrissur_Hindu_monastery%2C_Malayalam_script_-_1.jpg/960px-A_Sanskrit_manuscript_folio_on_Kutiyattam_Natya_theatre%2C_found_in_a_Thrissur_Hindu_monastery%2C_Malayalam_script_-_1.jpg",
+    "traditional-artistic-forms": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Madhubani_painting_by_Bhuvana_Meenakshi.jpg/960px-Madhubani_painting_by_Bhuvana_Meenakshi.jpg",
+    "traditional-crafts": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Blue_Pottery%2C_Jaipur_School_of_Art.jpg/960px-Blue_Pottery%2C_Jaipur_School_of_Art.jpg",
+    "traditional-knowledge": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Ambigram_Body_Yoga%2C_mirror_symmetry.png/960px-Ambigram_Body_Yoga%2C_mirror_symmetry.png",
+    "traditional-performing-arts": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Performance_of_Chhau_dance_of_Purulia.jpg/960px-Performance_of_Chhau_dance_of_Purulia.jpg",
+}
+
+
 def categories_data():
     def c(slug, name, kind, order, desc, image):
         return {
@@ -238,6 +374,7 @@ def world_sites():
 def insert(db, r):
     if db.query(HeritageSite).filter(HeritageSite.slug == r.get("slug")).first():
         return 0
+    verified = VERIFIED_SITES.get(r.get("slug"))
     rec = HeritageSite(
         name=r["name"], slug=r.get("slug"), heritage_type=r.get("heritage_type", "tangible"),
         category=r.get("category"), state_id=None,
@@ -245,8 +382,9 @@ def insert(db, r):
         location=r.get("location"), latitude=r.get("latitude"), longitude=r.get("longitude"),
         historical_period=r.get("historical_period"), architecture=r.get("architecture"),
         significance=r.get("significance"), famous_people=r.get("famous_people"),
-        related_events=r.get("related_events"), image_url=r.get("image_url"),
-        main_image=r.get("main_image") or r.get("image_url"),
+        related_events=r.get("related_events"),
+        image_url=verified or r.get("image_url"),
+        main_image=verified or r.get("main_image") or r.get("image_url"),
         featured=int(r.get("featured", 0)),
         region=r.get("region"), unesco_status=r.get("unesco_status"),
         unesco_year=r.get("unesco_year"), unesco_category=r.get("unesco_category"),
@@ -256,7 +394,7 @@ def insert(db, r):
     )
     db.add(rec)
     db.flush()
-    gallery = [r.get("main_image") or r.get("image_url")]
+    gallery = [verified or r.get("main_image") or r.get("image_url")]
     gallery += [g for g in GALLERIES.get(r.get("slug"), []) if g]
     for i, url in enumerate(gallery[:6]):
         db.add(HeritageImage(heritage_site_id=rec.id, url=url, caption=None, display_order=i))
@@ -268,6 +406,9 @@ def build(db):
     existing_categories = {c.slug for c in db.query(HeritageCategory).all()}
     added_cats = 0
     for cat in categories_data():
+        vurl = VERIFIED_CATEGORIES.get(cat["slug"])
+        if vurl:
+            cat["image_url"] = vurl
         if cat["slug"] not in existing_categories:
             db.add(HeritageCategory(**cat))
             added_cats += 1

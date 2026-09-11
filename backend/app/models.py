@@ -223,6 +223,14 @@ class Event(Base):
     official_url = Column(String)
     registration_url = Column(String, nullable=True)
 
+    # Culture detail page fields (added for the festival detail flow)
+    historical_background = Column(Text, nullable=True)
+    cultural_significance = Column(Text, nullable=True)
+    rituals_traditions = Column(Text, nullable=True)
+    gallery_images = Column(Text, nullable=True)  # JSON array of image URLs
+    state_name = Column(String, nullable=True)
+    city_name = Column(String, nullable=True)
+
 
 class Announcement(Base):
     __tablename__ = "announcements"

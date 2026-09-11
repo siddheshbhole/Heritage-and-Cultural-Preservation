@@ -11,7 +11,7 @@ from ..models import (
 )
 from ..serializers import (
     announcement_row, app_row, author_row, award_row, commemoration_row,
-    event_row, heritage_image_row, heritage_row, institution_row,
+    event_row, event_row_detailed, heritage_image_row, heritage_row, institution_row,
     mou_row, museum_row, programme_row, provenance_row, publication_row, scheme_row,
 )
 
@@ -103,6 +103,14 @@ def list_events(
     if status:
         rows = [r for r in rows if r["status"] == status]
     return rows
+
+
+@router.get("/events/{event_id}")
+def event_detail(event_id: int, db: Session = Depends(get_db)):
+    e = db.query(Event).filter(Event.id == event_id).first()
+    if not e:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return event_row_detailed(e)
 
 
 @router.get("/announcements")

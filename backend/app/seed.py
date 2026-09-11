@@ -11,6 +11,7 @@ from .models import (
     CommunityProfile, CultureApp, Document, Event, GovernmentProgramme,
     HeritageSite, Institution, MoU, Museum, Provenance, Publication, Scheme, State,
 )
+from .seed_events_detail import EVENT_DETAILS
 
 TODAY = date.today().isoformat()
 
@@ -1201,6 +1202,17 @@ def build():
             city_id=city_id_by_name.get(cname) if cname else None,
             description=desc, organizer=org, official_url=url,
         ))
+    db.flush()
+    for ev in db.query(Event).all():
+        det = EVENT_DETAILS.get(ev.name)
+        if det:
+            ev.historical_background = det["historical_background"]
+            ev.cultural_significance = det["cultural_significance"]
+            ev.rituals_traditions = det["rituals_traditions"]
+            ev.gallery_images = det["gallery_images"]
+            ev.state_name = det["state_name"]
+            ev.city_name = det["city_name"]
+            ev.image_url = det["image_url"]
 
     # ------------------------------- ANNOUNCEMENTS -------------------------------
     announcements = [

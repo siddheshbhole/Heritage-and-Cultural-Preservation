@@ -2,7 +2,7 @@ import sqlite3
 import urllib.request
 import json
 
-db = sqlite3.connect('C:/Users/admin/OneDrive/Desktop/SIH/Heritage-and-Cultural-Preservation/data/processed/heritage.db')
+db = sqlite3.connect('c:/Users/ASUS/OneDrive/Desktop/Heritage-and-Cultural-Preservation/data/processed/heritage.db')
 c = db.cursor()
 c.execute("SELECT name FROM sqlite_master WHERE type='table';")
 tables = [t[0] for t in c.fetchall() if t[0] != 'sqlite_sequence']

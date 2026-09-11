@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { post } from '../api/client'
+
 import type {
   AssistantItineraryDay,
+  AssistantMessageHistory,
+  AssistantPageContext,
   AssistantProfile,
+  AssistantQueryRequest,
   AssistantRecommendation,
   AssistantResponse,
 } from '../api/client'
@@ -116,6 +121,32 @@ function buildPrompts(pathname: string, search: string): string[] {
   return DEFAULT_PROMPTS
 }
 
+function buildPageContext(pathname: string): AssistantPageContext {
+  const parts = pathname.split('/').filter(Boolean)
+  if (!parts.length) return { pathname, entity_name: null, entity_type: 'home' }
+  if (parts[0] === 'heritage' && parts[1]) {
+    if (parts[1] === 'tangible' || parts[1] === 'intangible' || parts[1] === 'world') {
+      return { pathname, entity_name: parts[1], entity_type: 'heritage' }
+    }
+    return { pathname, entity_name: decodeURIComponent(parts[1]).replace(/-/g, ' '), entity_type: 'heritage' }
+  }
+  if (parts[0] === 'states' && parts[1]) {
+    return { pathname, entity_name: decodeURIComponent(parts[1]).replace(/-/g, ' '), entity_type: 'state' }
+  }
+  if (parts[0] === 'cities' && parts[1]) {
+    return { pathname, entity_name: decodeURIComponent(parts[1]).replace(/-/g, ' '), entity_type: 'city' }
+  }
+  if (parts[0] === 'museums' && parts[1]) {
+    return { pathname, entity_name: decodeURIComponent(parts[1]).replace(/-/g, ' '), entity_type: 'museum' }
+  }
+  if (parts[0] === 'culture' && parts[1]) {
+    return { pathname, entity_name: null, entity_type: 'culture' }
+  }
+  if (parts[0] === 'assistant') return { pathname, entity_name: null, entity_type: 'assistant' }
+  if (parts[0] === 'search') return { pathname, entity_name: null, entity_type: 'search' }
+  return { pathname, entity_name: null, entity_type: parts[0] }
+}
+
 function reasonText(reasons?: string[]): string | null {
   if (!reasons || reasons.length === 0) return null
   return `✓ ${reasons.join(' • ')}`
@@ -203,13 +234,26 @@ function ProfileBanner({ p }: { p: AssistantProfile }) {
 }
 
 export default function AIHeritageGuide() {
+  const { lang, t } = useLanguage()
   const [open, setOpen] = useState(false)
-  const [msgs, setMsgs] = useState<Msg[]>([INTRO])
+  const [msgs, setMsgs] = useState<Msg[]>([
+    {
+      role: 'ai',
+      text: t('ai_intro'),
+    },
+  ])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const location = useLocation()
   const bodyRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const msgsRef = useRef<Msg[]>(msgs)
+
+  const pageContextObj = useMemo(() => buildPageContext(location.pathname), [location.pathname])
+
+  useEffect(() => {
+    msgsRef.current = msgs
+  }, [msgs])
 
   const context = pageContext(location.pathname, location.search)
   const prompts = buildPrompts(location.pathname, location.search)
@@ -247,10 +291,17 @@ export default function AIHeritageGuide() {
   const doAsk = useCallback(async (question: string, lat?: number, lng?: number) => {
     setBusy(true)
     try {
-      const res = await post<AssistantResponse>('/assistant/query', {
+      const history: AssistantMessageHistory[] = msgsRef.current
+        .slice(1)
+        .map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', text: m.text }))
+      const body = {
         question,
+        history,
+        page_context: pageContextObj,
+        lang,
         ...(lat != null && lng != null ? { lat, lng } : {}),
-      })
+      }
+      const res = await post<AssistantResponse>('/assistant/query', body)
       setMsgs((m) => [
         ...m,
         {
@@ -269,7 +320,7 @@ export default function AIHeritageGuide() {
     } finally {
       setBusy(false)
     }
-  }, [])
+  }, [pageContextObj])
 
   const ask = useCallback(
     (question: string) => {
@@ -392,7 +443,11 @@ export default function AIHeritageGuide() {
             ))}
             {busy && (
               <div className="msg ai">
-                <span className="typing">Thinking…</span>
+                <span className="typing-dots" aria-label="Thinking">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
               </div>
             )}
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
+import { useLanguage } from '../context/LanguageContext'
 import type { HomeData, MinistryData, ShowcaseItem, State, TrendingResponse } from '../api/client'
 import Ticker from '../components/Ticker'
 import Carousel from '../components/Carousel'
@@ -51,6 +52,7 @@ const SHOWCASE_META: Record<string, Partial<ShowcaseItem>> = {
 }
 
 export default function Home() {
+  const { t } = useLanguage()
   const { data, loading } = useFetch<HomeData>('/home')
   const { data: trending, loading: trendingLoading, error: trendingError } = useFetch<TrendingResponse>('/trending')
   const { data: ministry, loading: ministryLoading } = useFetch<MinistryData>('/ministry')
@@ -72,11 +74,14 @@ export default function Home() {
   useEffect(() => {
     const el = mapRef.current
     if (!el) return
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced) { setMapVisible(true); return }
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setMapVisible(true); obs.disconnect() } },
-      { threshold: 0.15 },
+      ([e]) => {
+        if (e.isIntersecting) {
+          setMapVisible(true)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.1 },
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -86,7 +91,7 @@ export default function Home() {
 
   return (
     <>
-      <Ticker items={data?.announcements} />
+      <Ticker items={announcements} />
 
       <section className="hero">
         <div className="hero-bg" aria-hidden="true">
@@ -100,24 +105,20 @@ export default function Home() {
         <div className="container hero-inner">
           <div>
             <h1>
-              Discover the <em>living soul</em> of Bharat
+              {t('portal_tagline')}
             </h1>
             <p className="lead">
-              One digital gateway to India’s states, cities, heritage sites, museums and living
-              traditions — curated from the Ministry of Culture and trusted institutions.
+              {t('portal_sub')}
             </p>
             <div className="hero-strip">
-              <Link to="/explore" className="btn btn-primary">Explore the map →</Link>
-              <Link to="/assistant" className="btn btn-outline">Ask Culture AI</Link>
+              <Link to="/explore" className="btn btn-primary">{t('btn_explore')} →</Link>
+              <Link to="/assistant" className="btn btn-outline">{t('btn_ask_ai')}</Link>
             </div>
             {stats && (
               <div className="stats" style={{ maxWidth: 620 }}>
-                <StatCard value={stats.states} label="States & UTs" />
-                <StatCard value={stats.heritage_sites.toLocaleString('en-IN')} label="Heritage resources" />
-                <StatCard value={stats.museums.toLocaleString('en-IN')} label="Museums" />
-                <StatCard value={stats.events} label="Major festivals" />
-                <StatCard value={`${(stats.publications / 1e7).toFixed(2)} Cr+`} label="Manuscripts surveyed" />
-                <StatCard value={stats.cities.toLocaleString('en-IN')} label="Cities & towns" />
+                <StatCard value={stats.states} label={t('stats_states')} />
+                <StatCard value={stats.heritage_sites.toLocaleString('en-IN')} label={t('stats_heritage')} />
+                <StatCard value={stats.museums.toLocaleString('en-IN')} label={t('stats_museums')} />
               </div>
             )}
           </div>

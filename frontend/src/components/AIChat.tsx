@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AssistantResponse } from '../api/client'
+import type { AssistantMessageHistory, AssistantQueryRequest, AssistantResponse } from '../api/client'
 import { post } from '../api/client'
 import { TrustBadge } from './ui'
 
@@ -36,7 +36,12 @@ export default function AIChat({ compact = false }: { compact?: boolean }) {
     setMsgs((m) => [...m, { role: 'user', text: q }])
     setBusy(true)
     try {
-      const res = await post<AssistantResponse>('/assistant/query', { question: q })
+      const history: AssistantMessageHistory[] = msgs.slice(1).map((m) => ({
+        role: m.role === 'user' ? 'user' as const : 'assistant' as const,
+        text: m.text,
+      }))
+      const body: AssistantQueryRequest = { question: q, history }
+      const res = await post<AssistantResponse>('/assistant/query', body)
       setMsgs((m) => [...m, { role: 'ai', text: res.answer, trust: res.trust, sources: res.sources, note: res.note }])
     } catch {
       setMsgs((m) => [...m, { role: 'ai', text: 'Sorry, the assistant is unavailable right now. Please try again.' }])
@@ -77,7 +82,11 @@ export default function AIChat({ compact = false }: { compact?: boolean }) {
         ))}
         {busy && (
           <div className="msg ai">
-            <span className="typing">Thinking…</span>
+            <span className="typing-dots" aria-label="Thinking">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
           </div>
         )}
       </div>

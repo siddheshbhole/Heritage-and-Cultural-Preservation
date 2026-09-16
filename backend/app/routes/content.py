@@ -1,4 +1,5 @@
 from datetime import date
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -90,6 +91,7 @@ def list_events(
     city: int | None = None,
     category: str | None = None,
     status: str | None = None,
+    event_type: str | None = None,
     db: Session = Depends(get_db),
 ):
     q = db.query(Event)
@@ -99,10 +101,34 @@ def list_events(
         q = q.filter(Event.city_id == city)
     if category:
         q = q.filter(Event.category == category)
+    if event_type:
+        q = q.filter(Event.event_type == event_type)
     rows = [event_row(e) for e in q.all()]
     if status:
         rows = [r for r in rows if r["status"] == status]
     return rows
+
+
+@router.post("/bookings")
+def create_booking(body: dict, db: Session = Depends(get_db)):
+    event_id = body.get("event_id")
+    event_name = body.get("event_name") or f"Event #{event_id}"
+    e = db.query(Event).filter(Event.id == event_id).first() if event_id else None
+    if event_id and not e:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if event_id and e and not e.bookable:
+        raise HTTPException(status_code=400, detail="This event does not support ticket booking")
+    booking_id = f"BK-{event_id or 'NA'}-{int(time.time())}"
+    return {
+        "status": "confirmed",
+        "booking_id": booking_id,
+        "event_id": event_id,
+        "event_name": (e.name if e else event_name),
+        "date": body.get("date"),
+        "time_slot": body.get("time_slot"),
+        "num_visitors": body.get("num_visitors"),
+        "visitor_name": body.get("visitor_name"),
+    }
 
 
 @router.get("/events/{event_id}")

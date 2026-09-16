@@ -343,6 +343,23 @@ export interface Event {
   gallery_images?: string[] | null
   state_name?: string | null
   city_name?: string | null
+  event_type: 'culture' | 'ritual'
+  bookable: boolean
+}
+
+export interface BookingRequest {
+  event_id: number
+  event_name: string
+  date: string
+  time_slot: string
+  num_visitors: number
+  visitor_name: string
+  visitor_email: string
+  visitor_phone: string
+}
+
+export async function createBooking(booking: BookingRequest, token?: string | null) {
+  return post<{ status: string; booking_id: string }>('/bookings', booking, token)
 }
 
 export interface Scheme {

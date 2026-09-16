@@ -222,6 +222,8 @@ class Event(Base):
     organizer = Column(String)
     official_url = Column(String)
     registration_url = Column(String, nullable=True)
+    event_type = Column(String, default="culture")  # "culture" | "ritual"
+    bookable = Column(Integer, default=0)  # 1 = ticket booking available
 
     # Culture detail page fields (added for the festival detail flow)
     historical_background = Column(Text, nullable=True)

@@ -211,6 +211,8 @@ def event_row(e):
         "city_name": getattr(e, "city_name", None),
         "gallery_images": _event_gallery(e),
         "status": event_status(e),
+        "event_type": getattr(e, "event_type", "culture") or "culture",
+        "bookable": bool(getattr(e, "bookable", 0)),
     }
 
 

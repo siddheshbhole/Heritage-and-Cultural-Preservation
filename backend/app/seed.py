@@ -1195,12 +1195,46 @@ def build():
     city_id_by_name = {}
     for c in db.query(City).all():
         city_id_by_name[c.name] = c.id
+    ritual_event_names = {"Ambubachi Mela", "Thaipusam", "Mata Ki Chowki & Kumbh logistics"}
     for name, cat, start, end, loc, code, cname, desc, org, url in events:
         db.add(Event(
             name=name, category=cat, start_date=start, end_date=end, location=loc,
             state_id=state_id_by_code.get(code),
             city_id=city_id_by_name.get(cname) if cname else None,
             description=desc, organizer=org, official_url=url,
+            event_type="ritual" if name in ritual_event_names else "culture",
+        ))
+
+    ritual_events = [
+        # name, category, start, end, location, state code, city name, desc, organizer, url, bookable
+        ("Ganga Aarti", "Ritual", "2026-12-01", "2026-12-31", "Varanasi (Uttar Pradesh)", "UP", "Varanasi",
+         "The nightly ceremony of fire and lamps on the Dashashwamedh Ghat, where priests offer the river the great evening aarti with conch, incense and a thousand diyas.", "Ganga Seva Nidhi, Varanasi", "https://www.indiaculture.gov.in", 1),
+        ("Chhath Puja", "Ritual", "2026-11-12", "2026-11-15", "Patna (Bihar)", "BR", "Patna",
+         "Four days of sun worship on riverbanks — the giving of arghya at dawn and dusk by fasting devotees to Surya and Chhathi Maiya.", "Bihar Culture Dept.", "https://www.indiaculture.gov.in", 0),
+        ("Theyyam", "Ritual", "2026-12-01", "2027-02-28", "Kannur, Kasargod (Kerala)", "KL", None,
+         "The ritual art theatre of northern Malabar where performers become living deities in elaborate costumes, performing annual propitiatory dances in village shrines.", "Kerala Folklore Academy", "https://www.keralaculture.org", 1),
+        ("Ratha Yatra", "Ritual", "2027-01-01", "2027-01-31", "Puri (Odisha)", "OD", None,
+         "The great chariot journey of Lord Jagannath from his temple to the Gundicha Ghar, when lakhs pull the towering wooden chariots through Puri's Grand Road.", "Shree Jagannath Temple Office", "https://www.indiaculture.gov.in", 1),
+        ("Karthigai Deepam", "Ritual", "2026-11-25", "2026-11-25", "Chennai, Tiruvannamalai (Tamil Nadu)", "TN", "Chennai",
+         "The festival of lamps in the Tamil month of Karthigai — families light rows of clay lamps and the sacred Annamalai hill beacon burns atop Tiruvannamalai.", "Tamil Nadu Culture Dept.", "https://www.tamilnaduculture.edu.in", 0),
+        ("Jagannath Snana Yatra", "Ritual", "2027-06-14", "2027-06-14", "Puri (Odisha)", "OD", None,
+         "The bathing festival when the Jagannath idols are brought out on the Snana Mandap and bathed with 108 pots of scented water before their annual retreat for the great journey.", "Shree Jagannath Temple Office", "https://www.indiaculture.gov.in", 0),
+        ("Bonalu", "Ritual", "2027-06-15", "2027-06-25", "Hyderabad (Telangana)", "TG", "Hyderabad",
+         "The annual offering of the bonam (boiled rice in a pot) to Goddess Mahakali across the temples of Hyderabad, with ghatam and pothuraju processions in full swing.", "Telangana Culture Dept.", "https://www.telangana.gov.in", 0),
+        ("Meenakshi Thirukalyanam", "Ritual", "2027-04-01", "2027-04-15", "Madurai (Tamil Nadu)", "TN", "Madurai",
+         "The grand celestial wedding of Goddess Meenakshi and Lord Sundareswarar during the Chithirai festival, enacted as the city's most important annual temple ritual.", "Meenakshi Amman Temple Trust", "https://www.tamilnaduculture.edu.in", 1),
+        ("Thrissur Pooram", "Ritual", "2027-05-01", "2027-05-02", "Thrissur (Kerala)", "KL", None,
+         "The day-long temple festival where two rival temple groups face off in a breathtaking display of caparisoned elephants, percussion and the swing of mirrored parasols.", "Thrissur Devaswom", "https://www.keralaculture.org", 1),
+        ("Kanwar Yatra", "Ritual", "2026-07-10", "2026-08-10", "Haridwar, Sultanganj (North India)", "UP", None,
+         "The annual pilgrimage of the Shiva devotees who walk barefoot carrying Ganga water in gilded kanwars to offer at Jyotirlinga shrines during the month of Shravan.", "UP & Bihar religious boards", "https://www.indiaculture.gov.in", 0),
+    ]
+    for name, cat, start, end, loc, code, cname, desc, org, url, bookable in ritual_events:
+        db.add(Event(
+            name=name, category=cat, start_date=start, end_date=end, location=loc,
+            state_id=state_id_by_code.get(code),
+            city_id=city_id_by_name.get(cname) if cname else None,
+            description=desc, organizer=org, official_url=url,
+            event_type="ritual", bookable=bookable,
         ))
     db.flush()
     for ev in db.query(Event).all():

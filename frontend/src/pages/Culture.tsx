@@ -4,20 +4,8 @@ import { useFetch } from '../api/hooks'
 import type { CultureApp, Event } from '../api/client'
 import { PageHead } from './_shared'
 import { Empty, Skeleton, gradientFor } from '../components/ui'
+import { CultureCard } from '../components/CultureCard'
 import BookingModal from '../components/BookingModal'
-
-const STATUS_CHIP: Record<string, unknown> = {
-  UPCOMING: 'chip chip-green',
-  ONGOING: 'chip',
-  COMPLETED: 'chip chip-outline',
-}
-
-function fmtDate(d: string) {
-  if (!d) return ''
-  const dt = new Date(d)
-  if (Number.isNaN(dt.getTime())) return d
-  return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-}
 
 export default function Culture() {
   const eventsQ = useFetch<Event[]>('/events')
@@ -50,11 +38,7 @@ export default function Culture() {
 
   return (
     <>
-      <PageHead
-        title="Culture & Rituals"
-        sub="Festivals, rituals, arts and living heritage across the states — plus the official digital services that bring culture to your doorstep."
-        crumbs={[{ label: 'Culture' }]}
-      />
+      <PageHead crumbs={[{ label: 'Culture' }]} />
 
       <div className="container">
         <div className="culture-selector" role="tablist" aria-label="Culture sections">
@@ -104,27 +88,7 @@ export default function Culture() {
         ) : (
           <div className="card-grid">
             {cards.map((e) => (
-              <div className="card has-bg" key={e.id}>
-                {e.image_url && <img className="card-bg-img" src={e.image_url} alt="" aria-hidden="true" loading="lazy" />}
-                <div className="meta">
-                  <span className={(STATUS_CHIP[e.status] as string) ?? 'chip chip-outline'}>{e.status.toLowerCase()}</span>
-                  <span>{e.category}</span>
-                </div>
-                <h3>{e.name}</h3>
-                <p className="desc">{e.description}</p>
-                <div className="meta">
-                  <span>📅 {fmtDate(e.start_date)}{e.end_date && e.end_date !== e.start_date ? ` – ${fmtDate(e.end_date)}` : ''}</span>
-                  <span>{e.location}</span>
-                </div>
-                <div className="hero-strip" style={{ marginTop: 8 }}>
-                  {isRituals && e.bookable && (
-                    <button className="btn btn-sm btn-primary" onClick={() => setBooking(e)}>Book Ticket</button>
-                  )}
-                  {e.registration_url && <a className="btn btn-sm btn-primary" href={e.registration_url} target="_blank" rel="noreferrer">Register →</a>}
-                  <Link className="btn btn-sm btn-outline" to={`/culture/${e.id}`}>Details</Link>
-                  {e.official_url && <a className="btn btn-sm btn-ghost" href={e.official_url} target="_blank" rel="noreferrer">Official ↗</a>}
-                </div>
-              </div>
+              <CultureCard key={e.id} event={e} isRitual={isRituals} onBook={setBooking} />
             ))}
           </div>
         )}

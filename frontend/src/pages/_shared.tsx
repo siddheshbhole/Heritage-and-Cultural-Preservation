@@ -2,11 +2,11 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Crumbs, gradientFor, initials } from '../components/ui'
 
-export function PageHead({ title, sub, crumbs }: { title: string; sub?: string | null; crumbs?: Array<{ label: string; to?: string }> }) {
+export function PageHead({ title, sub, crumbs }: { title?: string; sub?: string | null; crumbs?: Array<{ label: string; to?: string }> }) {
   return (
     <div className="page-head container">
       {crumbs && <Crumbs items={crumbs} />}
-      <h1 className="page-title">{title}</h1>
+      {title && <h1 className="page-title">{title}</h1>}
       {sub && <p className="page-sub" style={{ color: 'var(--muted)', marginTop: 8, maxWidth: 760 }}>{sub}</p>}
     </div>
   )

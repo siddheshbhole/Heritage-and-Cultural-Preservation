@@ -11,7 +11,7 @@ from .models import (
     CommunityProfile, CultureApp, Document, Event, GovernmentProgramme,
     HeritageSite, Institution, MoU, Museum, Provenance, Publication, Scheme, State,
 )
-from .seed_events_detail import EVENT_DETAILS
+from .seed_events_detail import EVENT_DETAILS, EVENT_IMAGE_OVERRIDES
 
 TODAY = date.today().isoformat()
 
@@ -1246,7 +1246,7 @@ def build():
             ev.gallery_images = det["gallery_images"]
             ev.state_name = det["state_name"]
             ev.city_name = det["city_name"]
-            ev.image_url = det["image_url"]
+            ev.image_url = EVENT_IMAGE_OVERRIDES.get(ev.name, det["image_url"])
 
     # ------------------------------- ANNOUNCEMENTS -------------------------------
     announcements = [

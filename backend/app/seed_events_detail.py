@@ -37,3 +37,44 @@ EVENT_DETAILS = {
     'Thrissur Pooram': {'historical_background': "Thrissur Pooram is the temple festival of Thrissur, Kerala, created in 1798 when the ruler Sakthan Thampuran invited rival temple groups to a single day of celebration before the Vadakkunnathan temple. It grew into one of South India's most spectacular public rituals.", 'cultural_significance': "The Pooram is a contest of ceremony between the Paramekkavu and Thiruvambadi groups, staged as a celebration of percussion (Panchavadyam and Pandimelam) and caparisoned elephants, and is sometimes called the 'music festival of the South'. It is the model for dozens of Kerala temple poorams.", 'rituals_traditions': 'At dawn the uda chimil (decorated screens carried by elephants), the mid-day Madathilvaravu, the famous Kudamattom of changing silk parasols and the night-long Panchavadyam follow the ancient kodiyettam hoisting; cannon fire and the ilanjithara melam of up to 200 drummers mark the grand finale.', 'gallery_images': '["https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Elephants_at_Thrissur_Puram.jpg/960px-Elephants_at_Thrissur_Puram.jpg", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Elephants_at_Thrissur_Pooram.jpg/960px-Elephants_at_Thrissur_Pooram.jpg"]', 'state_name': 'Kerala', 'city_name': 'Thrissur', 'image_url': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Elephants_at_Thrissur_Puram.jpg/960px-Elephants_at_Thrissur_Puram.jpg'},
     'Kanwar Yatra': {'historical_background': 'Kanwar Yatra is the annual pilgrimage of Shiva devotees who fetch Ganga water and carry it in decorated kanwars (pole-bourne pots) to offer at Jyotirlinga shrines. The practice in its organised mass form dates to the 1980s, yet rests on the ancient Shravan-month worship of Shiva described in the Puranas.', 'cultural_significance': 'Millions of kanwariyas, clad in saffron, walk barefoot along the highways of North India during Shravan, offering Ganga jal at Haridwar, Sultanganj and Rishikesh for the Shravani Somvar abhishek. It has become one of the largest ritual processions on earth and shaped the network of Shravan mands on the route.', 'rituals_traditions': 'Devotees observe the dudh and jal vrats (milk and water fasts), walk the barefoot route carrying pots hung on bamboo poles, perform jallabhishek at the shrine, and mark the return with the ritual Jhoola and Shravani Melas at Deoghar and Baidyanath.', 'gallery_images': '["https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg/960px-A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg", "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Kanwarias_in_Haridwar.jpg/960px-Kanwarias_in_Haridwar.jpg"]', 'state_name': 'Uttar Pradesh', 'city_name': 'Haridwar', 'image_url': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg/960px-A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg'}
 }
+
+
+# EVENT_IMAGE_OVERRIDES
+# Anchors every Culture/Ritual event to a *verified* Wikimedia Commons image.
+# The historical seed thumbnails were fabricated with incorrect media-hash
+# paths, producing 404 / broken images. Each URL below was resolved and
+# verified against the Wikimedia Commons API so the full-background event
+# cards always render a real, relevant photograph. If the hand-written entry
+# in EVENT_DETAILS was already correct, it is re-stated here for consistency.
+EVENT_IMAGE_OVERRIDES = {
+    'Ganesh Chaturthi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Eco_friendly_images_of_God_Ganesh_on_display_for_Ganesh_Chaturthi_celebrations.jpg/960px-Eco_friendly_images_of_God_Ganesh_on_display_for_Ganesh_Chaturthi_celebrations.jpg',
+    'Ambubachi Mela': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Kamakhya_Temple%2C_Guwahati.jpg/960px-Kamakhya_Temple%2C_Guwahati.jpg',
+    'Durga Puja': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Durga_Puja_Festival_-_Kolkata_October_2025.jpg/960px-Durga_Puja_Festival_-_Kolkata_October_2025.jpg',
+    'Navratri Garba Utsav': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Garba_Navratri_03.jpg/960px-Garba_Navratri_03.jpg',
+    'Mysuru Dasara': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Mysore_Dasara_procession.jpg/960px-Mysore_Dasara_procession.jpg',
+    'Dev Deepawali': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Varanasi_2023_Dev_Deepawali_During_the_day_03.jpg/960px-Varanasi_2023_Dev_Deepawali_During_the_day_03.jpg',
+    'Pushkar Camel Fair': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Camels_of_Pushkar_Camel_Fair_%282015%29.jpg/960px-Camels_of_Pushkar_Camel_Fair_%282015%29.jpg',
+    'Hornbill Festival': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Hornbill_Festival_Nagaland_01.jpg/960px-Hornbill_Festival_Nagaland_01.jpg',
+    'Hemis Festival': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Hemis_Monastery_02.jpg/960px-Hemis_Monastery_02.jpg',
+    'Rann Utsav': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/White_salt_desert_at_Rann_of_Kutch.jpg/960px-White_salt_desert_at_Rann_of_Kutch.jpg',
+    'Pongal': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/A_man_dancing_with_fire_at_a_Pongal_Festival_in_Namakkal%2C_Tamil_Nadu%2C_India.jpg/960px-A_man_dancing_with_fire_at_a_Pongal_Festival_in_Namakkal%2C_Tamil_Nadu%2C_India.jpg',
+    'Bihu': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Bihu_Dance_%2C_Festival_of_India.jpg/960px-Bihu_Dance_%2C_Festival_of_India.jpg',
+    'Sawai Gandharva Mahotsav': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Performance_of_Sarodiya_Brothers_at_SwarDarbar_Music_Concert.png/960px-Performance_of_Sarodiya_Brothers_at_SwarDarbar_Music_Concert.png',
+    'Kala Ghoda Arts Festival': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Entrance_gate_to_Kala_Ghoda_Arts_Festival_2026.jpg/960px-Entrance_gate_to_Kala_Ghoda_Arts_Festival_2026.jpg',
+    'Jaipur Literature Festival': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Gopalkrishna_Gandhi_at_Jaipur_Literature_Festival_2026_%288%29.jpg/960px-Gopalkrishna_Gandhi_at_Jaipur_Literature_Festival_2026_%288%29.jpg',
+    'Bastar Dussehra': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Famous_Dussehra_Bastar_Jagdalpur_Chhattisgarh.jpg/960px-Famous_Dussehra_Bastar_Jagdalpur_Chhattisgarh.jpg',
+    'Lohri': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Lohri_Festival_Ritual_from_Punjab.jpg/960px-Lohri_Festival_Ritual_from_Punjab.jpg',
+    'Onam': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Onam_Thriuvathira_Dance.jpg/960px-Onam_Thriuvathira_Dance.jpg',
+    'Thaipusam': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Thaipusam_celebration_with_kavadi_ceremony_at_Little_India.jpg/960px-Thaipusam_celebration_with_kavadi_ceremony_at_Little_India.jpg',
+    'Mata Ki Chowki & Kumbh logistics': 'https://upload.wikimedia.org/wikipedia/commons/6/63/2019_Kumbh_Mela_-_People_in_Allahabad.jpg',
+    'Ganga Aarti': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ganga_aarti_at_varanasi_ghat_uttar_pradesh.jpg/960px-Ganga_aarti_at_varanasi_ghat_uttar_pradesh.jpg',
+    'Chhath Puja': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Offering_Arghya_in_the_Chhath_Celebrations.jpg/960px-Offering_Arghya_in_the_Chhath_Celebrations.jpg',
+    'Theyyam': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Theyyam_performance_Kerala.jpg/960px-Theyyam_performance_Kerala.jpg',
+    'Ratha Yatra': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Puri_Ratha_Yatra.jpg/960px-Puri_Ratha_Yatra.jpg',
+    'Karthigai Deepam': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Karthigai_Deepam_002.jpg',
+    'Jagannath Snana Yatra': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Jagannath_Temple_on_2022_Snana_Jatra.jpg/960px-Jagannath_Temple_on_2022_Snana_Jatra.jpg',
+    'Bonalu': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Hyderabad_bonalu_series_%283%29.jpg/960px-Hyderabad_bonalu_series_%283%29.jpg',
+    'Meenakshi Thirukalyanam': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Madurai_Meenakshi_Amman_Temple_Gopuram.jpg/960px-Madurai_Meenakshi_Amman_Temple_Gopuram.jpg',
+    'Thrissur Pooram': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Elephants_at_Thrissur_Puram.jpg/960px-Elephants_at_Thrissur_Puram.jpg',
+    'Kanwar Yatra': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg/960px-A_company_of_%27Kanwar_Yatra%27_devotee_raising_the_slogan_to_hail_the_mighty_Shiva.jpg',
+}

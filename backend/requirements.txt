@@ -6,4 +6,5 @@ alembic
 python-dotenv
 PyJWT[crypto]
 httpx
+dnspython
 

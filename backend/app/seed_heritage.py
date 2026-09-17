@@ -414,10 +414,18 @@ def build(db):
             added_cats += 1
     db.flush()
 
-    existing_sites = db.query(HeritageSite).count()
-    if existing_sites > 0:
+    # Only skip when the heritage *section* seed has already run (i.e. sites
+    # carrying a heritage_type/tangible-intangible-world exist). The generic
+    # state-wise sites from seed.py have heritage_type NULL and must not block
+    # this non-destructive seed (insert() dedupes new rows by slug).
+    existing_heritage_sites = (
+        db.query(HeritageSite)
+        .filter(HeritageSite.heritage_type.isnot(None))
+        .count()
+    )
+    if existing_heritage_sites > 0:
         db.rollback()
-        print(f"Heritage seed skipped: database already has {existing_sites} heritage sites.")
+        print(f"Heritage seed skipped: database already has {existing_heritage_sites} heritage-section sites.")
         return
 
     added = 0

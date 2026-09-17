@@ -25,6 +25,7 @@ export async function get<T>(path: string, token?: string | null): Promise<T> {
   try {
     res = await fetch(API_BASE + path, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      cache: 'no-store',
     })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
@@ -39,6 +40,7 @@ export async function post<T>(path: string, body: unknown, token?: string | null
       method: 'POST',
       headers: getAuthHeaders(token),
       body: JSON.stringify(body),
+      cache: 'no-store',
     })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
@@ -53,6 +55,7 @@ export async function patch<T>(path: string, body: unknown, token?: string | nul
       method: 'PATCH',
       headers: getAuthHeaders(token),
       body: JSON.stringify(body),
+      cache: 'no-store',
     })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
@@ -67,6 +70,7 @@ export async function put<T>(path: string, body: unknown, token?: string | null)
       method: 'PUT',
       headers: getAuthHeaders(token),
       body: JSON.stringify(body),
+      cache: 'no-store',
     })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
@@ -80,6 +84,7 @@ export async function del<T>(path: string, token?: string | null): Promise<T> {
     res = await fetch(API_BASE + path, {
       method: 'DELETE',
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      cache: 'no-store',
     })
   } catch {
     throw new Error('Cannot reach the server. Is the API running?')
@@ -360,6 +365,193 @@ export interface BookingRequest {
 
 export async function createBooking(booking: BookingRequest, token?: string | null) {
   return post<{ status: string; booking_id: string }>('/bookings', booking, token)
+}
+
+export interface GuideRegistration {
+  full_name: string
+  phone: string
+  email: string
+  state: string
+  location?: string | null
+}
+
+export interface HeritageGuide {
+  id: number
+  full_name: string
+  state: string
+  location: string | null
+  status: string
+  availability: 'free' | 'occupied' | string
+  created_at: string | null
+  message?: string
+}
+
+export interface GuideAdminRecord extends HeritageGuide {
+  user_id: string | null
+  phone: string
+  email: string
+  assigned_site: string | null
+  updated_at: string | null
+}
+
+export async function registerGuide(registration: GuideRegistration, token?: string | null): Promise<HeritageGuide> {
+  return post<HeritageGuide>('/guides/register', registration, token)
+}
+
+export async function getMyGuides(token: string): Promise<{ items: GuideAdminRecord[]; total: number }> {
+  return get<{ items: GuideAdminRecord[]; total: number }>('/guides/me', token)
+}
+
+export async function updateMyGuide(
+  payload: { availability: string; location?: string | null },
+  token: string,
+): Promise<GuideAdminRecord> {
+  return patch<GuideAdminRecord>('/guides/me', payload, token)
+}
+
+export async function deleteMyGuide(token: string): Promise<{ message: string; removed: GuideAdminRecord }> {
+  return del<{ message: string; removed: GuideAdminRecord }>('/guides/me', token)
+}
+
+export async function chooseGuide(guideId: number, siteName: string): Promise<HeritageGuide> {
+  return post<HeritageGuide>(`/guides/${guideId}/choose`, { site_name: siteName })
+}
+
+export async function releaseGuide(guideId: number): Promise<HeritageGuide> {
+  return post<HeritageGuide>(`/guides/${guideId}/release`, {})
+}
+
+export interface GuideReportRequest {
+  reason: string
+  details?: string | null
+}
+
+export async function reportGuide(
+  guideId: number,
+  report: GuideReportRequest,
+): Promise<{ message: string; report_id: number }> {
+  return post<{ message: string; report_id: number }>(`/guides/${guideId}/report`, report)
+}
+
+export interface GuideTour {
+  id: number
+  guide_id: number
+  heritage_site_id: number | null
+  site_name: string
+  status: string
+  tourist_user_id: string | null
+  tourist_name: string | null
+  tourist_email: string | null
+  tourist_phone: string | null
+  tour_token: string
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface GuideTourResult {
+  tour: GuideTour
+  guide: GuideAdminRecord
+  message: string
+}
+
+export interface ActiveTourResult {
+  tour: GuideTour | null
+  guide: GuideAdminRecord | null
+}
+
+export interface GuideDashboardData {
+  guide: GuideAdminRecord
+  tours_completed: number
+  tours_cancelled: number
+  tours_total: number
+  current_tour: GuideTour | null
+  upcoming_tours: GuideTour[]
+  active_tours_count: number
+}
+
+export interface CreateGuideTourRequest {
+  guide_id: number
+  heritage_site_id?: number | null
+  site_name: string
+  tourist_name?: string | null
+  tourist_email?: string | null
+  tourist_phone?: string | null
+}
+
+export async function createGuideTour(payload: CreateGuideTourRequest, token?: string | null): Promise<GuideTourResult> {
+  return post<GuideTourResult>('/guides/tours', payload, token)
+}
+
+export async function getActiveGuideTour(
+  params: { heritage_site_id?: number | null; tour_token?: string | null },
+  token?: string | null,
+): Promise<ActiveTourResult> {
+  const qs = new URLSearchParams()
+  if (params.heritage_site_id) qs.set('heritage_site_id', String(params.heritage_site_id))
+  if (params.tour_token) qs.set('tour_token', params.tour_token)
+  const q = qs.toString()
+  return get<ActiveTourResult>(`/guides/tours/active${q ? `?${q}` : ''}`, token)
+}
+
+export async function cancelGuideTour(
+  tourId: number,
+  tourToken?: string | null,
+  token?: string | null,
+): Promise<GuideTourResult> {
+  return post<GuideTourResult>(`/guides/tours/${tourId}/cancel`, { tour_token: tourToken || null }, token)
+}
+
+export async function completeGuideTour(
+  tourId: number,
+  tourToken?: string | null,
+  token?: string | null,
+): Promise<GuideTourResult> {
+  return post<GuideTourResult>(`/guides/tours/${tourId}/complete`, { tour_token: tourToken || null }, token)
+}
+
+export async function getMyGuideDashboard(token: string): Promise<GuideDashboardData> {
+  return get<GuideDashboardData>('/guides/me/dashboard', token)
+}
+
+export interface PaginatedGuides {
+  items: GuideAdminRecord[]
+  total: number
+  page: number
+  per_page: number
+  pages: number
+}
+
+export async function getAvailableGuides(
+  params: { state?: string | null; location?: string | null },
+): Promise<HeritageGuide[]> {
+  const qs = new URLSearchParams()
+  if (params.state) qs.set('state', params.state)
+  if (params.location) qs.set('location', params.location)
+  const q = qs.toString()
+  return get<HeritageGuide[]>(`/guides/available${q ? `?${q}` : ''}`)
+}
+
+export async function listAdminGuides(
+  params: { status?: string; search?: string; page?: number; per_page?: number },
+  token?: string | null,
+): Promise<PaginatedGuides> {
+  const qs = new URLSearchParams()
+  if (params.status) qs.set('status_filter', params.status)
+  if (params.search) qs.set('search', params.search)
+  if (params.page) qs.set('page', String(params.page))
+  if (params.per_page) qs.set('per_page', String(params.per_page))
+  return get<PaginatedGuides>(`/admin/guides?${qs.toString()}`, token)
+}
+
+export async function updateGuideStatus(guideId: number, status: string, token?: string | null): Promise<GuideAdminRecord> {
+  return patch<GuideAdminRecord>(`/admin/guides/${guideId}`, { status }, token)
+}
+
+export async function deleteGuide(
+  guideId: number,
+  token: string,
+): Promise<{ message: string; removed: GuideAdminRecord }> {
+  return del<{ message: string; removed: GuideAdminRecord }>(`/admin/guides/${guideId}`, token)
 }
 
 export interface Scheme {

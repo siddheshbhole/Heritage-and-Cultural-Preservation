@@ -16,6 +16,7 @@ const LINKS = [
   { to: '/culture', label: 'Culture', end: false },
   { to: '/community', label: 'Community', end: false },
   { to: '/documents', label: 'Documents', end: false },
+  { to: '/vacancies', label: 'Vacancies', end: false },
 ]
 
 
@@ -51,6 +52,7 @@ export default function Header() {
     { to: '/culture', label: t('nav_culture'), end: false },
     { to: '/community', label: t('nav_community'), end: false },
     { to: '/documents', label: t('nav_documents'), end: false },
+    { to: '/vacancies', label: t('nav_vacancies'), end: false },
   ]
 
   const [q, setQ] = useState('')

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 export default function AuthModal() {
@@ -19,6 +19,17 @@ export default function AuthModal() {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+
+  // Keep the visible tab in sync with whichever tab the caller requested
+  // (e.g. the Vacancies page opening "Sign In" directly), so a previously
+  // used tab never sticks around.
+  useEffect(() => {
+    if (authModalOpen) {
+      setTab(authModalTab)
+      setErrorMsg('')
+      setSuccessMsg('')
+    }
+  }, [authModalOpen, authModalTab])
 
   if (!authModalOpen) return null
 

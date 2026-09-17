@@ -1052,3 +1052,49 @@ SELECT setval(pg_get_serial_sequence('community_posts', 'id'), GREATEST(8, (SELE
 SELECT setval(pg_get_serial_sequence('events', 'id'), GREATEST(20, (SELECT COALESCE(MAX(id),0) FROM "events")));
 SELECT setval(pg_get_serial_sequence('heritage_images', 'id'), GREATEST(121, (SELECT COALESCE(MAX(id),0) FROM "heritage_images")));
 SELECT setval(pg_get_serial_sequence('document_items', 'id'), GREATEST(131, (SELECT COALESCE(MAX(id),0) FROM "document_items")));
+
+-- =============================================================
+-- heritage_guides: volunteer Heritage Guide registrations (Vacancies)
+-- Registered via POST /api/guides/register; status starts as 'pending'
+-- and only 'approved' guides are shown publicly. Created by the backend
+-- with CREATE TABLE IF NOT EXISTS at startup (SQLAlchemy), kept here for
+-- database provisioning outside the application.
+-- =============================================================
+CREATE TABLE IF NOT EXISTS "heritage_guides" (
+  "id" SERIAL PRIMARY KEY,
+  "user_id" VARCHAR(255),
+  "full_name" VARCHAR(120) NOT NULL,
+  "phone" VARCHAR(20) NOT NULL,
+  "email" VARCHAR(160) NOT NULL,
+  "state" VARCHAR(120) NOT NULL,
+  "location" VARCHAR(255),
+  "status" VARCHAR(20) NOT NULL DEFAULT 'pending',
+  "availability" VARCHAR(20) NOT NULL DEFAULT 'free',
+  "assigned_site" VARCHAR(255),
+  "created_at" TIMESTAMP WITHOUT TIME ZONE,
+  "updated_at" TIMESTAMP WITHOUT TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_status ON "heritage_guides" ("status");
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_full_name ON "heritage_guides" ("full_name");
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_state ON "heritage_guides" ("state");
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_email ON "heritage_guides" ("email");
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_user_id ON "heritage_guides" ("user_id");
+CREATE INDEX IF NOT EXISTS ix_heritage_guides_availability ON "heritage_guides" ("availability");
+SELECT setval(pg_get_serial_sequence('heritage_guides', 'id'), GREATEST(0, (SELECT COALESCE(MAX(id),0) FROM "heritage_guides")));
+
+-- additive columns for existing installations
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'heritage_guides' AND column_name = 'user_id') THEN
+    ALTER TABLE "heritage_guides" ADD COLUMN "user_id" VARCHAR(255);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'heritage_guides' AND column_name = 'location') THEN
+    ALTER TABLE "heritage_guides" ADD COLUMN "location" VARCHAR(255);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'heritage_guides' AND column_name = 'availability') THEN
+    ALTER TABLE "heritage_guides" ADD COLUMN "availability" VARCHAR(20) NOT NULL DEFAULT 'free';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'heritage_guides' AND column_name = 'assigned_site') THEN
+    ALTER TABLE "heritage_guides" ADD COLUMN "assigned_site" VARCHAR(255);
+  END IF;
+END $$;

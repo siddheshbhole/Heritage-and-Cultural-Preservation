@@ -585,3 +585,54 @@ def provenance_row(p):
         "rights_status": p.rights_status,
         "verification_status": p.verification_status,
     }
+
+
+def guide_row(g):
+    """Public serialiser for Heritage Guide registrations.
+
+    Intentionally omits phone/email so the public endpoint never leaks contact
+    details while a guide is pending review.
+    """
+    return {
+        "id": g.id,
+        "full_name": g.full_name,
+        "state": g.state,
+        "location": g.location,
+        "status": g.status,
+        "availability": g.availability or "free",
+        "created_at": g.created_at.isoformat() if g.created_at else None,
+    }
+
+
+def guide_admin_row(g):
+    """Admin/owner serialiser: full contact details plus ownership info."""
+    return {
+        **guide_row(g),
+        "user_id": g.user_id,
+        "phone": g.phone,
+        "email": g.email,
+        "assigned_site": g.assigned_site,
+        "updated_at": g.updated_at.isoformat() if g.updated_at else None,
+    }
+
+
+def guide_tour_row(t):
+    """Serialiser for a tour/guide assignment.
+
+    Public by default: omits the tourist's contact details unless the caller
+    (guide or tourist owner) is entitled to see them.
+    """
+    return {
+        "id": t.id,
+        "guide_id": t.guide_id,
+        "heritage_site_id": t.heritage_site_id,
+        "site_name": t.site_name,
+        "status": t.status,
+        "tourist_user_id": t.tourist_user_id,
+        "tourist_name": t.tourist_name,
+        "tourist_email": t.tourist_email,
+        "tourist_phone": t.tourist_phone,
+        "tour_token": t.tour_token,
+        "created_at": t.created_at.isoformat() if t.created_at else None,
+        "updated_at": t.updated_at.isoformat() if t.updated_at else None,
+    }

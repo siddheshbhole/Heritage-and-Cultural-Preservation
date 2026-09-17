@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from secrets import token_urlsafe
 
 from .database import Base
 
@@ -699,4 +700,79 @@ class AuditLog(Base):
     model_name = Column(String, index=True)
     record_id = Column(String, index=True)
     details = Column(Text, nullable=True)
+
+
+class HeritageGuide(Base):
+    """Volunteer Heritage Guide registrations.
+
+    People with local / cultural / heritage knowledge register through the
+    Vacancies page. Registrations start as ``pending`` and are approved or
+    rejected by an administrator before they are shown publicly.
+    """
+
+    __tablename__ = "heritage_guides"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(255), nullable=True, index=True)
+    full_name = Column(String(120), index=True)
+    phone = Column(String(20), index=True)
+    email = Column(String(160), index=True)
+    state = Column(String(120), index=True)
+    location = Column(String(255), nullable=True)
+    status = Column(String(20), default="pending", index=True)  # pending | approved | rejected
+    availability = Column(String(20), default="free", index=True)  # free | occupied
+    assigned_site = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class GuideReport(Base):
+    """Tourist-submitted reports against an approved Heritage Guide.
+
+    Reports start as ``open`` and are reviewed by administrators.
+    """
+
+    __tablename__ = "guide_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    guide_id = Column(Integer, index=True)
+    guide_name = Column(String(120), nullable=True)
+    reason = Column(String(120))
+    details = Column(Text, nullable=True)
+    status = Column(String(20), default="open", index=True)  # open | resolved | dismissed
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class GuideTour(Base):
+    """A tour that assigns a Heritage Guide to a specific visitor and site.
+
+    The database is the single source of truth for guide↔site↔tourist
+    assignments:
+
+    * a tour links ``guide_id``, ``heritage_site_id`` and the tourist
+      (``tourist_user_id`` when the visitor is signed in, plus a linkable
+      ``tour_token`` for anonymous visitors so they can manage their own tour)
+    * ``status`` is ``active`` → ``completed``/``cancelled``
+    * creating an active tour marks the guide *occupied*; ending the last
+      active tour frees them again
+    * ``completed`` tours provide the *real* "Tours Completed" figure on the
+      guide dashboard (never fake statistics)
+    """
+
+    __tablename__ = "guide_tours"
+
+    id = Column(Integer, primary_key=True, index=True)
+    guide_id = Column(Integer, ForeignKey("heritage_guides.id"), index=True, nullable=False)
+    heritage_site_id = Column(Integer, ForeignKey("heritage_sites.id"), index=True, nullable=True)
+    site_name = Column(String(255), index=True)
+    status = Column(String(20), default="active", index=True)  # active | completed | cancelled
+    tourist_user_id = Column(String(255), nullable=True, index=True)
+    tourist_name = Column(String(120), nullable=True)
+    tourist_email = Column(String(160), nullable=True)
+    tourist_phone = Column(String(20), nullable=True)
+    tour_token = Column(String(64), unique=True, index=True, default=lambda: token_urlsafe(24))
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    guide = relationship("HeritageGuide", foreign_keys=[guide_id])
 

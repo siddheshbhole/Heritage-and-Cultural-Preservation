@@ -36,6 +36,7 @@ const Mous = lazy(() => import('./pages/Mous'))
 const Institutions = lazy(() => import('./pages/Institutions'))
 const AssistantPage = lazy(() => import('./pages/AssistantPage'))
 const Community = lazy(() => import('./pages/Community'))
+const Vacancies = lazy(() => import('./pages/Vacancies'))
 const About = lazy(() => import('./pages/About'))
 const Extended = lazy(() => import('./pages/Extended'))
 const Admin = lazy(() => import('./pages/Admin'))
@@ -139,6 +140,7 @@ export default function App() {
               </Route>
               <Route path="/assistant" element={<Suspense fallback={<PageLoading />}><AssistantPage /></Suspense>} />
               <Route path="/community" element={<Suspense fallback={<PageLoading />}><Community /></Suspense>} />
+              <Route path="/vacancies" element={<Suspense fallback={<PageLoading />}><Vacancies /></Suspense>} />
               <Route
                 path="/admin"
                 element={

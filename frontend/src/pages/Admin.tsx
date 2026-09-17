@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { get, patch, del } from '../api/client'
-import type { AdminStats, AdminAnalytics as AdminAnalyticsData, CommunityPost, ModelMeta } from '../api/client'
+import { get, patch, del, listAdminGuides, updateGuideStatus, deleteGuide } from '../api/client'
+import type { AdminStats, AdminAnalytics as AdminAnalyticsData, CommunityPost, ModelMeta, GuideAdminRecord } from '../api/client'
 import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
 import AdminDashboardOverview from './admin/AdminDashboardOverview'
@@ -11,12 +11,13 @@ import AdminUsers from './admin/AdminUsers'
 import AdminHeritageSites from './admin/AdminHeritageSites'
 import AdminAnalytics from './admin/AdminAnalytics'
 
-type TabType = 'overview' | 'heritage' | 'moderation' | 'analytics' | 'users' | 'audit' | 'crud'
+type TabType = 'overview' | 'heritage' | 'moderation' | 'guides' | 'analytics' | 'users' | 'audit' | 'crud'
 
 const SIDEBAR_ITEMS: { key: TabType; label: string; icon: string }[] = [
   { key: 'overview', label: 'Overview', icon: '📊' },
   { key: 'heritage', label: 'Heritage Sites', icon: '🏛️' },
   { key: 'moderation', label: 'Moderation', icon: '🛡️' },
+  { key: 'guides', label: 'Heritage Guides', icon: '🧭' },
   { key: 'analytics', label: 'Analytics', icon: '📈' },
   { key: 'users', label: 'Users', icon: '👥' },
   { key: 'audit', label: 'Audit Logs', icon: '📜' },
@@ -37,6 +38,10 @@ export default function Admin() {
   const [modFilter, setModFilter] = useState<string>('PENDING')
   const [modLoading, setModLoading] = useState<boolean>(false)
   const [actionMsg, setActionMsg] = useState<string>('')
+
+  const [guides, setGuides] = useState<GuideAdminRecord[]>([])
+  const [guideFilter, setGuideFilter] = useState<string>('pending')
+  const [guideLoading, setGuideLoading] = useState<boolean>(false)
 
   const loadInitData = async () => {
     if (!token) {
@@ -89,8 +94,9 @@ export default function Admin() {
 
   useEffect(() => {
     if (activeTab === 'moderation') loadModerationPosts()
+    if (activeTab === 'guides') loadGuideRegistrations()
     if (activeTab === 'analytics' || activeTab === 'overview') loadAnalytics()
-  }, [activeTab, modFilter, token])
+  }, [activeTab, modFilter, guideFilter, token])
 
   const handleStatusChange = async (postId: number, newStatus: 'APPROVED' | 'REJECTED') => {
     if (!token) return
@@ -115,6 +121,43 @@ export default function Admin() {
       loadInitData()
     } catch (err: any) {
       setError(err.message || 'Delete post failed.')
+    }
+  }
+
+  const loadGuideRegistrations = async () => {
+    if (!token) return
+    setGuideLoading(true)
+    try {
+      const p = await listAdminGuides({ status: guideFilter, per_page: 200 }, token)
+      setGuides(p.items)
+    } catch (err: any) {
+      setError(err.message || 'Failed to load heritage guide registrations.')
+    } finally {
+      setGuideLoading(false)
+    }
+  }
+
+  const handleGuideStatus = async (guideId: number, status: string) => {
+    if (!token) return
+    setActionMsg('')
+    try {
+      await updateGuideStatus(guideId, status, token)
+      setActionMsg(`Guide #${guideId} marked as ${status}.`)
+      loadGuideRegistrations()
+    } catch (err: any) {
+      setError(err.message || 'Guide status update failed.')
+    }
+  }
+
+  const handleDeleteGuide = async (guideId: number, name: string) => {
+    if (!token || !window.confirm(`Remove guide "${name}" permanently? They will disappear from all heritage site pages.`)) return
+    setActionMsg('')
+    try {
+      await deleteGuide(guideId, token)
+      setActionMsg(`Guide "${name}" removed.`)
+      loadGuideRegistrations()
+    } catch (err: any) {
+      setError(err.message || 'Guide removal failed.')
     }
   }
 
@@ -287,6 +330,76 @@ export default function Admin() {
                           )}
                           <button className="btn btn-sm btn-outline" style={{ color: '#64748b', borderColor: '#cbd5e1', marginLeft: 'auto' }} onClick={() => handleDeletePost(p.id)}>
                             Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Heritage Guides */}
+            {activeTab === 'guides' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 700 }}>
+                    Heritage Guide Registrations (Vacancies)
+                  </h3>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {['pending', 'approved', 'rejected', 'all'].map((st) => (
+                      <button key={st} className={`btn btn-sm ${guideFilter === st ? 'btn-primary' : 'btn-outline'}`} onClick={() => setGuideFilter(st)}>
+                        {st === 'pending' ? 'Pending' : st === 'approved' ? 'Approved' : st === 'rejected' ? 'Rejected' : 'All'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {actionMsg && (
+                  <div style={{ padding: '12px 16px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
+                    {actionMsg}
+                  </div>
+                )}
+
+                {guideLoading ? (
+                  <div className="card-grid"><Skeleton /><Skeleton /></div>
+                ) : guides.length === 0 ? (
+                  <Empty big="No guide registrations in this filter." text={`No ${guideFilter === 'all' ? '' : guideFilter} registrations.`} />
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {guides.map((g) => (
+                      <div key={g.id} style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, backgroundColor: g.status === 'approved' ? '#dcfce7' : g.status === 'rejected' ? '#fee2e2' : '#fef3c7', color: g.status === 'approved' ? '#15803d' : g.status === 'rejected' ? '#b91c1c' : '#b45309', marginBottom: '6px' }}>
+                              {g.status}
+                            </span>
+                            <span style={{ marginLeft: 8, fontSize: '13px', color: '#b45309' }}>
+                              {g.availability === 'occupied' ? '🔴 Occupied' : '🟢 Free'}
+                            </span>
+                            <h3 style={{ margin: '4px 0 0 0', fontSize: '18px', color: '#0f172a' }}>{g.full_name}</h3>
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#64748b', textAlign: 'right' }}>
+                            <div>State: <strong>{g.state}</strong>{g.location ? ` · ${g.location}` : ''}</div>
+                            <div>Phone: {g.phone} · Email: {g.email}</div>
+                            <div>Registered: {g.created_at}</div>
+                            {g.assigned_site && <div>Assigned to: <strong>{g.assigned_site}</strong></div>}
+                            {g.user_id ? <div>Linked account: {g.user_id.slice(0, 8)}…</div> : <div>No linked account</div>}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid #f1f5f9', paddingTop: '14px' }}>
+                          {g.status !== 'approved' && (
+                            <button className="btn btn-sm btn-primary" style={{ backgroundColor: '#059669', borderColor: '#059669' }} onClick={() => handleGuideStatus(g.id, 'approved')}>
+                              Approve
+                            </button>
+                          )}
+                          {g.status !== 'rejected' && (
+                            <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleGuideStatus(g.id, 'rejected')}>
+                              Reject
+                            </button>
+                          )}
+                          <button className="btn btn-sm btn-outline" style={{ color: '#64748b', borderColor: '#cbd5e1', marginLeft: 'auto' }} onClick={() => handleDeleteGuide(g.id, g.full_name)}>
+                            Remove
                           </button>
                         </div>
                       </div>

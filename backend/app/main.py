@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routes import admin, admin_audit, admin_crud, assistant, community, content, documents, geo, heritage, media, ministry, search, trending
+from .routes import admin, admin_audit, admin_crud, assistant, community, content, documents, geo, guides, heritage, media, ministry, search, trending
 
 app = FastAPI(
     title="Ministry of Culture — Heritage & Culture Preservation Platform API",
@@ -42,6 +42,7 @@ ROUTERS = [
     heritage.router,
     content.router,
     community.router,
+    guides.router,
     search.router,
     assistant.router,
     trending.router,

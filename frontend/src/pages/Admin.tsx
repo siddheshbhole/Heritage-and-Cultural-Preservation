@@ -1,26 +1,39 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { get, patch, del } from '../api/client'
-import type { AdminStats, AdminAnalytics as AdminAnalyticsData, CommunityPost, ModelMeta } from '../api/client'
+import type { AdminStats, AdminAnalytics as AdminAnalyticsData, CommunityPost, ModelMeta, AdminHealth } from '../api/client'
+import { getAdminHealth } from '../api/client'
 import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
+import { AdminIcon } from './admin/AdminIcons'
+import type { AdminIconName } from './admin/AdminIcons'
+import { AdminNotice } from './admin/AdminUI'
 import AdminDashboardOverview from './admin/AdminDashboardOverview'
 import AdminDataTable from './admin/AdminDataTable'
 import AdminAuditLogs from './admin/AdminAuditLogs'
 import AdminUsers from './admin/AdminUsers'
 import AdminHeritageSites from './admin/AdminHeritageSites'
 import AdminAnalytics from './admin/AdminAnalytics'
+import AdminPlatformMatrix from './admin/AdminPlatformMatrix'
 
-type TabType = 'overview' | 'heritage' | 'moderation' | 'analytics' | 'users' | 'audit' | 'crud'
+type TabType = 'overview' | 'matrix' | 'heritage' | 'moderation' | 'analytics' | 'users' | 'audit' | 'crud'
 
-const SIDEBAR_ITEMS: { key: TabType; label: string; icon: string }[] = [
-  { key: 'overview', label: 'Overview', icon: '📊' },
-  { key: 'heritage', label: 'Heritage Sites', icon: '🏛️' },
-  { key: 'moderation', label: 'Moderation', icon: '🛡️' },
-  { key: 'analytics', label: 'Analytics', icon: '📈' },
-  { key: 'users', label: 'Users', icon: '👥' },
-  { key: 'audit', label: 'Audit Logs', icon: '📜' },
-  { key: 'crud', label: 'Data Browser', icon: '📁' },
+const SIDEBAR_ITEMS: { key: TabType; label: string; icon: AdminIconName }[] = [
+  { key: 'overview', label: 'Overview', icon: 'overview' },
+  { key: 'matrix', label: 'Platform Matrix', icon: 'matrix' },
+  { key: 'heritage', label: 'Heritage Sites', icon: 'heritage' },
+  { key: 'moderation', label: 'Moderation', icon: 'moderation' },
+  { key: 'analytics', label: 'Analytics', icon: 'analytics' },
+  { key: 'users', label: 'Users', icon: 'users' },
+  { key: 'audit', label: 'Audit Logs', icon: 'audit' },
+  { key: 'crud', label: 'Data Browser', icon: 'database' },
+]
+
+const MODERATION_FILTERS: { key: string; label: string }[] = [
+  { key: 'PENDING', label: 'Pending' },
+  { key: 'APPROVED', label: 'Approved' },
+  { key: 'REJECTED', label: 'Rejected' },
+  { key: 'ALL', label: 'All' },
 ]
 
 export default function Admin() {
@@ -30,6 +43,10 @@ export default function Admin() {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [analytics, setAnalytics] = useState<AdminAnalyticsData | null>(null)
   const [models, setModels] = useState<ModelMeta[]>([])
+  const [health, setHealth] = useState<AdminHealth | null>(null)
+  const [lastSync, setLastSync] = useState<string | null>(null)
+  /** Quick-action target: model key to open in the data browser, if any. */
+  const [crudTarget, setCrudTarget] = useState<{ key: string; create: boolean } | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string>('')
 
@@ -53,6 +70,9 @@ export default function Admin() {
       ])
       setStats(s)
       setModels(m)
+      // Stamped only after a successful load, so "last updated" never claims a
+      // freshness the payload did not actually have.
+      setLastSync(new Date().toISOString())
     } catch (err: any) {
       setError(err.message || 'Failed to load administrative metadata.')
     } finally {
@@ -66,7 +86,17 @@ export default function Admin() {
       const a = await get<AdminAnalyticsData>('/admin/analytics', token)
       setAnalytics(a)
     } catch {
-      // Non-critical; analytics tab will show error
+      // Non-critical; the Analytics tab surfaces its own error state.
+    }
+  }
+
+  const loadHealth = async () => {
+    if (!token) return
+    try {
+      setHealth(await getAdminHealth(token))
+    } catch {
+      // Leave the panel to report an unreachable probe rather than guessing.
+      setHealth(null)
     }
   }
 
@@ -90,6 +120,7 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === 'moderation') loadModerationPosts()
     if (activeTab === 'analytics' || activeTab === 'overview') loadAnalytics()
+    if (activeTab === 'overview') loadHealth()
   }, [activeTab, modFilter, token])
 
   const handleStatusChange = async (postId: number, newStatus: 'APPROVED' | 'REJECTED') => {
@@ -118,6 +149,8 @@ export default function Admin() {
     }
   }
 
+  const pendingCount = stats ? stats.pending_posts : 0
+
   return (
     <>
       <PageHead
@@ -126,200 +159,203 @@ export default function Admin() {
         crumbs={[{ label: 'Admin Dashboard' }]}
       />
 
-      <div className="container" style={{ marginBottom: 60 }}>
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-          {/* Sidebar Navigation */}
-          <nav style={{
-            minWidth: '200px',
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            padding: '12px',
-            position: 'sticky',
-            top: '24px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-          }}>
-            <div style={{ padding: '8px 12px', marginBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Administration</div>
-              <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '2px' }}>{user?.email || 'Admin'}</div>
+      <div className="container admin-shell">
+        <nav className="admin-nav" aria-label="Administration sections">
+          <div className="admin-nav-head">
+            <div className="an-title">
+              <AdminIcon name="shield" size={16} />
+              <span>Administration</span>
             </div>
-            {SIDEBAR_ITEMS.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setActiveTab(item.key)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '13.5px',
-                  fontWeight: activeTab === item.key ? 700 : 500,
-                  backgroundColor: activeTab === item.key ? '#eff6ff' : 'transparent',
-                  color: activeTab === item.key ? '#1d4ed8' : '#475569',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease',
-                  position: 'relative',
-                }}
-              >
-                <span style={{ fontSize: '15px' }}>{item.icon}</span>
-                <span>{item.label}</span>
-                {item.key === 'moderation' && stats && stats.pending_posts > 0 && (
-                  <span style={{
-                    marginLeft: 'auto',
-                    backgroundColor: '#d97706',
-                    color: '#fff',
-                    padding: '1px 6px',
-                    borderRadius: '999px',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                  }}>
-                    {stats.pending_posts}
+            <div className="an-mail">{user?.email || 'Signed in as administrator'}</div>
+          </div>
+
+          {SIDEBAR_ITEMS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setActiveTab(item.key)}
+              className={`admin-nav-item${activeTab === item.key ? ' active' : ''}`}
+              aria-current={activeTab === item.key ? 'page' : undefined}
+            >
+              <AdminIcon name={item.icon} size={17} />
+              <span>{item.label}</span>
+              {item.key === 'moderation' && pendingCount > 0 && (
+                <span className="an-badge">{pendingCount}</span>
+              )}
+            </button>
+          ))}
+
+          <div className="admin-nav-foot">
+            <button type="button" onClick={() => signOut()} className="admin-nav-item danger">
+              <AdminIcon name="signOut" size={17} />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </nav>
+
+        <div style={{ minWidth: 0 }}>
+          {error && <AdminNotice tone="error">{error}</AdminNotice>}
+
+          {activeTab === 'overview' && (
+            <AdminDashboardOverview
+              stats={stats}
+              models={models}
+              analytics={analytics}
+              health={health}
+              lastSync={lastSync}
+              loading={loading}
+              onNavigateTab={(t) => setActiveTab(t)}
+              onQuickAction={(key, create) => {
+                setCrudTarget({ key, create })
+                setActiveTab('crud')
+              }}
+            />
+          )}
+
+          {activeTab === 'matrix' && <AdminPlatformMatrix stats={stats} loading={loading} />}
+
+          {activeTab === 'heritage' && token && (
+            <AdminHeritageSites token={token} models={models} />
+          )}
+
+          {activeTab === 'moderation' && (
+            <div className="admin-panel">
+              <div className="admin-panel-head">
+                <div>
+                  <h3 className="admin-panel-title">Community Post Moderation Queue</h3>
+                  <span className="admin-panel-sub">
+                    Review, approve or reject submissions from citizens and community authors.
                   </span>
-                )}
-              </button>
-            ))}
-            <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '8px', paddingTop: '8px' }}>
-              <button
-                onClick={() => signOut()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  backgroundColor: 'transparent',
-                  color: '#dc2626',
-                  textAlign: 'left',
-                }}
-              >
-                Sign Out
-              </button>
-            </div>
-          </nav>
-
-          {/* Main Content */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {error && (
-              <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
-                {error}
-              </div>
-            )}
-
-            {/* Overview */}
-            {activeTab === 'overview' && (
-              <AdminDashboardOverview stats={stats} models={models} analytics={analytics} onNavigateTab={(t) => setActiveTab(t)} />
-            )}
-
-            {/* Heritage Sites */}
-            {activeTab === 'heritage' && token && (
-              <AdminHeritageSites token={token} models={models} />
-            )}
-
-            {/* Moderation Queue */}
-            {activeTab === 'moderation' && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 700 }}>
-                    Community Post Moderation Queue
-                  </h3>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {['PENDING', 'APPROVED', 'REJECTED', 'ALL'].map((st) => (
-                      <button key={st} className={`btn btn-sm ${modFilter === st ? 'btn-primary' : 'btn-outline'}`} onClick={() => setModFilter(st)}>
-                        {st === 'PENDING' ? 'Pending' : st === 'APPROVED' ? 'Approved' : st === 'REJECTED' ? 'Rejected' : 'All'}
-                      </button>
-                    ))}
-                  </div>
                 </div>
+                <div className="admin-filters">
+                  {MODERATION_FILTERS.map((st) => (
+                    <button
+                      key={st.key}
+                      className={`btn btn-sm ${modFilter === st.key ? 'btn-primary' : 'btn-outline'}`}
+                      onClick={() => setModFilter(st.key)}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                {actionMsg && (
-                  <div style={{ padding: '12px 16px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
-                    {actionMsg}
-                  </div>
-                )}
+              <div className="admin-panel-pad">
+                {actionMsg && <AdminNotice tone="success">{actionMsg}</AdminNotice>}
 
                 {modLoading ? (
-                  <div className="card-grid"><Skeleton /><Skeleton /></div>
+                  <div className="card-grid">
+                    <Skeleton />
+                    <Skeleton />
+                  </div>
                 ) : posts.length === 0 ? (
-                  <Empty big="No submissions in queue." text={`No ${modFilter.toLowerCase()} submissions.`} />
+                  <Empty
+                    big={<AdminIcon name="inbox" size={40} strokeWidth={1.3} />}
+                    text={`No ${modFilter.toLowerCase()} submissions.`}
+                  />
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {posts.map((p) => (
-                      <div key={p.id} style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                      <article key={p.id} className="admin-domain">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '10px' }}>
                           <div>
-                            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, backgroundColor: p.status === 'APPROVED' ? '#dcfce7' : p.status === 'REJECTED' ? '#fee2e2' : '#fef3c7', color: p.status === 'APPROVED' ? '#15803d' : p.status === 'REJECTED' ? '#b91c1c' : '#b45309', marginBottom: '6px' }}>
-                              {p.status}
+                            <span className={statusBadgeClass(p.status)}>{p.status}</span>
+                            <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--muted)' }}>
+                              Category: <strong>{p.kind}</strong>
                             </span>
-                            <span style={{ marginLeft: 8, fontSize: '13px', color: '#64748b' }}>Category: <strong>{p.kind}</strong></span>
-                            <h3 style={{ margin: '4px 0 0 0', fontSize: '18px', color: '#0f172a' }}>{p.title}</h3>
+                            <h3 style={{ margin: '6px 0 0 0', fontSize: 17, color: 'var(--indigo-deep)' }}>
+                              {p.title}
+                            </h3>
                           </div>
-                          <div style={{ fontSize: '13px', color: '#64748b', textAlign: 'right' }}>
-                            <div>Author: <strong>{p.author_name}</strong></div>
-                            <div>Submitted: {p.created_at}</div>
+                          <div style={{ fontSize: 13, color: 'var(--muted)', textAlign: 'right' }}>
+                            <div>
+                              Author: <strong>{p.author_name}</strong>
+                            </div>
+                            <div>Submitted: {formatDate(p.created_at)}</div>
                           </div>
                         </div>
-                        <p style={{ color: '#334155', fontSize: '14.5px', lineHeight: '1.6', margin: '0 0 16px 0', whiteSpace: 'pre-line' }}>{p.content}</p>
+
+                        <p style={{ color: 'var(--indigo-deep)', fontSize: 14.5, lineHeight: 1.6, margin: '0 0 14px 0', whiteSpace: 'pre-line' }}>
+                          {p.content}
+                        </p>
+
                         {(p.related_city || p.related_resource) && (
-                          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
                             {p.related_city && <span className="chip chip-green">{p.related_city}</span>}
                             {p.related_resource && <span className="chip chip-green">{p.related_resource}</span>}
                           </div>
                         )}
-                        <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid #f1f5f9', paddingTop: '14px' }}>
+
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', borderTop: '1px solid var(--line)', paddingTop: '14px' }}>
                           {p.status !== 'APPROVED' && (
-                            <button className="btn btn-sm btn-primary" style={{ backgroundColor: '#059669', borderColor: '#059669' }} onClick={() => handleStatusChange(p.id, 'APPROVED')}>
-                              Approve
+                            <button className="btn btn-sm btn-approve" onClick={() => handleStatusChange(p.id, 'APPROVED')}>
+                              <AdminIcon name="check" size={14} /> Approve
                             </button>
                           )}
                           {p.status !== 'REJECTED' && (
-                            <button className="btn btn-sm btn-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} onClick={() => handleStatusChange(p.id, 'REJECTED')}>
-                              Reject
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => handleStatusChange(p.id, 'REJECTED')}>
+                              <AdminIcon name="cross" size={14} /> Reject
                             </button>
                           )}
-                          <button className="btn btn-sm btn-outline" style={{ color: '#64748b', borderColor: '#cbd5e1', marginLeft: 'auto' }} onClick={() => handleDeletePost(p.id)}>
-                            Delete
+                          <button
+                            className="btn btn-sm btn-outline"
+                            style={{ marginLeft: 'auto', color: 'var(--muted)' }}
+                            onClick={() => handleDeletePost(p.id)}
+                          >
+                            <AdminIcon name="trash" size={14} /> Delete
                           </button>
                         </div>
-                      </div>
+                      </article>
                     ))}
                   </div>
                 )}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Analytics */}
-            {activeTab === 'analytics' && token && <AdminAnalytics token={token} />}
+          {activeTab === 'analytics' && token && <AdminAnalytics token={token} />}
 
-            {/* Users */}
-            {activeTab === 'users' && token && <AdminUsers token={token} />}
+          {activeTab === 'users' && token && <AdminUsers token={token} />}
 
-            {/* Audit Logs */}
-            {activeTab === 'audit' && token && <AdminAuditLogs token={token} />}
+          {activeTab === 'audit' && token && <AdminAuditLogs token={token} />}
 
-            {/* Data Browser */}
-            {activeTab === 'crud' && token && (
-              <>
-                {loading ? (
-                  <Skeleton />
-                ) : models.length === 0 ? (
-                  <Empty big="No database models available for management." />
-                ) : (
-                  <AdminDataTable models={models} token={token} />
-                )}
-              </>
-            )}
-          </div>
+          {activeTab === 'crud' && token && (
+            <>
+              {loading ? (
+                <Skeleton />
+              ) : models.length === 0 ? (
+                <div className="admin-panel admin-panel-pad">
+                  <Empty big={<AdminIcon name="database" size={40} strokeWidth={1.3} />} text="No database models available for management." />
+                </div>
+              ) : (
+                <AdminDataTable
+                  models={models}
+                  token={token}
+                  initialModelKey={crudTarget?.key ?? null}
+                  openCreateOnMount={crudTarget?.create ?? false}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </>
   )
+}
+
+function statusBadgeClass(status: string): string {
+  switch (status.toUpperCase()) {
+    case 'APPROVED':
+      return 'admin-badge admin-badge-approved'
+    case 'REJECTED':
+      return 'admin-badge admin-badge-rejected'
+    default:
+      return 'admin-badge admin-badge-pending'
+  }
+}
+
+function formatDate(value: string | null | undefined): string {
+  if (!value) return 'Not available'
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString()
 }

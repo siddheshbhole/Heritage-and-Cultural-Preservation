@@ -480,8 +480,12 @@ export default function Header() {
             )
           })}
           {isAdmin && (
+
             <NavLink to="/admin" className="nav-admin">
               <span className="nav-admin-dot" aria-hidden />
+
+            <NavLink to="/admin" style={{ color: 'var(--maroon)', fontWeight: 600 }}>
+
               Admin
             </NavLink>
           )}
@@ -552,8 +556,28 @@ export default function Header() {
           </div>
 
           {user ? (
+
             <div className="nav-user">
               <span className="nav-avatar" title={user.email}>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--saffron-deep)',
+                  color: '#ffffff',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  cursor: 'default',
+                }}
+                title={user.email}
+              >
+
                 {userInitial}
               </span>
               <button

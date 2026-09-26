@@ -164,7 +164,8 @@ export function Empty({
   error,
   onRetry,
 }: {
-  big?: string
+  /** Decorative glyph. Accepts a ReactNode so admin surfaces can pass an SVG icon. */
+  big?: ReactNode
   text?: string
   error?: string | null
   onRetry?: () => void

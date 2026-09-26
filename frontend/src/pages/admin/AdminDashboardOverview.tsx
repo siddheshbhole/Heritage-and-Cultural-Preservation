@@ -1,118 +1,375 @@
-import type { AdminStats, ModelMeta, AdminAnalytics } from '../../api/client'
+import type { AdminStats, ModelMeta, AdminAnalytics, AdminHealth } from '../../api/client'
+import { AdminIcon } from './AdminIcons'
+import type { AdminIconName } from './AdminIcons'
+import { Skeleton } from '../../components/ui'
+
+type MetricTab = 'moderation' | 'crud' | 'audit' | 'heritage' | 'users' | 'analytics' | 'matrix'
 
 interface AdminDashboardOverviewProps {
   stats: AdminStats | null
   models: ModelMeta[]
   analytics: AdminAnalytics | null
-  onNavigateTab: (tab: 'moderation' | 'crud' | 'audit' | 'heritage' | 'users' | 'analytics') => void
+  health: AdminHealth | null
+  lastSync: string | null
+  loading: boolean
+  onNavigateTab: (tab: MetricTab) => void
+  /** Open a model in the data browser, optionally straight into the create form. */
+  onQuickAction: (modelKey: string, create: boolean) => void
+}
+
+interface MetricCard {
+  label: string
+  value: number | null
+  icon: AdminIconName
+  sub: string
+  tab: MetricTab
+  attention?: boolean
+}
+
+interface QuickAction {
+  label: string
+  description: string
+  icon: AdminIconName
+  /** Present for data-browser targets, absent for plain tab navigation. */
+  modelKey?: string
+  create?: boolean
+  tab?: MetricTab
 }
 
 export default function AdminDashboardOverview({
   stats,
   models,
   analytics,
+  health,
+  lastSync,
+  loading,
   onNavigateTab,
+  onQuickAction,
 }: AdminDashboardOverviewProps) {
-  const domainCounts: Record<string, number> = {}
-  models.forEach((m) => {
-    const d = m.domain || 'General'
-    domainCounts[d] = (domainCounts[d] || 0) + m.count
-  })
-
-  const metricCards = [
-    { label: 'Pending Moderation', value: stats?.pending_posts, color: '#d97706', bg: '#fffbeb', border: '#fde68a', tab: 'moderation' as const, sub: 'Requires review' },
-    { label: 'Approved Submissions', value: stats?.approved_posts, color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', tab: 'moderation' as const, sub: 'Live community stories' },
-    { label: 'Heritage Sites', value: stats?.heritage_sites, color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe', tab: 'heritage' as const, sub: 'Tangible & Intangible' },
-    { label: 'States & UTs', value: stats?.states_count, color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', tab: 'crud' as const, sub: 'Geographic coverage' },
-    { label: 'Documents', value: stats?.documents_count, color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd', tab: 'crud' as const, sub: 'Ministry archives' },
-    { label: 'Media Assets', value: stats?.media_count, color: '#be185d', bg: '#fdf2f8', border: '#fbcfe8', tab: 'analytics' as const, sub: 'News, videos, albums' },
-    { label: 'Community Contributors', value: stats ? stats.total_posts : null, color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', tab: 'users' as const, sub: 'Post submissions' },
-    { label: 'Audit Trail', value: stats?.audit_logs_count, color: '#6b21a8', bg: '#faf5ff', border: '#e9d5ff', tab: 'audit' as const, sub: 'Logged admin actions' },
+  const metricCards: MetricCard[] = [
+    {
+      label: 'Pending Moderation',
+      value: stats ? stats.pending_posts : null,
+      icon: 'moderation',
+      sub: stats ? `${stats.total_posts} submissions received` : 'Awaiting statistics',
+      tab: 'moderation',
+      attention: true,
+    },
+    {
+      label: 'Approved Submissions',
+      value: stats ? stats.approved_posts : null,
+      icon: 'check',
+      sub: 'Live community stories',
+      tab: 'moderation',
+    },
+    {
+      label: 'Heritage Sites',
+      value: stats ? stats.heritage_sites : null,
+      icon: 'heritage',
+      sub: stats
+        ? `${stats.tangible_sites} tangible / ${stats.intangible_sites} intangible`
+        : 'Awaiting statistics',
+      tab: 'heritage',
+    },
+    {
+      label: 'States & UTs',
+      value: stats ? stats.states_count : null,
+      icon: 'map',
+      sub: stats ? `${stats.cities_count} cities mapped` : 'Awaiting statistics',
+      tab: 'matrix',
+    },
+    {
+      label: 'Ministry Documents',
+      value: stats ? stats.documents_count : null,
+      icon: 'documents',
+      sub: stats ? `${stats.doc_categories_count} archive categories` : 'Awaiting statistics',
+      tab: 'crud',
+    },
+    {
+      label: 'Media Assets',
+      value: stats ? stats.media_count : null,
+      icon: 'media',
+      sub: 'News, videos, albums, brochures',
+      tab: 'analytics',
+    },
+    {
+      label: 'Registered Guides',
+      value: stats ? stats.guide_profiles_count : null,
+      icon: 'guide',
+      sub: stats ? `${stats.guides_available_count} currently available` : 'Awaiting statistics',
+      tab: 'matrix',
+    },
+    {
+      label: 'Audit Trail',
+      value: stats ? stats.audit_logs_count : null,
+      icon: 'audit',
+      sub: 'Logged administrative actions',
+      tab: 'audit',
+    },
+    {
+      label: 'Cultural Records',
+      value: stats ? stats.culture_events_count : null,
+      icon: 'events',
+      sub: stats
+        ? `Events classified cultural, of ${stats.events_count} total`
+        : 'Awaiting statistics',
+      tab: 'crud',
+    },
+    {
+      label: 'Ritual Events',
+      value: stats ? stats.ritual_events_count : null,
+      icon: 'events',
+      sub: stats
+        ? `Events classified ritual`
+        : 'Awaiting statistics',
+      tab: 'crud',
+    },
+    {
+      label: 'Ritual Heritage',
+      value: stats ? stats.ritual_heritage_count : null,
+      icon: 'heritage',
+      sub: 'Catalogue entries in ritual and oral-tradition categories',
+      tab: 'heritage',
+    },
   ]
+
+  // Only advertise a quick action whose target actually exists in the registry,
+  // so the panel can never present a control that dead-ends.
+  const availableKeys = new Set(models.map((m) => m.key))
+  const allQuickActions: QuickAction[] = [
+    {
+      label: 'Review Submissions',
+      description:
+        stats && stats.pending_posts > 0
+          ? `${stats.pending_posts} awaiting decision`
+          : 'Moderation queue',
+      icon: 'moderation',
+      tab: 'moderation',
+    },
+    {
+      label: 'Add Heritage Site',
+      description: 'Create a new catalogue record',
+      icon: 'heritage',
+      modelKey: 'heritage_sites',
+      create: true,
+    },
+    {
+      label: 'Add Cultural Record',
+      description: 'Register a cultural event',
+      icon: 'events',
+      modelKey: 'events',
+      create: true,
+    },
+    {
+      label: 'Upload Document',
+      description: 'Add an archive document',
+      icon: 'documents',
+      modelKey: 'document_items',
+      create: true,
+    },
+    {
+      label: 'Platform Matrix',
+      description: 'Audit every module and route',
+      icon: 'matrix',
+      tab: 'matrix',
+    },
+  ]
+  const quickActions = allQuickActions.filter(
+    (action) => !action.modelKey || availableKeys.has(action.modelKey),
+  )
+
+  const totalRecords = models.reduce((sum, m) => sum + m.count, 0)
+  const recentActivity = analytics ? analytics.recent_activity.slice(0, 8) : []
 
   return (
     <div>
-      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
-        Platform Metrics
-      </h3>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '32px' }}>
-        {metricCards.map((card) => (
-          <div
-            key={card.label}
-            onClick={() => onNavigateTab(card.tab)}
-            style={{ backgroundColor: card.bg, padding: '18px', borderRadius: '12px', border: `1px solid ${card.border}`, cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-          >
-            <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {card.label}
-            </span>
-            <div style={{ fontSize: '30px', fontWeight: 800, color: card.color, marginTop: '4px' }}>
-              {card.value !== null && card.value !== undefined ? card.value : '...'}
-            </div>
-            <span style={{ fontSize: '12px', color: card.color, fontWeight: 500, opacity: 0.8 }}>{card.sub}</span>
-          </div>
-        ))}
+      <div className="admin-syncbar">
+        <span className="admin-syncbar-label">
+          <AdminIcon name="clock" size={14} />
+          Last updated
+        </span>
+        <span className="admin-syncbar-value">
+          {lastSync ? formatSyncTime(lastSync) : loading ? 'Loading platform data' : 'Not available'}
+        </span>
+        <span className="admin-syncbar-source">
+          {health ? `Status probe ${formatSyncTime(health.generated_at)}` : 'Status probe unavailable'}
+        </span>
       </div>
 
-      {/* Domain Breakdown */}
-      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
-        Content Database Domains ({models.length} Entities)
-      </h3>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-        {Object.entries(domainCounts).map(([domain, count]) => {
-          const domainModels = models.filter((m) => m.domain === domain)
-          return (
-            <div key={domain} style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a', fontWeight: 700 }}>{domain}</h4>
-                <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '999px', backgroundColor: '#eff6ff', color: '#1d4ed8', fontWeight: 600 }}>
-                  {count} Records
-                </span>
-              </div>
-              <p style={{ fontSize: '12.5px', color: '#64748b', margin: '0 0 12px 0' }}>
-                {domainModels.length} managed entities
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {domainModels.map((m) => (
-                  <span key={m.key} style={{ fontSize: '11.5px', backgroundColor: '#f1f5f9', padding: '3px 8px', borderRadius: '6px', color: '#334155' }}>
-                    {m.class_name} ({m.count})
-                  </span>
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Recent Audit Activity Feed */}
-      {analytics && analytics.recent_activity.length > 0 && (
+      {quickActions.length > 0 && (
         <>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
-            Recent Activity
-          </h3>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px 20px', marginBottom: '32px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {analytics.recent_activity.slice(0, 8).map((log) => (
-                <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px' }}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: '999px', fontSize: '10px', fontWeight: 700, minWidth: '60px', textAlign: 'center',
-                    backgroundColor: log.action === 'CREATE' ? '#dcfce7' : log.action === 'UPDATE' ? '#dbeafe' : log.action === 'DELETE' ? '#fee2e2' : log.action === 'APPROVED' ? '#dcfce7' : '#fef3c7',
-                    color: log.action === 'CREATE' ? '#15803d' : log.action === 'UPDATE' ? '#1d4ed8' : log.action === 'DELETE' ? '#b91c1c' : log.action === 'APPROVED' ? '#15803d' : '#b45309',
-                  }}>
-                    {log.action}
+          <h3 className="admin-section-title">Quick Actions</h3>
+          <div className="admin-quick-actions">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                type="button"
+                className="admin-quick-action"
+                onClick={() => {
+                  if (action.modelKey) onQuickAction(action.modelKey, Boolean(action.create))
+                  else if (action.tab) onNavigateTab(action.tab)
+                }}
+              >
+                <span className="admin-quick-action-icon">
+                  <AdminIcon name={action.icon} size={17} />
+                </span>
+                <span className="admin-quick-action-body">
+                  <span className="admin-quick-action-label">{action.label}</span>
+                  <span className="admin-quick-action-desc">{action.description}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      <h3 className="admin-section-title">
+        Platform Metrics <span className="ast-count">&mdash; live from /admin/stats</span>
+      </h3>
+
+      {loading && !stats ? (
+        <div className="card-grid" style={{ marginBottom: 32 }}>
+          <Skeleton style={{ height: 110 }} />
+          <Skeleton style={{ height: 110 }} />
+          <Skeleton style={{ height: 110 }} />
+          <Skeleton style={{ height: 110 }} />
+        </div>
+      ) : (
+        <div className="admin-metrics" style={{ marginBottom: 32 }}>
+          {metricCards.map((card) => (
+            <button
+              key={card.label}
+              type="button"
+              className={`admin-metric${card.attention ? ' accent-attention' : ''}`}
+              onClick={() => onNavigateTab(card.tab)}
+            >
+              <span className="am-top">
+                <AdminIcon name={card.icon} size={16} />
+                <span className="am-label">{card.label}</span>
+              </span>
+              <span className={`am-value${card.value === null ? ' is-empty' : ''}`}>
+                {formatMetric(card.value)}
+              </span>
+              <span className="am-sub">{card.sub}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <h3 className="admin-section-title">
+        Content Database{' '}
+        <span className="ast-count">
+          ({models.length} managed entities, {totalRecords.toLocaleString('en-IN')} records)
+        </span>
+      </h3>
+
+      {models.length === 0 ? (
+        <p className="admin-panel-sub" style={{ marginBottom: 32 }}>
+          No managed entities are registered in the schema registry.
+        </p>
+      ) : (
+        <div className="admin-panel" style={{ marginBottom: 32 }}>
+          <div className="admin-table-scroll">
+            <table className="admin-content-table">
+              <thead>
+                <tr>
+                  <th scope="col">Entity</th>
+                  <th scope="col">Domain</th>
+                  <th scope="col" className="num">Records</th>
+                  <th scope="col" className="num">Share</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...models]
+                  .sort((a, b) => b.count - a.count)
+                  .map((m) => (
+                    <tr key={m.key}>
+                      <td>
+                        <span className="admin-content-name">{m.class_name}</span>
+                        <code className="admin-content-table-key">{m.key}</code>
+                      </td>
+                      <td>
+                        <span className="admin-tag">{m.domain || 'General'}</span>
+                      </td>
+                      <td className="num">{m.count.toLocaleString('en-IN')}</td>
+                      <td className="num">
+                        {totalRecords > 0
+                          ? `${((m.count / totalRecords) * 100).toFixed(1)}%`
+                          : '0.0%'}
+                      </td>
+                      <td>
+                        <span className={m.count > 0 ? 'admin-badge admin-badge-approved' : 'admin-badge admin-badge-pending'}>
+                          {m.count > 0 ? 'In use' : 'Empty'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <h3 className="admin-section-title">System Status</h3>
+      {health ? (
+        <div className="admin-panel" style={{ marginBottom: 32 }}>
+          <div className="admin-panel-pad">
+            <div className="admin-status-summary">
+              <span className={statusBadgeClass(health.status)}>
+                {statusLabel(health.status)}
+              </span>
+              <span className="admin-syncbar-source">
+                Measured {formatSyncTime(health.generated_at)}
+              </span>
+            </div>
+            <div className="admin-status-list">
+              {health.checks.map((check) => (
+                <div key={check.name} className="admin-status-row">
+                  <span className={statusDotClass(check.status)} aria-hidden="true" />
+                  <span className="admin-status-label">{check.label}</span>
+                  <span className={statusBadgeClass(check.status)}>
+                    {statusLabel(check.status)}
                   </span>
-                  <span style={{ fontSize: '12.5px', color: '#475569', flex: 1 }}>
-                    {log.user_email || 'System'} &middot; {log.model_name} #{log.record_id}
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                    {log.timestamp ? new Date(log.timestamp).toLocaleString() : ''}
-                  </span>
+                  <span className="admin-status-detail">{check.detail}</span>
                 </div>
               ))}
             </div>
-            <div style={{ textAlign: 'center', marginTop: '12px' }}>
-              <button className="btn btn-sm btn-outline" onClick={() => onNavigateTab('audit')} style={{ fontSize: '12px' }}>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-panel" style={{ marginBottom: 32 }}>
+          <div className="admin-panel-pad">
+            <p className="admin-panel-sub">
+              The measured status probe did not respond. Sign in again or reload to retry.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {recentActivity.length > 0 && (
+        <>
+          <h3 className="admin-section-title">Recent Activity</h3>
+          <div className="admin-panel" style={{ marginBottom: 32 }}>
+            <div className="admin-panel-pad">
+              <div className="admin-bars">
+                {recentActivity.map((log) => (
+                  <div key={log.id} className="admin-bar-row" style={{ gridTemplateColumns: '80px minmax(0, 1fr) 170px', alignItems: 'center' }}>
+                    <span className={actionBadgeClass(log.action)} style={{ justifySelf: 'start' }}>
+                      {log.action}
+                    </span>
+                    <span style={{ fontSize: 13, color: 'var(--indigo-deep)' }}>
+                      {log.user_email || 'System'} &middot; <code>{log.model_name}</code> #{log.record_id}
+                    </span>
+                    <span style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'right' }}>
+                      {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Not available'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="admin-legend" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-sm btn-outline" onClick={() => onNavigateTab('audit')}>
                 View Full Audit Trail
               </button>
             </div>
@@ -121,4 +378,78 @@ export default function AdminDashboardOverview({
       )}
     </div>
   )
+}
+
+/**
+ * A metric renders a real number whenever the statistics payload supplied one.
+ * A genuine zero must display as "0"; only a missing value falls back to the
+ * placeholder, so the dashboard never shows an ellipsis for a known count.
+ */
+function formatMetric(value: number | null): string {
+  if (value === null) return 'Not available'
+  return value.toLocaleString('en-IN')
+}
+
+/** Render a real timestamp, and say so plainly when one is absent. */
+function formatSyncTime(iso: string): string {
+  const parsed = new Date(iso)
+  if (Number.isNaN(parsed.getTime())) return 'Not available'
+  return parsed.toLocaleString()
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case 'operational':
+      return 'Operational'
+    case 'unavailable':
+      return 'Not configured'
+    case 'down':
+      return 'Unavailable'
+    case 'partial':
+      return 'Partially operational'
+    case 'degraded':
+      return 'Degraded'
+    default:
+      return status
+  }
+}
+
+function statusBadgeClass(status: string): string {
+  switch (status) {
+    case 'operational':
+      return 'admin-badge admin-badge-approved'
+    case 'unavailable':
+      return 'admin-badge admin-badge-pending'
+    case 'down':
+    case 'degraded':
+      return 'admin-badge admin-badge-rejected'
+    default:
+      return 'admin-badge admin-badge-info'
+  }
+}
+
+function statusDotClass(status: string): string {
+  switch (status) {
+    case 'operational':
+      return 'admin-status-dot is-ok'
+    case 'unavailable':
+      return 'admin-status-dot is-unset'
+    default:
+      return 'admin-status-dot is-bad'
+  }
+}
+
+function actionBadgeClass(action: string): string {
+  switch (action.toUpperCase()) {
+    case 'CREATE':
+    case 'APPROVED':
+      return 'admin-badge admin-badge-approved'
+    case 'UPDATE':
+      return 'admin-badge admin-badge-info'
+    case 'DELETE':
+    case 'REJECTED':
+      return 'admin-badge admin-badge-rejected'
+    default:
+      return 'admin-badge admin-badge-pending'
+  }
 }

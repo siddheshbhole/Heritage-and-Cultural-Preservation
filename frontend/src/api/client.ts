@@ -852,12 +852,31 @@ export interface AuditLogItem {
   details: string | null
 }
 
+export interface AdminMediaBreakdown {
+  news: number
+  albums: number
+  videos: number
+  brochures: number
+  leaders: number
+  monuments: number
+  artists: number
+  sanskriti: number
+  events: number
+  webcasts: number
+}
+
 export interface AdminStats {
   total_posts: number
   pending_posts: number
   approved_posts: number
   rejected_posts: number
   heritage_sites: number
+  tangible_sites: number
+  intangible_sites: number
+  world_sites: number
+  unclassified_sites: number
+  world_unesco_sites: number
+  virtual_tours_count: number
   categories_count: number
   audit_logs_count: number
   states_count: number
@@ -866,8 +885,19 @@ export interface AdminStats {
   doc_categories_count: number
   museums_count: number
   events_count: number
+  culture_events_count: number
+  ritual_events_count: number
+  ritual_heritage_count: number
   trending_count: number
   media_count: number
+  media_breakdown: AdminMediaBreakdown
+  guide_profiles_count: number
+  guides_available_count: number
+  tour_assignments_count: number
+  active_tours_count: number
+  completed_tours_count: number
+  guide_reviews_count: number
+  open_guide_reports_count: number
 }
 
 export interface AdminAnalytics {
@@ -895,4 +925,25 @@ export interface AdminUsersResponse {
   authors: AdminUserSummary[]
   total_unique_authors: number
   supabase_users_with_posts: number
-}
+}
+
+export type AdminHealthStatus = 'operational' | 'partial' | 'degraded'
+export type AdminCheckStatus = 'operational' | 'unavailable' | 'down'
+
+export interface AdminHealthCheck {
+  name: string
+  label: string
+  status: AdminCheckStatus
+  detail: string
+  latency_ms: number
+}
+
+export interface AdminHealth {
+  status: AdminHealthStatus
+  checks: AdminHealthCheck[]
+  generated_at: string
+}
+
+export async function getAdminHealth(token: string): Promise<AdminHealth> {
+  return get<AdminHealth>('/admin/health', token)
+}

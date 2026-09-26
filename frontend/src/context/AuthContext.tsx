@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { get } from '../api/client'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
   isAdmin: boolean
+  /** True while /admin/session is still in flight for the current token. */
+  adminChecking: boolean
   token: string | null
   authModalOpen: boolean
   authModalTab: 'login' | 'signup'
@@ -27,6 +30,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [adminVerified, setAdminVerified] = useState<boolean | null>(null)
+  const [adminChecking, setAdminChecking] = useState<boolean>(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalTab, setAuthModalTab] = useState<'login' | 'signup'>('login')
 
@@ -55,23 +60,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe()
   }, [])
 
+  /**
+   * Ask the backend whether this token is an administrator. The response is
+   * authoritative and replaces the optimistic guess, so the portal is only ever
+   * shown to an account whose verified token passes the same checks that guard
+   * the admin routes.
+   */
+  useEffect(() => {
+    const accessToken = session?.access_token
+    if (!accessToken) {
+      setAdminVerified(null)
+      setAdminChecking(false)
+      return
+    }
+
+    let cancelled = false
+    // Mark the verdict as pending so route guards wait for the authoritative
+    // answer instead of acting on the optimistic guess.
+    setAdminChecking(true)
+    setAdminVerified(null)
+
+    get<{ is_admin: boolean }>('/admin/session', accessToken)
+      .then((body) => {
+        if (!cancelled && typeof body?.is_admin === 'boolean') {
+          setAdminVerified(body.is_admin)
+        }
+      })
+      .catch(() => {
+        /* Network failure leaves the optimistic guess in place; admin routes still 403. */
+      })
+      .finally(() => {
+        if (!cancelled) setAdminChecking(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [session?.access_token])
+
   // Parse optional comma-separated admin emails from env, normalized to lowercase
   const envAdminEmails = (import.meta.env.VITE_ADMIN_EMAIL || '')
     .split(',')
     .map((e: string) => e.trim().toLowerCase())
     .filter(Boolean)
 
-  // Check admin status
-  const isAdmin = Boolean(
+  /**
+   * Optimistic client-side guess, used only until /admin/session answers. The
+   * backend is the sole authority because it reads ADMIN_EMAILS and the role
+   * claims from a verified token; guessing here would let the portal render for
+   * an account the API then rejects with 403.
+   */
+  const guessAdmin = Boolean(
     user &&
-    (
-      user.app_metadata?.role === 'admin' ||
-      user.user_metadata?.role === 'admin' ||
-      user.email?.toLowerCase().endsWith('@culture.gov.in') ||
-      user.email?.toLowerCase() === 'admin@example.com' ||
-      (user.email && envAdminEmails.includes(user.email.toLowerCase()))
-    )
+      (user.app_metadata?.role === 'admin' ||
+        user.user_metadata?.role === 'admin' ||
+        (user.email && envAdminEmails.includes(user.email.toLowerCase())))
   )
+
+  const isAdmin = adminVerified ?? guessAdmin
 
   const signInWithEmail = async (email: string, pass: string) => {
     const res = await supabase.auth.signInWithPassword({ email, password: pass })
@@ -131,6 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         loading,
         isAdmin,
+        adminChecking,
         token: session?.access_token ?? null,
         authModalOpen,
         authModalTab,

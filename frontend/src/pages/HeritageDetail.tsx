@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useFetch } from '../api/hooks'
 import {
-  createGuideTour,
-  getActiveGuideTour,
-  cancelGuideTour,
-  getAvailableGuides,
-  reportGuide,
+  getSiteGuides,
+  startGuideTour,
+  endGuideTour,
+  reportGuideProfile,
+  reviewGuideTour,
 } from '../api/client'
-import type { Heritage, HeritageGuide, HeritageImage, GuideTour } from '../api/client'
+import type { Heritage, HeritageImage, GuideProfile, GuideTourAssignment } from '../api/client'
 import { PageHead, Facts, Provenance, Show } from './_shared'
 import { CoverImg, Empty, Skeleton } from '../components/ui'
 import { useAuth } from '../context/AuthContext'
@@ -96,89 +96,82 @@ function Lightbox({
 
 export default function HeritageDetail() {
   const { id } = useParams()
-  const { token } = useAuth()
+  const { token, openAuthModal } = useAuth()
   const { data: h, loading, error } = useFetch<Heritage>(`/heritage/${id}`)
   const [lightbox, setLightbox] = useState<number | null>(null)
-  const [guides, setGuides] = useState<HeritageGuide[]>([])
+  const [guides, setGuides] = useState<GuideProfile[]>([])
   const [guidesLoading, setGuidesLoading] = useState(false)
   const [guideMsg, setGuideMsg] = useState('')
   const [doneMsg, setDoneMsg] = useState('')
   const [choosingId, setChoosingId] = useState<number | null>(null)
+  const [tourBusy, setTourBusy] = useState(false)
+
   const [reportingId, setReportingId] = useState<number | null>(null)
   const [reportReason, setReportReason] = useState('')
   const [reportDetails, setReportDetails] = useState('')
   const [reportBusy, setReportBusy] = useState(false)
-  const [tourBusy, setTourBusy] = useState(false)
 
-  // The tourist's own persisted tour assignment for this site (source of truth
-  // is the guide_tours table; we only remember our anonymous tour token to be
-  // able to find it again on reload).
-  const [myTour, setMyTour] = useState<GuideTour | null>(null)
-  const [myTourGuideId, setMyTourGuideId] = useState<number | null>(null)
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [reviewRating, setReviewRating] = useState(0)
+  const [reviewText, setReviewText] = useState('')
+  const [reviewBusy, setReviewBusy] = useState(false)
+
+  // The signed-in tourist's active tour (if any), returned by the backend so
+  // the page can re-render the "Current Guide" state on reload.
+  const [myTour, setMyTour] = useState<GuideTourAssignment | null>(null)
 
   const eligibleForGuides = useMemo(() => Boolean(h && guideEligible(h)), [h])
 
-  const siteTourKey = (siteId: number | string) => `sih_guide_tour_${siteId}`
-  const savedTourToken = h ? sessionStorage.getItem(siteTourKey(h.id)) : null
-
-  useEffect(() => {
-    let cancelled = false
+  const reloadSiteGuides = useCallback(async () => {
     if (!h || !guideEligible(h)) {
       setGuides([])
-      setGuideMsg('')
       setMyTour(null)
-      setMyTourGuideId(null)
-      return () => { cancelled = true }
+      return
     }
     setGuidesLoading(true)
     setGuideMsg('')
-
-    // 1. Live approved guides for this location (from the database only).
-    getAvailableGuides({ state: h.state_name || h.region || null, location: h.location || null })
-      .then((rows) => {
-        if (cancelled) return
-        setGuides(rows)
-        if (rows.length > 0 && rows.every((g) => g.availability === 'occupied')) {
-          setGuideMsg('All registered guides are currently occupied. Please check again later.')
-        }
-      })
-      .catch(() => { if (!cancelled) setGuides([]) })
-      .finally(() => { if (!cancelled) setGuidesLoading(false) })
-
-    // 2. This tourist's own selection for this site (persists in the DB).
-    getActiveGuideTour({ heritage_site_id: h.id, tour_token: savedTourToken || null }, token)
-      .then((r) => {
-        if (cancelled) return
-        if (r.tour) {
-          setMyTour(r.tour)
-          setMyTourGuideId(r.tour.guide_id)
-          sessionStorage.setItem(siteTourKey(h.id), r.tour.tour_token)
-        }
-      })
-      .catch(() => {})
-    return () => { cancelled = true }
+    try {
+      const r = await getSiteGuides(
+        h.id,
+        { state: h.state_name || h.region || null, location: h.location || null },
+        token,
+      )
+      setGuides(r.guides)
+      setMyTour(r.my_tour)
+      if (r.guides.length === 0 && !r.my_tour) {
+        setGuideMsg('No heritage guides are currently open to work near this site. Check back later.')
+      }
+    } catch (error: any) {
+      setGuides([])
+      setMyTour(null)
+      setGuideMsg(error.message || 'Could not load heritage guides for this site right now.')
+    } finally {
+      setGuidesLoading(false)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [h])
+  }, [h, token])
 
-  const chooseGuideAction = async (g: HeritageGuide) => {
+  useEffect(() => {
+    reloadSiteGuides()
+  }, [reloadSiteGuides])
+
+  const chooseGuide = async (g: GuideProfile) => {
+    if (!token) {
+      setGuideMsg('Please sign in to choose a Heritage Guide.')
+      openAuthModal('login')
+      return
+    }
     if (!h) return
     setChoosingId(g.id)
     setGuideMsg('')
+    setDoneMsg('')
     try {
-      const r = await createGuideTour(
-        {
-          guide_id: g.id,
-          heritage_site_id: h.id,
-          site_name: h.name,
-        },
+      const r = await startGuideTour(
+        { guide_id: g.id, site_id: h.id, site_name: h.name },
         token,
       )
-      setGuides((rows) => rows.map((row) => (row.id === r.guide.id ? { ...row, availability: 'occupied' } : row)))
-      setMyTour(r.tour)
-      setMyTourGuideId(r.guide.id)
-      sessionStorage.setItem(siteTourKey(h.id), r.tour.tour_token)
       setDoneMsg(r.message)
-      setGuideMsg('')
+      await reloadSiteGuides()
     } catch (error: any) {
       setGuideMsg(error.message || 'Could not select this guide right now. Please try again.')
     } finally {
@@ -186,29 +179,36 @@ export default function HeritageDetail() {
     }
   }
 
-  const removeGuideAction = async (tour: GuideTour) => {
+  const endTour = async (tour: GuideTourAssignment) => {
+    if (!token) return
     setTourBusy(true)
     setGuideMsg('')
     setDoneMsg('')
     try {
-      const r = await cancelGuideTour(tour.id, tour.tour_token, token)
-      setGuides((rows) => rows.map((row) => (row.id === r.guide.id ? { ...row, availability: r.guide.availability } : row)))
-      setMyTour(null)
-      setMyTourGuideId(null)
-      sessionStorage.removeItem(siteTourKey(h!.id))
-      setDoneMsg(r.message || 'You can now choose another available guide.')
+      const r = await endGuideTour(tour.id, token)
+      setDoneMsg(r.message)
+      await reloadSiteGuides()
     } catch (error: any) {
-      setGuideMsg(error.message || 'Could not remove the guide right now.')
+      setGuideMsg(error.message || 'Could not end the tour right now.')
     } finally {
       setTourBusy(false)
     }
   }
 
-  const submitReport = async (g: HeritageGuide) => {
+  const submitReport = async (g: { id: number; name: string }) => {
+    if (!token) return
     setReportBusy(true)
     setGuideMsg('')
     try {
-      const r = await reportGuide(g.id, { reason: reportReason, details: reportDetails.trim() || null })
+      const r = await reportGuideProfile(
+        g.id,
+        {
+          reason_category: reportReason,
+          description: reportDetails.trim() || null,
+          tour_id: myTour?.guide_id === g.id ? myTour.id : null,
+        },
+        token,
+      )
       setDoneMsg(r.message)
       setReportingId(null)
       setReportReason('')
@@ -219,6 +219,66 @@ export default function HeritageDetail() {
       setReportBusy(false)
     }
   }
+
+  const submitReview = async () => {
+    if (!token || !myTour) return
+    if (reviewRating < 1) {
+      setGuideMsg('Please choose a star rating before submitting.')
+      return
+    }
+    setReviewBusy(true)
+    setGuideMsg('')
+    try {
+      const r = await reviewGuideTour(myTour.id, { rating: reviewRating, review_text: reviewText.trim() || null }, token)
+      setDoneMsg(r.message)
+      setReviewOpen(false)
+      setReviewRating(0)
+      setReviewText('')
+      await reloadSiteGuides()
+    } catch (error: any) {
+      setGuideMsg(error.message || 'Could not submit your review right now.')
+    } finally {
+      setReviewBusy(false)
+    }
+  }
+
+  const reportForm = (g: { id: number; name: string }) => (
+    <div className="content-block" style={{ margin: '10px 0 0', padding: 12, border: '1px solid var(--line)' }}>
+      <label className="muted" style={{ fontSize: 13, fontWeight: 600 }}>Report {g.name}</label>
+      <select
+        className="input"
+        value={reportReason}
+        onChange={(e) => setReportReason(e.target.value)}
+        style={{ marginTop: 6 }}
+      >
+        <option value="">Select a reason…</option>
+        <option value="no_show">Did not show up</option>
+        <option value="misconduct">Misbehaved / unprofessional</option>
+        <option value="misinformation">Gave wrong information</option>
+        <option value="unsafe">Unsafe behaviour</option>
+        <option value="other">Other</option>
+      </select>
+      <input
+        className="input"
+        value={reportDetails}
+        onChange={(e) => setReportDetails(e.target.value)}
+        placeholder="More details (required for Other)"
+        style={{ marginTop: 6 }}
+      />
+      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <button
+          className="btn btn-primary btn-sm"
+          disabled={!reportReason || reportBusy || (reportReason === 'other' && !reportDetails.trim())}
+          onClick={() => submitReport(g)}
+        >
+          {reportBusy ? 'Submitting…' : 'Submit report'}
+        </button>
+        <button className="btn btn-outline btn-sm" onClick={() => setReportingId(null)}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
 
   const gallery = useMemo<HeritageImage[]>(
     () => h?.gallery && h.gallery.length > 0 ? h.gallery : (h?.main_image || h?.image_url) ? [{ id: -1, url: h.main_image || h.image_url!, caption: null, display_order: 0 }] : [],
@@ -345,40 +405,80 @@ export default function HeritageDetail() {
               registered through Sanskriti Setu and are not employed or paid by any government body.
             </p>
 
-            {/* Selected guide (persisted tour) */}
+            {/* Current guide (persisted tour) */}
             {myTour && (
-              <div
-                className="feature-card"
-                style={{ border: '1px solid var(--green-deep)', marginBottom: 18 }}
-              >
+              <div className="feature-card" style={{ border: '1px solid var(--green-deep)', marginBottom: 18 }}>
                 <div className="fc-body">
-                  <p className="muted small" style={{ margin: 0, fontWeight: 600 }}>Your selected guide</p>
+                  <p className="muted small" style={{ margin: 0, fontWeight: 600 }}>Your current tour</p>
                   <h3 style={{ margin: '6px 0 2px' }}>
-                    {guides.find((g) => g.id === myTour.guide_id)?.full_name || `Guide #${myTour.guide_id}`}
+                    {myTour.guide?.name || (myTour.guide_id ? `Guide #${myTour.guide_id}` : 'Heritage Guide')}
                   </h3>
-                  <p className="desc">📍 {guides.find((g) => g.id === myTour.guide_id)?.location || h.name}</p>
-                  <span className="chip chip-green" style={{ fontSize: 11 }}>🟢 Assigned to your tour</span>
-                  <p className="muted small" style={{ margin: '8px 0 0' }}>
-                    This selection is saved. Your guide is reserved for this tour until you remove them.
-                  </p>
+                  <p className="desc">📍 {myTour.site_name}</p>
+                  <span className="chip chip-green" style={{ fontSize: 11 }}>🟢 Active with your party</span>
                   <p style={{ display: 'flex', gap: 8, margin: '12px 0 0', flexWrap: 'wrap' }}>
-                    <button
-                      className="btn btn-outline"
-                      disabled={tourBusy}
-                      onClick={() => removeGuideAction(myTour)}
-                    >
-                      {tourBusy ? 'Removing…' : 'Remove Guide'}
+                    <button className="btn btn-primary btn-sm" disabled={tourBusy} onClick={() => endTour(myTour)}>
+                      {tourBusy ? 'Ending…' : 'End Tour'}
                     </button>
                     <button
-                      className="btn btn-outline"
-                      disabled={tourBusy}
-                      onClick={() => { setMyTour(null); setMyTourGuideId(null) }}
+                      className="btn btn-outline btn-sm"
+                      onClick={() => {
+                        if (!token) {
+                          setGuideMsg('Please sign in to report a guide.')
+                          openAuthModal('login')
+                          return
+                        }
+                        setReportingId(reportingId === myTour.guide?.id ? null : (myTour.guide?.id ?? null))
+                        setReportReason('')
+                        setReportDetails('')
+                      }}
                     >
-                      Change Guide
+                      {reportingId === myTour.guide?.id ? 'Close report' : 'Report Guide'}
+                    </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={() => { setReviewOpen((v) => !v); setGuideMsg('') }}
+                    >
+                      {reviewOpen ? 'Close Review' : 'Review Guide'}
                     </button>
                   </p>
+                  {reviewOpen && (
+                    <div className="content-block" style={{ margin: '10px 0 0', padding: 12, border: '1px solid var(--line)' }}>
+                      <label className="muted" style={{ fontSize: 13, fontWeight: 600 }}>
+                        Rate your tour with {myTour.guide?.name || 'your guide'}
+                      </label>
+                      <div style={{ display: 'flex', gap: 6, margin: '8px 0 0' }}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            className="btn btn-sm"
+                            style={star <= reviewRating ? { background: 'var(--green-deep)', color: '#fff' } : undefined}
+                            onClick={() => setReviewRating(star)}
+                            aria-label={`Rate ${star} star${star === 1 ? '' : 's'}`}
+                          >
+                            {star <= reviewRating ? '★' : '☆'}
+                          </button>
+                        ))}
+                      </div>
+                      <textarea
+                        className="input"
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        placeholder="Share your experience (optional)"
+                        rows={3}
+                        style={{ marginTop: 8, resize: 'vertical' }}
+                      />
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button className="btn btn-primary btn-sm" disabled={reviewBusy} onClick={submitReview}>
+                          {reviewBusy ? 'Submitting…' : 'Submit review'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {reportingId === (myTour.guide?.id ?? null) && myTour.guide && reportForm(myTour.guide)}
                   <p className="muted small" style={{ margin: '8px 0 0' }}>
-                    Choosing another guide below will replace this selection.
+                    Your guide stays reserved for you until the tour ends. They become OPEN TO WORK again
+                    afterwards.
                   </p>
                 </div>
               </div>
@@ -389,89 +489,73 @@ export default function HeritageDetail() {
             ) : guides.length > 0 ? (
               <>
                 <div className="card-grid tight">
-                  {guides.map((g) => {
-                    const occupied = g.availability === 'occupied' || (myTour && myTour.guide_id === g.id)
-                    const isMine = myTour && myTour.guide_id === g.id
-                    return (
-                      <div className="feature-card" key={g.id}>
-                        <div className="fc-body">
-                          <h3>{g.full_name}</h3>
-                          <p className="desc">📍 {g.location || g.state}</p>
-                          <span className={`chip ${occupied ? '' : 'chip-green'}`} style={{ fontSize: 11 }}>
-                            {isMine ? '🟢 Selected' : occupied ? '🔴 Occupied' : '🟢 Free'}
-                          </span>
-                          {g.status === 'approved' && (
-                            <span className="chip chip-green" style={{ fontSize: 11 }}>Registered through Sanskriti Setu</span>
-                          )}
-                          <p style={{ display: 'flex', gap: 8, marginTop: 10, marginBottom: 0, flexWrap: 'wrap' }}>
-                            <button
-                              className="btn btn-primary"
-                              disabled={occupied || choosingId === g.id || tourBusy}
-                              style={occupied ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
-                              onClick={() => chooseGuideAction(g)}
-                            >
-                              {choosingId === g.id ? 'Connecting…' : isMine ? 'Selected' : occupied ? 'Occupied' : 'Choose Guide'}
-                            </button>
-                          </p>
-                          <p style={{ margin: '10px 0 0' }}>
-                            <button
-                              className="btn btn-sm btn-outline"
-                              style={{ fontSize: 12 }}
-                              onClick={() => { setReportingId(reportingId === g.id ? null : g.id); setReportReason(''); setReportDetails('') }}
-                            >
-                              {reportingId === g.id ? 'Close report' : 'Report guide'}
-                            </button>
-                          </p>
-                          {reportingId === g.id && (
-                            <div className="content-block" style={{ margin: '10px 0 0', padding: 12, border: '1px solid var(--line)' }}>
-                              <label className="muted" style={{ fontSize: 13, fontWeight: 600 }}>Report {g.full_name}</label>
-                              <select
-                                className="input"
-                                value={reportReason}
-                                onChange={(e) => setReportReason(e.target.value)}
-                                style={{ marginTop: 6 }}
-                              >
-                                <option value="">Select a reason…</option>
-                                <option>Did not show up</option>
-                                <option>Misbehaved / unprofessional</option>
-                                <option>Demanded payment or money</option>
-                                <option>Gave wrong information</option>
-                                <option>Other</option>
-                              </select>
-                              <input
-                                className="input"
-                                value={reportDetails}
-                                onChange={(e) => setReportDetails(e.target.value)}
-                                placeholder="More details (optional)"
-                                style={{ marginTop: 6 }}
-                              />
-                              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                                <button
-                                  className="btn btn-primary btn-sm"
-                                  disabled={!reportReason || reportBusy}
-                                  onClick={() => submitReport(g)}
-                                >
-                                  {reportBusy ? 'Submitting…' : 'Submit report'}
-                                </button>
-                                <button
-                                  className="btn btn-outline btn-sm"
-                                  onClick={() => setReportingId(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                  {guides.map((g) => (
+                    <div className="feature-card" key={g.id}>
+                      <div className="fc-body">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: '50%',
+                            backgroundColor: '#e0e7ff',
+                            color: '#3730a3',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 16,
+                            fontWeight: 700,
+                            flexShrink: 0,
+                          }}>
+                            {g.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
+                          </div>
+                          <div>
+                            <h3 style={{ margin: 0 }}>{g.name}</h3>
+                            <p className="desc" style={{ margin: 0 }}>📍 {g.location || g.state}</p>
+                          </div>
                         </div>
+                        <p className="muted small" style={{ margin: '8px 0 0' }}>
+                          ⭐ {Number(g.rating || 0).toFixed(1)} · {g.reviews_count} review{g.reviews_count === 1 ? '' : 's'}
+                        </p>
+                        <span className="chip chip-green" style={{ fontSize: 11 }}>🟢 Open to work</span>
+                        <p style={{ display: 'flex', gap: 8, marginTop: 10, marginBottom: 0, flexWrap: 'wrap' }}>
+                          <button
+                            className="btn btn-primary"
+                            disabled={choosingId === g.id || tourBusy}
+                            onClick={() => chooseGuide(g)}
+                          >
+                            {choosingId === g.id ? 'Connecting…' : 'Choose Guide'}
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline"
+                            style={{ fontSize: 12 }}
+                            onClick={() => {
+                              if (!token) {
+                                setGuideMsg('Please sign in to report a guide.')
+                                openAuthModal('login')
+                                return
+                              }
+                              setReportingId(reportingId === g.id ? null : g.id)
+                              setReportReason('')
+                              setReportDetails('')
+                            }}
+                          >
+                            {reportingId === g.id ? 'Close report' : 'Report guide'}
+                          </button>
+                        </p>
+                        {reportingId === g.id && reportForm(g)}
                       </div>
-                    )
-                  })}
+                    </div>
+                  ))}
                 </div>
                 {guideMsg && <p style={{ color: 'var(--orange-deep)', fontSize: 14 }}>{guideMsg}</p>}
                 {doneMsg && <p style={{ color: 'var(--green-deep)', fontSize: 14 }}>✓ {doneMsg}</p>}
               </>
             ) : (
-              <Empty big="🧑‍🤝‍🧑" text="No registered Heritage Guides are currently available for this site." />
+              <>
+                <Empty big="🧑‍🤝‍🧑" text="No Heritage Guides are currently open to work near this site." />
+                {guideMsg && <p style={{ color: 'var(--orange-deep)', fontSize: 14 }}>{guideMsg}</p>}
+                {doneMsg && <p style={{ color: 'var(--green-deep)', fontSize: 14 }}>✓ {doneMsg}</p>}
+              </>
             )}
           </div>
         )}

@@ -367,191 +367,150 @@ export async function createBooking(booking: BookingRequest, token?: string | nu
   return post<{ status: string; booking_id: string }>('/bookings', booking, token)
 }
 
-export interface GuideRegistration {
-  full_name: string
+export interface GuideProfile {
+  id: number
+  user_id: string
+  name: string
+  phone: string
+  email: string
+  state: string
+  location: string | null
+  avatar_url: string | null
+  availability: 'open_to_work' | 'not_ready' | 'occupied' | string
+  rating: number
+  reviews_count: number
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface GuideTourAssignment {
+  id: number
+  guide_id: number
+  tourist_user_id: string
+  site_id: number | null
+  site_name: string
+  status: 'active' | 'completed' | 'cancelled' | string
+  created_at: string | null
+  updated_at: string | null
+  guide?: GuideProfile
+}
+
+export interface GuideProfileDashboard {
+  profile: GuideProfile
+  tours_completed: number
+  tours_total: number
+  reviews_count: number
+  rating: number
+  reports_count: number
+  current_tour: GuideTourAssignment | null
+}
+
+export interface SiteGuidesResponse {
+  site_id: number
+  guides: GuideProfile[]
+  my_tour: GuideTourAssignment | null
+}
+
+export interface GuideRegistrationRequest {
+  name: string
   phone: string
   email: string
   state: string
   location?: string | null
-}
-
-export interface HeritageGuide {
-  id: number
-  full_name: string
-  state: string
-  location: string | null
-  status: string
-  availability: 'free' | 'occupied' | string
-  created_at: string | null
-  message?: string
-}
-
-export interface GuideAdminRecord extends HeritageGuide {
-  user_id: string | null
-  phone: string
-  email: string
-  assigned_site: string | null
-  updated_at: string | null
-}
-
-export async function registerGuide(registration: GuideRegistration, token?: string | null): Promise<HeritageGuide> {
-  return post<HeritageGuide>('/guides/register', registration, token)
-}
-
-export async function getMyGuides(token: string): Promise<{ items: GuideAdminRecord[]; total: number }> {
-  return get<{ items: GuideAdminRecord[]; total: number }>('/guides/me', token)
-}
-
-export async function updateMyGuide(
-  payload: { availability: string; location?: string | null },
-  token: string,
-): Promise<GuideAdminRecord> {
-  return patch<GuideAdminRecord>('/guides/me', payload, token)
-}
-
-export async function deleteMyGuide(token: string): Promise<{ message: string; removed: GuideAdminRecord }> {
-  return del<{ message: string; removed: GuideAdminRecord }>('/guides/me', token)
-}
-
-export async function chooseGuide(guideId: number, siteName: string): Promise<HeritageGuide> {
-  return post<HeritageGuide>(`/guides/${guideId}/choose`, { site_name: siteName })
-}
-
-export async function releaseGuide(guideId: number): Promise<HeritageGuide> {
-  return post<HeritageGuide>(`/guides/${guideId}/release`, {})
+  avatar_url?: string | null
 }
 
 export interface GuideReportRequest {
-  reason: string
-  details?: string | null
+  reason_category?: string
+  description?: string | null
+  tour_id?: number | null
 }
 
-export async function reportGuide(
-  guideId: number,
-  report: GuideReportRequest,
-): Promise<{ message: string; report_id: number }> {
-  return post<{ message: string; report_id: number }>(`/guides/${guideId}/report`, report)
-}
-
-export interface GuideTour {
+export interface GuideReview {
   id: number
+  tour_id: number
   guide_id: number
-  heritage_site_id: number | null
-  site_name: string
-  status: string
-  tourist_user_id: string | null
-  tourist_name: string | null
-  tourist_email: string | null
-  tourist_phone: string | null
-  tour_token: string
+  tourist_user_id: string
+  rating: number
+  review_text: string | null
   created_at: string | null
-  updated_at: string | null
 }
 
-export interface GuideTourResult {
-  tour: GuideTour
-  guide: GuideAdminRecord
+export async function registerGuideProfile(
+  payload: GuideRegistrationRequest,
+  token: string,
+): Promise<{ profile: GuideProfile; message: string }> {
+  return post<{ profile: GuideProfile; message: string }>('/guide/register', payload, token)
+}
+
+export interface GuideAuthResponse {
+  access_token: string
+  profile: GuideProfile
+  pin?: string
   message: string
 }
 
-export interface ActiveTourResult {
-  tour: GuideTour | null
-  guide: GuideAdminRecord | null
+export async function registerGuideAccount(
+  payload: GuideRegistrationRequest,
+): Promise<GuideAuthResponse> {
+  return post<GuideAuthResponse>('/guide/auth/register', payload)
 }
 
-export interface GuideDashboardData {
-  guide: GuideAdminRecord
-  tours_completed: number
-  tours_cancelled: number
-  tours_total: number
-  current_tour: GuideTour | null
-  upcoming_tours: GuideTour[]
-  active_tours_count: number
+export async function guideSignIn(email: string, pin: string): Promise<GuideAuthResponse> {
+  return post<GuideAuthResponse>('/guide/auth/login', { email, pin })
 }
 
-export interface CreateGuideTourRequest {
-  guide_id: number
-  heritage_site_id?: number | null
-  site_name: string
-  tourist_name?: string | null
-  tourist_email?: string | null
-  tourist_phone?: string | null
+export async function getMyGuideProfile(token: string): Promise<GuideProfileDashboard> {
+  return get<GuideProfileDashboard>('/guide/me', token)
 }
 
-export async function createGuideTour(payload: CreateGuideTourRequest, token?: string | null): Promise<GuideTourResult> {
-  return post<GuideTourResult>('/guides/tours', payload, token)
+export async function updateGuideAvailability(
+  availability: 'open_to_work' | 'not_ready',
+  token: string,
+): Promise<{ profile: GuideProfile; message: string }> {
+  return patch<{ profile: GuideProfile; message: string }>('/guide/me/availability', { availability }, token)
 }
 
-export async function getActiveGuideTour(
-  params: { heritage_site_id?: number | null; tour_token?: string | null },
-  token?: string | null,
-): Promise<ActiveTourResult> {
-  const qs = new URLSearchParams()
-  if (params.heritage_site_id) qs.set('heritage_site_id', String(params.heritage_site_id))
-  if (params.tour_token) qs.set('tour_token', params.tour_token)
-  const q = qs.toString()
-  return get<ActiveTourResult>(`/guides/tours/active${q ? `?${q}` : ''}`, token)
-}
-
-export async function cancelGuideTour(
-  tourId: number,
-  tourToken?: string | null,
-  token?: string | null,
-): Promise<GuideTourResult> {
-  return post<GuideTourResult>(`/guides/tours/${tourId}/cancel`, { tour_token: tourToken || null }, token)
-}
-
-export async function completeGuideTour(
-  tourId: number,
-  tourToken?: string | null,
-  token?: string | null,
-): Promise<GuideTourResult> {
-  return post<GuideTourResult>(`/guides/tours/${tourId}/complete`, { tour_token: tourToken || null }, token)
-}
-
-export async function getMyGuideDashboard(token: string): Promise<GuideDashboardData> {
-  return get<GuideDashboardData>('/guides/me/dashboard', token)
-}
-
-export interface PaginatedGuides {
-  items: GuideAdminRecord[]
-  total: number
-  page: number
-  per_page: number
-  pages: number
-}
-
-export async function getAvailableGuides(
+export async function getSiteGuides(
+  siteId: number,
   params: { state?: string | null; location?: string | null },
-): Promise<HeritageGuide[]> {
+  token?: string | null,
+): Promise<SiteGuidesResponse> {
   const qs = new URLSearchParams()
   if (params.state) qs.set('state', params.state)
   if (params.location) qs.set('location', params.location)
   const q = qs.toString()
-  return get<HeritageGuide[]>(`/guides/available${q ? `?${q}` : ''}`)
+  return get<SiteGuidesResponse>(`/guide/site/${siteId}${q ? `?${q}` : ''}`, token)
 }
 
-export async function listAdminGuides(
-  params: { status?: string; search?: string; page?: number; per_page?: number },
-  token?: string | null,
-): Promise<PaginatedGuides> {
-  const qs = new URLSearchParams()
-  if (params.status) qs.set('status_filter', params.status)
-  if (params.search) qs.set('search', params.search)
-  if (params.page) qs.set('page', String(params.page))
-  if (params.per_page) qs.set('per_page', String(params.per_page))
-  return get<PaginatedGuides>(`/admin/guides?${qs.toString()}`, token)
-}
-
-export async function updateGuideStatus(guideId: number, status: string, token?: string | null): Promise<GuideAdminRecord> {
-  return patch<GuideAdminRecord>(`/admin/guides/${guideId}`, { status }, token)
-}
-
-export async function deleteGuide(
-  guideId: number,
+export async function startGuideTour(
+  payload: { guide_id: number; site_id?: number | null; site_name?: string | null },
   token: string,
-): Promise<{ message: string; removed: GuideAdminRecord }> {
-  return del<{ message: string; removed: GuideAdminRecord }>(`/admin/guides/${guideId}`, token)
+): Promise<{ tour: GuideTourAssignment; guide: GuideProfile; message: string }> {
+  return post<{ tour: GuideTourAssignment; guide: GuideProfile; message: string }>('/guide/tour/start', payload, token)
+}
+
+export async function endGuideTour(
+  tourId: number,
+  token: string,
+): Promise<{ tour: GuideTourAssignment; guide: GuideProfile | null; message: string }> {
+  return post<{ tour: GuideTourAssignment; guide: GuideProfile | null; message: string }>('/guide/tour/end', { tour_id: tourId }, token)
+}
+
+export async function reportGuideProfile(
+  guideId: number,
+  payload: GuideReportRequest,
+  token: string,
+): Promise<{ message: string; report_id: number; status: string }> {
+  return post<{ message: string; report_id: number; status: string }>(`/guide/${guideId}/report`, payload, token)
+}
+
+export async function reviewGuideTour(
+  tourId: number,
+  payload: { rating: number; review_text?: string | null },
+  token: string,
+): Promise<{ review: GuideReview; message: string }> {
+  return post<{ review: GuideReview; message: string }>(`/guide/tour/${tourId}/review`, payload, token)
 }
 
 export interface Scheme {

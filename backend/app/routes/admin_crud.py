@@ -55,7 +55,6 @@ MODEL_DOMAINS = {
     "ConservationProject": "Governance",
     "GrantScheme": "Governance",
     "CommunityPost": "Community",
-    "HeritageGuide": "Heritage",
     "Provenance": "Governance",
     "TrendingItem": "Media",
     "MediaNews": "Media",

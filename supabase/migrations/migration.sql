@@ -1098,3 +1098,89 @@ BEGIN
     ALTER TABLE "heritage_guides" ADD COLUMN "assigned_site" VARCHAR(255);
   END IF;
 END $$;
+
+-- =============================================================
+-- Rebuilt Heritage Guide system (replaces the legacy tables above).
+-- The legacy heritage_guides / guide_tours / guide_reports tables are
+-- dropped and re-created as guide_profiles / tour_assignments /
+-- guide_reviews / guide_reports, backed by the /api/guide endpoints.
+-- =============================================================
+DROP TABLE IF EXISTS "guide_reports";
+DROP TABLE IF EXISTS "guide_tours";
+DROP TABLE IF EXISTS "heritage_guides";
+
+-- guide_profiles: volunteer guide profile, 1:1 with an authenticated user.
+CREATE TABLE IF NOT EXISTS "guide_profiles" (
+  "id" SERIAL PRIMARY KEY,
+  "user_id" VARCHAR(255) NOT NULL UNIQUE,
+  "name" VARCHAR(120),
+  "phone" VARCHAR(20),
+  "email" VARCHAR(160),
+  "state" VARCHAR(120),
+  "location" VARCHAR(255),
+  "avatar_url" TEXT,
+  "availability" VARCHAR(20) NOT NULL DEFAULT 'open_to_work',
+  "created_at" TIMESTAMP WITHOUT TIME ZONE,
+  "updated_at" TIMESTAMP WITHOUT TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_user_id ON "guide_profiles" ("user_id");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_name ON "guide_profiles" ("name");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_phone ON "guide_profiles" ("phone");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_email ON "guide_profiles" ("email");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_state ON "guide_profiles" ("state");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_availability ON "guide_profiles" ("availability");
+CREATE INDEX IF NOT EXISTS ix_guide_profiles_created_at ON "guide_profiles" ("created_at");
+SELECT setval(pg_get_serial_sequence('guide_profiles', 'id'), GREATEST(0, (SELECT COALESCE(MAX(id),0) FROM "guide_profiles")));
+
+-- tour_assignments: single source of truth for guide bookings.
+CREATE TABLE IF NOT EXISTS "tour_assignments" (
+  "id" SERIAL PRIMARY KEY,
+  "guide_id" INTEGER NOT NULL REFERENCES "guide_profiles" ("id"),
+  "tourist_user_id" VARCHAR(255) NOT NULL,
+  "site_id" INTEGER,
+  "site_name" VARCHAR(255),
+  "status" VARCHAR(20) NOT NULL DEFAULT 'active',
+  "created_at" TIMESTAMP WITHOUT TIME ZONE,
+  "updated_at" TIMESTAMP WITHOUT TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_guide_id ON "tour_assignments" ("guide_id");
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_tourist_user_id ON "tour_assignments" ("tourist_user_id");
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_site_id ON "tour_assignments" ("site_id");
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_site_name ON "tour_assignments" ("site_name");
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_status ON "tour_assignments" ("status");
+CREATE INDEX IF NOT EXISTS ix_tour_assignments_created_at ON "tour_assignments" ("created_at");
+SELECT setval(pg_get_serial_sequence('tour_assignments', 'id'), GREATEST(0, (SELECT COALESCE(MAX(id),0) FROM "tour_assignments")));
+
+-- guide_reviews: 1-5 star tourist review of a guide, one per tour.
+CREATE TABLE IF NOT EXISTS "guide_reviews" (
+  "id" SERIAL PRIMARY KEY,
+  "tour_id" INTEGER NOT NULL REFERENCES "tour_assignments" ("id"),
+  "guide_id" INTEGER NOT NULL REFERENCES "guide_profiles" ("id"),
+  "tourist_user_id" VARCHAR(255) NOT NULL,
+  "rating" INTEGER NOT NULL,
+  "review_text" TEXT,
+  "created_at" TIMESTAMP WITHOUT TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS ix_guide_reviews_tour_id ON "guide_reviews" ("tour_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reviews_guide_id ON "guide_reviews" ("guide_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reviews_tourist_user_id ON "guide_reviews" ("tourist_user_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reviews_created_at ON "guide_reviews" ("created_at");
+SELECT setval(pg_get_serial_sequence('guide_reviews', 'id'), GREATEST(0, (SELECT COALESCE(MAX(id),0) FROM "guide_reviews")));
+
+-- guide_reports: private reports, visible only to administrators.
+CREATE TABLE IF NOT EXISTS "guide_reports" (
+  "id" SERIAL PRIMARY KEY,
+  "tour_id" INTEGER REFERENCES "tour_assignments" ("id"),
+  "guide_id" INTEGER NOT NULL REFERENCES "guide_profiles" ("id"),
+  "tourist_user_id" VARCHAR(255) NOT NULL,
+  "reason_category" VARCHAR(120),
+  "description" TEXT,
+  "status" VARCHAR(20) NOT NULL DEFAULT 'open',
+  "created_at" TIMESTAMP WITHOUT TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS ix_guide_reports_tour_id ON "guide_reports" ("tour_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reports_guide_id ON "guide_reports" ("guide_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reports_tourist_user_id ON "guide_reports" ("tourist_user_id");
+CREATE INDEX IF NOT EXISTS ix_guide_reports_status ON "guide_reports" ("status");
+CREATE INDEX IF NOT EXISTS ix_guide_reports_created_at ON "guide_reports" ("created_at");
+SELECT setval(pg_get_serial_sequence('guide_reports', 'id'), GREATEST(0, (SELECT COALESCE(MAX(id),0) FROM "guide_reports")));

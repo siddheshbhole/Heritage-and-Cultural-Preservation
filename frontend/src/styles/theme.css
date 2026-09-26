@@ -2303,3 +2303,85 @@ h1, h2, h3, h4, h5, .page-title, .map-info-name, .mega-label,
   .booking-modal .hero-strip { flex-direction: column; }
   .booking-modal .hero-strip .btn { width: 100%; text-align: center; }
 }
+
+/* ---------- Vacancies / Heritage Guide ---------- */
+.v-center { text-align: center; }
+.v-center .page-title { text-align: center; }
+.v-center .page-head { padding-bottom: 14px; }
+.v-center .page-sub {
+  text-align: center;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.v-center .crumbs { justify-content: center; }
+.v-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 26px;
+  align-items: start;
+  margin: 6px auto 48px;
+  max-width: 1080px;
+}
+.v-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.v-card {
+  background: var(--parchment);
+  border: 1px solid var(--archival-line);
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+}
+.v-card h3 { font-size: 19px; color: var(--indigo-deep); margin-bottom: 10px; }
+.v-card p { margin: 0 0 10px; max-width: 62ch; }
+.v-card > :last-child { margin-bottom: 0; }
+.v-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.v-list li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.55; }
+.v-list li::before { content: "◆"; position: absolute; left: 0; top: 3px; font-size: 9px; color: var(--bronze); }
+.v-panel {
+  background: var(--parchment);
+  border: 1px solid var(--archival-line);
+  border-radius: 16px;
+  padding: 26px 26px;
+  box-shadow: var(--shadow-lg);
+  position: sticky;
+  top: 96px;
+}
+.v-panel h3 { font-size: 20px; color: var(--indigo-deep); margin-bottom: 8px; }
+.v-panel-sub { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+.v-panel-actions { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.v-panel-actions .btn { padding: 13px 18px; font-size: 15px; }
+.v-panel-hint { color: var(--muted); font-size: 12.5px; margin: 14px 0 0; }
+.v-panel-divider { border: 0; border-top: 1px dashed var(--archival-line); margin: 18px 0 0; }
+.v-note {
+  background: var(--indigo-tint);
+  border: 1px solid #cddce8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 16px;
+}
+.v-note b { display: block; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--indigo-deep); margin-bottom: 3px; }
+.v-note p { margin: 0; font-size: 13px; color: var(--indigo-deep); }
+.v-form { margin: 0; }
+.v-form .field { margin-bottom: 14px; }
+.v-form .field label { font-size: 13.5px; font-weight: 700; color: var(--indigo-deep); margin-bottom: 6px; }
+.v-form .input { padding: 11px 13px; font-size: 14.5px; }
+.v-form-msg { font-size: 13.5px; margin: 0 0 12px; }
+.v-form-terms { color: var(--muted); font-size: 12.5px; margin: 12px 0 0; }
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--orange);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.link-button:hover { color: var(--orange-deep); }
+.v-layout .v-panel-actions + .v-panel-hint { margin-top: 0; }
+
+@media (max-width: 960px) {
+  .v-layout { grid-template-columns: 1fr; gap: 22px; }
+  .v-panel { position: static; }
+}
+@media (max-width: 480px) {
+  .v-card, .v-panel { padding: 18px 16px; }
+}

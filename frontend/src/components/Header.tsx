@@ -487,44 +487,43 @@ export default function Header() {
           )}
         </nav>
 
-        <form className="nav-search" onSubmit={submit} role="search">
-          <div className="nav-search-wrap" ref={searchWrapRef}>
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              onFocus={() => q.trim().length >= 2 && setSuggestOpen(true)}
-              onKeyDown={onSearchKeyDown}
-              placeholder={t('search_placeholder')}
-              aria-label="Search"
-              autoComplete="off"
-            />
-            <button type="submit" className="nav-search-btn" aria-label={t('btn_search')} title={t('btn_search')}>
-              <IconSearch />
-            </button>
-            {suggestOpen && suggestions.length > 0 && (
-              <ul className="nav-search-suggest" role="listbox">
-                {suggestions.map((s, i) => (
-                  <li
-                    key={`${s.type}-${s.label}-${i}`}
-                    role="option"
-                    aria-selected={i === activeIndex}
-                    className={`nav-search-suggest-item${i === activeIndex ? ' active' : ''}`}
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      submitSuggestion(s)
-                    }}
-                    onMouseEnter={() => setActiveIndex(i)}
-                  >
-                    <span className="chip chip-outline">{s.type}</span>
-                    <span>{s.label}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </form>
-
         <div className="nav-actions">
+          <form className="nav-search" onSubmit={submit} role="search">
+            <div className="nav-search-wrap" ref={searchWrapRef}>
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                onFocus={() => q.trim().length >= 2 && setSuggestOpen(true)}
+                onKeyDown={onSearchKeyDown}
+                placeholder={t('search_placeholder')}
+                aria-label="Search"
+                autoComplete="off"
+              />
+              <button type="submit" className="nav-search-btn" aria-label={t('btn_search')} title={t('btn_search')}>
+                <IconSearch />
+              </button>
+              {suggestOpen && suggestions.length > 0 && (
+                <ul className="nav-search-suggest" role="listbox">
+                  {suggestions.map((s, i) => (
+                    <li
+                      key={`${s.type}-${s.label}-${i}`}
+                      role="option"
+                      aria-selected={i === activeIndex}
+                      className={`nav-search-suggest-item${i === activeIndex ? ' active' : ''}`}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        submitSuggestion(s)
+                      }}
+                      onMouseEnter={() => setActiveIndex(i)}
+                    >
+                      <span className="chip chip-outline">{s.type}</span>
+                      <span>{s.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </form>
           <button
             type="button"
             className="nav-icon-btn nav-search-trigger"
@@ -540,6 +539,7 @@ export default function Header() {
             <select
               className="langs"
               aria-label="Language"
+              title={languages.find((l) => l.code === lang)?.nativeName || 'Language'}
               value={lang}
               onChange={(e) => setLang(e.target.value)}
             >

@@ -8,6 +8,12 @@
 
 /* ---------- Bar shell ---------- */
 .navbar {
+  /* Navbar-only sizing tokens. They live on .navbar rather than on
+     .brand / .brand-logo because the footer reuses those exact class
+     names — scoping here keeps theme.css's footer logo untouched. */
+  --nav-logo-h: 54px;
+  --nav-logo-max: 214px;
+
   position: sticky;
   top: 0;
   z-index: 900;
@@ -43,27 +49,53 @@
 }
 
 /* Compact the bar once the page is scrolled — height only, never hidden. */
+.navbar.is-scrolled { --nav-logo-h: 42px; }
 .navbar.is-scrolled .nav-inner { height: 60px; }
-.navbar.is-scrolled .brand-logo { height: 38px; width: auto; }
 .navbar.is-scrolled .nav-search input { padding: 7px 8px; }
 .navbar.is-scrolled .nav-links a { padding: 6px 9px; }
 
+/* ---------- Bar layout: three independent zones ----------
+   auto | 1fr | auto  ->  logo | navigation | right controls
+
+   Each zone is sized independently, so the logo sits at the bar's left
+   padding and the controls at its right padding, and the navigation is
+   centred in the space between them with an equal gap on both sides.
+   The search has a fixed width, so the right zone is a constant size and
+   the centred navigation can never be shifted by it.
+
+   Note: forcing the navigation to the exact pixel centre of the bar
+   (1fr auto 1fr) would require matching voids on both sides — with a wide
+   search that leaves a ~290px hole beside the logo. Centring it in the
+   space between the zones is the balanced-looking result. */
 .nav-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
+  column-gap: 24px;
   height: 68px;
   transition: height 0.24s ease;
 }
 
 /* ---------- Logo ---------- */
+/* Anchored to the left edge of its own track, so its position is decided
+   by the bar's padding alone and never by the navigation beside it. */
 .brand {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  justify-self: start;
   color: var(--ink);
   border-radius: 8px;
   transition: opacity 0.18s ease, transform 0.18s ease;
+}
+/* The offset is visual only — it slides just the wordmark left without
+   touching the grid, so the nav and the right-hand controls keep their
+   exact positions. It takes a third of the centred container's inset, so
+   the logo sits left of the page content without being pinned to the
+   screen edge. Scoped to .navbar because the footer reuses .brand. */
+.navbar .brand {
+  position: relative;
+  left: calc(2px - max(0px, (100vw - 1180px) / 6));
 }
 .brand:hover { text-decoration: none; opacity: 0.9; }
 .brand:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
@@ -74,13 +106,20 @@
   display: block;
   transition: height 0.24s ease;
 }
+/* The bar's own logo tracks the --nav-logo-* tokens; the bare .brand-logo
+   rule above stays as the footer/shared default. */
+.navbar .brand-logo {
+  height: var(--nav-logo-h);
+  max-width: var(--nav-logo-max);
+  width: auto;
+}
 
 /* ---------- Primary navigation ---------- */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1px;
-  margin-left: 2px;
+  justify-self: center;
+  gap: 10px;
   flex: 0 0 auto;
 }
 
@@ -89,7 +128,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 7px 10px;
+  padding: 7px 9px;
   border-radius: 999px;
   color: var(--ink);
   font-size: 14px;
@@ -171,10 +210,12 @@
   border: 1px solid var(--archival-line);
   border-radius: 999px;
   padding: 0 5px 0 13px;
-  width: auto;
-  flex: 1 1 200px;
-  min-width: 118px;
-  max-width: 340px;
+  /* Fixed width: the right zone must stay a predictable size so the
+     centred navigation never moves. */
+  flex: 0 0 180px;
+  width: 180px;
+  min-width: 0;
+  max-width: 180px;
   box-shadow: inset 0 1px 2px rgba(26, 26, 26, 0.04);
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -229,14 +270,25 @@
 .nav-search-wrap { position: relative; display: flex; align-items: center; width: 100%; min-width: 0; }
 .nav-search-wrap input { width: 100%; }
 
-/* ---------- Actions: language, auth, hamburger ---------- */
+/* ---------- Actions: search, language, auth, hamburger ---------- */
 .nav-actions {
   display: flex;
   align-items: center;
+  justify-self: end;
+  justify-content: flex-end;
   gap: 8px;
   flex: 0 0 auto;
-  margin-left: auto;
+  /* Nudges the whole right-hand cluster (search, language, profile)
+     toward the screen edge, using only the empty bar beside the centred
+     1180px container, and capped at 26px so it stays put on narrow
+     screens. Purely visual — the grid and the centred nav never move. */
+  position: relative;
+  right: calc(-1 * min(26px, max(0px, (100vw - 1180px) / 3)));
 }
+
+/* Breathing room between the search field and the account controls that
+   follow it. */
+.nav-actions .nav-search { margin-right: 14px; }
 
 .nav-icon-btn {
   display: none;
@@ -267,7 +319,7 @@
 }
 .lang-icon {
   position: absolute;
-  left: 7px;
+  left: 6px;
   color: var(--muted);
   pointer-events: none;
   z-index: 1;
@@ -278,21 +330,46 @@
   border: 1px solid var(--archival-line);
   background: var(--parchment);
   border-radius: 999px;
-  padding: 6px 22px 6px 26px;
-  font-size: 12.5px;
+  padding: 5px 19px 5px 24px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ink);
   font-family: var(--sans);
   cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
     linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position: calc(100% - 12px) 52%, calc(100% - 8px) 52%;
+  background-position: calc(100% - 11px) 54%, calc(100% - 7px) 54%;
   background-size: 4px 4px, 4px 4px;
   background-repeat: no-repeat;
   transition: border-color 0.18s ease, background-color 0.18s ease;
 }
 .langs:hover { border-color: var(--terracotta-soft); background-color: var(--terracotta-tint); }
 .langs:focus-visible { outline: 2px solid var(--bronze); outline-offset: 1px; }
+
+/* In the bar the language control collapses to a small square block that
+   matches the other icon buttons. The native select is kept — same options,
+   same change handler, same language state — only its presentation changes;
+   the globe glyph is centred on top of it and the code text is transparent.
+   The in-menu (.mobile-lang) select keeps the full-width pill. */
+.nav-actions .lang-icon {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--terracotta);
+  z-index: 1;
+}
+.nav-actions .langs {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 9px;
+  text-align: center;
+  color: transparent;
+  background-image: none;
+}
+.nav-actions .langs:hover { background-color: var(--terracotta-tint); }
+/* Keep the opened list readable now that the closed control is transparent. */
+.langs option { color: var(--ink); background: var(--parchment); }
 
 .nav-user { display: flex; align-items: center; gap: 7px; }
 .nav-avatar {
@@ -461,38 +538,44 @@
    existing hamburger menu takes over and carries every control.
    =========================================================================== */
 
-/* Compact desktop — laptops and small desktops */
+/* Compact desktop — laptops and small desktops.
+   Tighter type, padding and a lower search floor than the wide tier so
+   the widest case (signed-in admin) still clears 1080px. */
 @media (max-width: 1180px) {
-  .nav-inner { gap: 8px; }
-  .nav-links a { font-size: 13.5px; padding: 6px 8px; }
-  .nav-search { flex: 1 1 168px; min-width: 100px; max-width: 260px; padding-left: 11px; }
-  .nav-search input { font-size: 13px; }
+  .navbar { --nav-logo-h: 45px; --nav-logo-max: 170px; }
+  .navbar.is-scrolled { --nav-logo-h: 39px; }
   .brand-logo { height: 38px; max-width: 152px; }
-  .langs { padding: 5px 20px 5px 24px; font-size: 12px; }
-  .nav-actions { gap: 7px; }
+  .nav-inner { column-gap: 16px; }
+  .nav-links { gap: 5px; }
+  .nav-links a { font-size: 13.5px; padding: 6px 8px; }
+  .nav-search { flex: 0 0 152px; width: 152px; min-width: 0; max-width: 152px; padding-left: 11px; }
+  .nav-search input { font-size: 13px; }
+  .langs { padding: 4px 17px 4px 22px; font-size: 11.5px; }
+  .nav-actions { gap: 6px; }
+  .nav-actions .nav-search { margin-right: 8px; }
   .nav-avatar { width: 28px; height: 28px; }
 }
 
 /* Tablet & below — hamburger + in-bar search trigger.
-   The search field is the only flex-shrinkable block above this width,
-   so the bar rebalances on its own and no control is ever dropped. */
+   The nav track collapses to the leftover space, so the logo stays pinned
+   left and the controls stay pinned right with no extra offsets needed. */
 @media (max-width: 1080px) {
+  .navbar { --nav-logo-h: 40px; --nav-logo-max: 166px; }
+  .navbar.is-scrolled { --nav-logo-h: 35px; }
+  .brand-logo { height: 36px; max-width: 156px; }
   .nav-links { display: none; }
   .nav-search { display: none; }
   .hamburger { display: inline-flex; }
   .explore-subnav { display: none !important; }
-  .nav-inner { height: 62px; gap: 8px; }
+  .nav-inner { height: 62px; column-gap: 12px; }
   .nav-search-trigger { display: inline-flex; }
-  .brand { margin-right: auto; }
-  .brand-logo { height: 36px; max-width: 156px; }
-  .nav-actions { margin-left: 0; }
   .navbar.is-scrolled .nav-inner { height: 56px; }
-  .navbar.is-scrolled .brand-logo { height: 32px; }
 }
 
 @media (max-width: 640px) {
-  .nav-inner { height: 58px; gap: 6px; }
+  .navbar { --nav-logo-h: 34px; --nav-logo-max: 146px; }
   .brand-logo { height: 32px; max-width: 138px; }
+  .nav-inner { height: 58px; column-gap: 6px; }
   /* Hide only the desktop language control — theme.css hides .langs
      wholesale at this width, so the in-menu one is restored below. */
   .nav-actions .lang-wrap { display: none; }
@@ -502,7 +585,15 @@
   .navbar.is-scrolled .nav-inner { height: 54px; }
 }
 
+/* The wordmark offset relaxes on small screens, where the container
+   padding is 16px. */
+@media (max-width: 480px) {
+  .navbar .brand { left: calc(0px - max(0px, (100vw - 1180px) / 6)); }
+}
+
 @media (max-width: 420px) {
+  .navbar { --nav-logo-h: 30px; --nav-logo-max: 128px; }
+  .navbar.is-scrolled { --nav-logo-h: 28px; }
   .brand-logo { height: 28px; max-width: 120px; }
   .nav-signin span { display: none; }
 }

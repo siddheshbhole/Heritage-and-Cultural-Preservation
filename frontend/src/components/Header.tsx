@@ -480,12 +480,8 @@ export default function Header() {
             )
           })}
           {isAdmin && (
-
-            <NavLink to="/admin" className="nav-admin">
+            <NavLink to="/admin" className="nav-admin" style={{ color: 'var(--maroon)', fontWeight: 600 }}>
               <span className="nav-admin-dot" aria-hidden />
-
-            <NavLink to="/admin" style={{ color: 'var(--maroon)', fontWeight: 600 }}>
-
               Admin
             </NavLink>
           )}
@@ -556,10 +552,6 @@ export default function Header() {
           </div>
 
           {user ? (
-
-            <div className="nav-user">
-              <span className="nav-avatar" title={user.email}>
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
@@ -575,9 +567,8 @@ export default function Header() {
                   fontSize: '13px',
                   cursor: 'default',
                 }}
-                title={user.email}
+                title={user.email || ''}
               >
-
                 {userInitial}
               </span>
               <button

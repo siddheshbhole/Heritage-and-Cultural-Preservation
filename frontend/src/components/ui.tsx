@@ -68,6 +68,82 @@ export function TrustBadge({ level }: { level?: string }) {
   return <span className={`trust ${cls}`}>{level.toUpperCase()}</span>
 }
 
+/* ---------- Icons ----------
+   Lightweight inline SVG so the navbar can use real icon components
+   without pulling in an icon-library dependency. All icons inherit
+   `currentColor` and are hidden from assistive technology. */
+type IconProps = { size?: number; className?: string; strokeWidth?: number }
+
+function iconBase(size: number, className?: string) {
+  return {
+    className,
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+    focusable: 'false' as const,
+  }
+}
+
+export function IconSearch({ size = 17, className, strokeWidth = 2.1 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20.2 20.2-3.9-3.9" />
+    </svg>
+  )
+}
+
+export function IconChevronDown({ size = 12, className, strokeWidth = 2.4 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <path d="m5.5 8.75 6.5 6.5 6.5-6.5" />
+    </svg>
+  )
+}
+
+export function IconGlobe({ size = 15, className, strokeWidth = 1.9 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17" />
+      <path d="M12 3.5c2.2 2.3 3.4 5.3 3.4 8.5S14.2 18.2 12 20.5c-2.2-2.3-3.4-5.3-3.4-8.5S9.8 5.8 12 3.5Z" />
+    </svg>
+  )
+}
+
+export function IconMenu({ size = 19, className, strokeWidth = 2.1 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <path d="M3.75 6.5h16.5" />
+      <path d="M3.75 12h16.5" />
+      <path d="M3.75 17.5h16.5" />
+    </svg>
+  )
+}
+
+export function IconClose({ size = 17, className, strokeWidth = 2.1 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
+    </svg>
+  )
+}
+
+export function IconUser({ size = 15, className, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg {...iconBase(size, className)} strokeWidth={strokeWidth}>
+      <circle cx="12" cy="8.25" r="3.75" />
+      <path d="M4.75 20c0-3.6 3.25-5.75 7.25-5.75s7.25 2.15 7.25 5.75" />
+    </svg>
+  )
+}
+
 export function Crumbs({ items }: { items: Array<{ label: string; to?: string }> }) {
   return (
     <nav className="crumbs" aria-label="Breadcrumb">

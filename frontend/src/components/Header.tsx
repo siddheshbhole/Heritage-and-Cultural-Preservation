@@ -7,6 +7,14 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getSearchSuggestions } from '../api/client'
 import type { SearchSuggestion } from '../api/client'
+import {
+  IconSearch,
+  IconChevronDown,
+  IconGlobe,
+  IconMenu,
+  IconClose,
+  IconUser,
+} from './ui'
 
 
 const LINKS = [
@@ -20,7 +28,9 @@ const LINKS = [
 ]
 
 
-const DESKTOP_BREAKPOINT = 960
+/* Must stay in sync with the hamburger breakpoint in styles/navbar.css.
+   Below this width the full nav is hidden and the mobile menu is used. */
+const DESKTOP_BREAKPOINT = 1080
 
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => {
@@ -64,9 +74,23 @@ export default function Header() {
   const [expanded, setExpanded] = useState(false)
   const [heritageExpanded, setHeritageExpanded] = useState(false)
   const [documentsExpanded, setDocumentsExpanded] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   const closeTimer = useRef<number | null>(null)
   const isDesktop = useMediaQuery(`(min-width: ${DESKTOP_BREAKPOINT}px)`)
+  const mobileSearchRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const openMobileSearch = () => {
+    setOpen(true)
+    window.setTimeout(() => mobileSearchRef.current?.focus(), 60)
+  }
 
 
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
@@ -341,15 +365,15 @@ export default function Header() {
           </span>
         </div>
       </div>
-      <header className="navbar" ref={headerRef}>
+      <header className={`navbar${scrolled ? ' is-scrolled' : ''}`} ref={headerRef}>
       <div className="container nav-inner">
         <Link to="/" className="brand" aria-label="Sanskriti Setu — Home">
           <img
             className="brand-logo"
             src="/images/branding/sanskriti-setu-logo.png"
             alt="Sanskriti Setu"
-            width={216}
-            height={54}
+            width={168}
+            height={42}
           />
         </Link>
 
@@ -381,7 +405,7 @@ export default function Header() {
                       }
                     }}
                   >
-                    {l.label} <span className="caret" aria-hidden>▾</span>
+                    {l.label} <IconChevronDown className="caret" />
                   </NavLink>
                 </div>
               )
@@ -412,7 +436,7 @@ export default function Header() {
                       }
                     }}
                   >
-                    {l.label} <span className="caret" aria-hidden>▾</span>
+                    {l.label} <IconChevronDown className="caret" />
                   </NavLink>
                 </div>
               )
@@ -444,7 +468,7 @@ export default function Header() {
                       }
                     }}
                   >
-                    {l.label} <span className="caret" aria-hidden>▾</span>
+                    {l.label} <IconChevronDown className="caret" />
                   </NavLink>
                 </div>
               )
@@ -456,7 +480,8 @@ export default function Header() {
             )
           })}
           {isAdmin && (
-            <NavLink to="/admin" style={{ color: 'var(--saffron-primary, #d97706)', fontWeight: 600 }}>
+            <NavLink to="/admin" className="nav-admin">
+              <span className="nav-admin-dot" aria-hidden />
               Admin
             </NavLink>
           )}
@@ -473,7 +498,9 @@ export default function Header() {
               aria-label="Search"
               autoComplete="off"
             />
-            <button>{t('btn_search')}</button>
+            <button type="submit" className="nav-search-btn" aria-label={t('btn_search')} title={t('btn_search')}>
+              <IconSearch />
+            </button>
             {suggestOpen && suggestions.length > 0 && (
               <ul className="nav-search-suggest" role="listbox">
                 {suggestions.map((s, i) => (
@@ -498,36 +525,35 @@ export default function Header() {
         </form>
 
         <div className="nav-actions">
-          <select
-            className="langs"
-            aria-label="Language"
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
+          <button
+            type="button"
+            className="nav-icon-btn nav-search-trigger"
+            aria-label="Search"
+            title="Search"
+            onClick={openMobileSearch}
           >
-            {languages.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.code === 'en' ? 'EN' : l.code === 'hi' ? 'हिं' : l.code === 'kn' ? 'ಕನ್ನ' : l.nativeName}
-              </option>
-            ))}
-          </select>
+            <IconSearch />
+          </button>
+
+          <div className="lang-wrap">
+            <IconGlobe className="lang-icon" />
+            <select
+              className="langs"
+              aria-label="Language"
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.code === 'en' ? 'EN' : l.code === 'hi' ? 'हिं' : l.code === 'kn' ? 'ಕನ್ನ' : l.nativeName}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--saffron-primary, #d97706)',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  fontSize: '13px',
-                  cursor: 'default',
-                }}
-                title={user.email}
-              >
+            <div className="nav-user">
+              <span className="nav-avatar" title={user.email}>
                 {userInitial}
               </span>
               <button
@@ -541,9 +567,10 @@ export default function Header() {
           ) : (
             <button
               type="button"
-              className="btn btn-sm btn-outline"
+              className="btn btn-sm btn-outline nav-signin"
               onClick={() => openAuthModal('login')}
             >
+              <IconUser size={14} />
               {t('nav_sign_in')}
             </button>
           )}
@@ -554,7 +581,7 @@ export default function Header() {
             aria-controls="mobile-menu"
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? '✕' : '☰'}
+            {open ? <IconClose /> : <IconMenu />}
           </button>
         </div>
       </div>
@@ -605,12 +632,15 @@ export default function Header() {
         <div className="container" style={{ marginBottom: 12 }}>
           <form className="mobile-search" onSubmit={submitMobile} role="search">
             <input
+              ref={mobileSearchRef}
               value={mq}
               onChange={(e) => setMq(e.target.value)}
-              placeholder="Search culture…"
+              placeholder={t('search_placeholder')}
               aria-label="Search"
             />
-            <button>Search</button>
+            <button type="submit" aria-label={t('btn_search')}>
+              <IconSearch />
+            </button>
           </form>
           {LINKS.map((l) => {
             if (l.to === '/explore') {
@@ -724,6 +754,33 @@ export default function Header() {
               </NavLink>
             )
           })}
+          {isAdmin && (
+            <NavLink to="/admin" className="nav-admin mobile-admin" onClick={() => setOpen(false)}>
+              <span className="nav-admin-dot" aria-hidden />
+              Admin
+            </NavLink>
+          )}
+          <div className="mobile-lang">
+            <label className="mobile-lang-label" htmlFor="mobile-lang-select">
+              Language
+            </label>
+            <div className="lang-wrap">
+              <IconGlobe className="lang-icon" />
+              <select
+                id="mobile-lang-select"
+                className="langs"
+                aria-label="Language"
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.code === 'en' ? 'EN' : l.code === 'hi' ? 'हिं' : l.code === 'kn' ? 'ಕನ್ನ' : l.nativeName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </nav>
       </header>

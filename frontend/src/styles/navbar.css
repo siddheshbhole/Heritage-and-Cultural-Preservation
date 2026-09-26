@@ -1,0 +1,530 @@
+/* ===========================================================================
+   SANSKRITI SETU — NAVBAR
+   Layout, spacing, visual hierarchy and micro-interactions.
+
+   Imported after theme.css, so these rules win at equal specificity.
+   Scope: presentation only. No behavioural or data logic lives here.
+   =========================================================================== */
+
+/* ---------- Bar shell ---------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: var(--parchment);
+  border-bottom: 1px solid var(--archival-line);
+  transition: box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+/* Heritage detail: a 2px ornamental hairline along the bar's lower edge.
+   Reads as a fine engraved rule, not decoration. */
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(179, 135, 40, 0) 0%,
+    rgba(179, 135, 40, 0.5) 18%,
+    rgba(139, 38, 29, 0.42) 50%,
+    rgba(179, 135, 40, 0.5) 82%,
+    rgba(179, 135, 40, 0) 100%
+  );
+  opacity: 0.75;
+}
+
+.navbar.is-scrolled {
+  box-shadow: 0 6px 22px rgba(26, 26, 26, 0.09);
+  border-bottom-color: rgba(226, 217, 204, 0.7);
+}
+
+/* Compact the bar once the page is scrolled — height only, never hidden. */
+.navbar.is-scrolled .nav-inner { height: 60px; }
+.navbar.is-scrolled .brand-logo { height: 38px; width: auto; }
+.navbar.is-scrolled .nav-search input { padding: 7px 8px; }
+.navbar.is-scrolled .nav-links a { padding: 6px 9px; }
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 68px;
+  transition: height 0.24s ease;
+}
+
+/* ---------- Logo ---------- */
+.brand {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  color: var(--ink);
+  border-radius: 8px;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.brand:hover { text-decoration: none; opacity: 0.9; }
+.brand:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+.brand-logo {
+  height: 42px;
+  width: auto;
+  max-width: 168px;
+  display: block;
+  transition: height 0.24s ease;
+}
+
+/* ---------- Primary navigation ---------- */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: 2px;
+  flex: 0 0 auto;
+}
+
+.nav-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+/* Architectural hover accent: a hairline rule that grows from the centre. */
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--terracotta);
+  transition: left 0.2s cubic-bezier(0.3, 0, 0.2, 1), right 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.nav-links a:hover {
+  background: var(--terracotta-tint);
+  color: var(--terracotta);
+  text-decoration: none;
+}
+.nav-links a:hover::after { left: 26%; right: 26%; }
+
+.nav-links a:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 1px;
+}
+
+/* Active page — soft maroon/beige pill with a settled underline. */
+.nav-links a.active {
+  color: var(--terracotta-deep);
+  background: var(--terracotta-tint);
+}
+.nav-links a.active::after { left: 22%; right: 22%; background: var(--terracotta-deep); }
+
+.nav-item-wrap { display: inline-flex; }
+.nav-item-wrap.has-active > a { color: var(--terracotta-deep); background: var(--terracotta-tint); }
+.nav-item-wrap.has-active > a::after { left: 22%; right: 22%; background: var(--terracotta-deep); }
+.nav-item-wrap:hover > a,
+.nav-item-wrap:focus-within > a { color: var(--terracotta); background: var(--terracotta-tint); }
+.nav-item-wrap:hover > a::after,
+.nav-item-wrap:focus-within > a::after { left: 26%; right: 26%; }
+
+/* Caret — rotates when its menu is open */
+.nav-item-wrap .caret {
+  width: 12px;
+  height: 12px;
+  opacity: 0.55;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  flex-shrink: 0;
+}
+.nav-item-wrap:hover .caret { opacity: 0.85; }
+.nav-item-wrap.open .caret { transform: rotate(180deg); opacity: 0.9; }
+
+/* ---------- Admin ---------- */
+.nav-links a.nav-admin { gap: 6px; padding-left: 12px; }
+.nav-admin-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bronze);
+  box-shadow: 0 0 0 2px var(--bronze-soft);
+  flex-shrink: 0;
+}
+.nav-links a.nav-admin.active { color: var(--terracotta-deep); }
+.nav-links a.nav-admin.active .nav-admin-dot { background: var(--terracotta-deep); }
+
+/* ---------- Search ---------- */
+.nav-search {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--archival-line);
+  border-radius: 999px;
+  padding: 0 5px 0 13px;
+  width: auto;
+  flex: 1 1 200px;
+  min-width: 118px;
+  max-width: 340px;
+  box-shadow: inset 0 1px 2px rgba(26, 26, 26, 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.nav-search:focus-within {
+  border-color: var(--terracotta);
+  box-shadow: inset 0 1px 2px rgba(26, 26, 26, 0.04), 0 0 0 3px rgba(139, 38, 29, 0.1);
+}
+
+.nav-search input {
+  border: 0;
+  background: transparent;
+  padding: 8px 6px;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.nav-search input::placeholder { color: var(--muted); }
+
+/* Icon-only submit — same handler, same route, same API. */
+.nav-search button.nav-search-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--terracotta), var(--terracotta-deep));
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+.nav-search button.nav-search-btn svg { display: block; }
+.nav-search button.nav-search-btn:hover {
+  filter: brightness(1.08);
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(139, 38, 29, 0.3);
+}
+.nav-search button.nav-search-btn:hover svg { transform: translateX(1px); }
+.nav-search button.nav-search-btn svg { transition: transform 0.16s ease; }
+.nav-search button.nav-search-btn:active { transform: scale(0.97); }
+.nav-search button.nav-search-btn:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 2px;
+}
+
+.nav-search-wrap { position: relative; display: flex; align-items: center; width: 100%; min-width: 0; }
+.nav-search-wrap input { width: 100%; }
+
+/* ---------- Actions: language, auth, hamburger ---------- */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.nav-icon-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--archival-line);
+  border-radius: 8px;
+  background: var(--parchment);
+  color: var(--terracotta);
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+.nav-icon-btn:hover {
+  background: var(--terracotta-tint);
+  border-color: var(--terracotta-soft);
+  transform: scale(1.05);
+}
+.nav-icon-btn:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+.lang-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.lang-icon {
+  position: absolute;
+  left: 7px;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 1;
+}
+.langs {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--archival-line);
+  background: var(--parchment);
+  border-radius: 999px;
+  padding: 6px 22px 6px 26px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: var(--sans);
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 12px) 52%, calc(100% - 8px) 52%;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+.langs:hover { border-color: var(--terracotta-soft); background-color: var(--terracotta-tint); }
+.langs:focus-visible { outline: 2px solid var(--bronze); outline-offset: 1px; }
+
+.nav-user { display: flex; align-items: center; gap: 7px; }
+.nav-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--terracotta), var(--terracotta-deep));
+  color: #fff;
+  font-weight: 700;
+  font-size: 12.5px;
+  font-family: var(--sans);
+  cursor: default;
+  box-shadow: 0 2px 6px rgba(139, 38, 29, 0.24);
+}
+.nav-signin { gap: 6px; }
+.nav-signin svg { flex-shrink: 0; color: var(--terracotta); }
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--parchment);
+  border: 1px solid var(--archival-line);
+  border-radius: 8px;
+  color: var(--terracotta);
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+.hamburger:hover { background: var(--terracotta-tint); border-color: var(--terracotta-soft); }
+.hamburger:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+/* ---------- Dropdown panels: fade + slight downward movement ---------- */
+.explore-subnav,
+.heritage-subnav,
+.documents-subnav {
+  animation: nav-mega-in 0.2s cubic-bezier(0.3, 0, 0.2, 1);
+  transform-origin: top center;
+}
+@keyframes nav-mega-in {
+  from { opacity: 0; transform: translateY(-7px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Autocomplete ---------- */
+.nav-search-suggest {
+  border-radius: 10px;
+  border-color: var(--archival-line);
+  box-shadow: 0 14px 34px rgba(26, 26, 26, 0.13);
+  padding: 5px 0;
+}
+.nav-search-suggest-item { font-size: 13px; padding: 7px 13px; }
+.nav-search-suggest-item:hover,
+.nav-search-suggest-item.active { background: var(--terracotta-tint); }
+
+/* ---------- Mobile menu ---------- */
+.mobile-menu {
+  background: var(--parchment);
+  border-top: 1px solid var(--archival-line);
+  animation: nav-mobile-in 0.22s cubic-bezier(0.3, 0, 0.2, 1);
+  box-shadow: 0 18px 34px rgba(26, 26, 26, 0.1);
+}
+@keyframes nav-mobile-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+/* Scoped to the menu's own top-level links so the embedded mega-menu
+   panels (.mega-item, .mega-all, .mega-feat-link) keep their own layout. */
+.mobile-menu .container > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: color 0.16s ease, padding-left 0.16s ease;
+}
+.mobile-menu .container > a:hover,
+.mobile-menu .container > a.active { color: var(--terracotta); padding-left: 4px; }
+
+.mobile-search { display: flex; gap: 8px; margin: 14px 0 6px; }
+.mobile-search input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--archival-line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.mobile-search input:focus-visible { border-color: var(--terracotta); }
+.mobile-search button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  background: linear-gradient(120deg, var(--terracotta), var(--terracotta-deep));
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: filter 0.16s ease, transform 0.16s ease;
+}
+.mobile-search button:hover { filter: brightness(1.08); transform: scale(1.05); }
+.mobile-search button:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+.mobile-explore-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.mobile-explore-head a { flex: 1; border-bottom: 0; }
+.mobile-explore-toggle {
+  border: 1px solid var(--archival-line);
+  background: var(--parchment);
+  color: var(--terracotta);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.16s ease;
+}
+.mobile-explore-toggle:hover { background: var(--terracotta-tint); }
+
+.mobile-admin .nav-admin-dot { width: 6px; height: 6px; }
+
+.mobile-lang {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0 6px;
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.mobile-lang-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--sans);
+}
+
+/* ===========================================================================
+   RESPONSIVE TIERS
+   The full desktop nav is preserved down to 1080px (matches
+   DESKTOP_BREAKPOINT in Header.tsx). That floor is chosen so the widest
+   case — a signed-in admin, where "Admin" and "Sign Out" are both
+   present — still fits without horizontal overflow. Below 1080px the
+   existing hamburger menu takes over and carries every control.
+   =========================================================================== */
+
+/* Compact desktop — laptops and small desktops */
+@media (max-width: 1180px) {
+  .nav-inner { gap: 8px; }
+  .nav-links a { font-size: 13.5px; padding: 6px 8px; }
+  .nav-search { flex: 1 1 168px; min-width: 100px; max-width: 260px; padding-left: 11px; }
+  .nav-search input { font-size: 13px; }
+  .brand-logo { height: 38px; max-width: 152px; }
+  .langs { padding: 5px 20px 5px 24px; font-size: 12px; }
+  .nav-actions { gap: 7px; }
+  .nav-avatar { width: 28px; height: 28px; }
+}
+
+/* Tablet & below — hamburger + in-bar search trigger.
+   The search field is the only flex-shrinkable block above this width,
+   so the bar rebalances on its own and no control is ever dropped. */
+@media (max-width: 1080px) {
+  .nav-links { display: none; }
+  .nav-search { display: none; }
+  .hamburger { display: inline-flex; }
+  .explore-subnav { display: none !important; }
+  .nav-inner { height: 62px; gap: 8px; }
+  .nav-search-trigger { display: inline-flex; }
+  .brand { margin-right: auto; }
+  .brand-logo { height: 36px; max-width: 156px; }
+  .nav-actions { margin-left: 0; }
+  .navbar.is-scrolled .nav-inner { height: 56px; }
+  .navbar.is-scrolled .brand-logo { height: 32px; }
+}
+
+@media (max-width: 640px) {
+  .nav-inner { height: 58px; gap: 6px; }
+  .brand-logo { height: 32px; max-width: 138px; }
+  /* Hide only the desktop language control — theme.css hides .langs
+     wholesale at this width, so the in-menu one is restored below. */
+  .nav-actions .lang-wrap { display: none; }
+  .mobile-lang .langs { display: inline-block; }
+  .nav-avatar { width: 28px; height: 28px; font-size: 12px; }
+  .nav-signin { padding: 7px 10px; font-size: 12.5px; }
+  .navbar.is-scrolled .nav-inner { height: 54px; }
+}
+
+@media (max-width: 420px) {
+  .brand-logo { height: 28px; max-width: 120px; }
+  .nav-signin span { display: none; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .nav-inner,
+  .brand,
+  .brand-logo,
+  .nav-links a,
+  .nav-links a::after,
+  .nav-item-wrap .caret,
+  .nav-search,
+  .nav-search button.nav-search-btn,
+  .hamburger,
+  .nav-icon-btn,
+  .mobile-menu,
+  .explore-subnav,
+  .heritage-subnav,
+  .documents-subnav {
+    transition: none !important;
+    animation: none !important;
+  }
+}

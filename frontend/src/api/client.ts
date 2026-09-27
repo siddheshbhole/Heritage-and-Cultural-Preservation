@@ -246,6 +246,8 @@ export interface Heritage {
   unesco_year?: string | null
   unesco_category?: string | null
   google_360_url?: string | null
+  vr_url?: string | null
+  vrUrl?: string | null
   main_image?: string | null
   established?: string | null
   gallery?: HeritageImage[]

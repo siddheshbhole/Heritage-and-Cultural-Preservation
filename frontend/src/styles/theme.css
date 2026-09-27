@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   /* Institutional Heritage palette — sandstone, terracotta, bronze, indigo */
   --sandstone: #FAF6F0;
   --terracotta: #8B261D;
@@ -1607,20 +1607,54 @@ img { max-width: 100%; }
   font-weight: 800;
 }
 
-/* 360° virtual tour panel */
-.tour-360 {
+/* 360° virtual tour & VR panel */
+.tour-360-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.tour-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+  border-radius: var(--radius);
+  background: #EDE3D4;
+  border: 1px solid #D8C7B0;
+  box-sizing: border-box;
+}
+.tour-card.muted {
+  background: #f4f5f7;
+  border-color: var(--line);
+}
+.tour-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.tour-card-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 20px 22px;
-  border-radius: var(--radius);
-  background: var(--green-tint);
-  border: 1px solid #bcdcc3;
+  justify-content: center;
 }
-.tour-360.muted { background: #f4f5f7; border-color: var(--line); }
-.tour-360 .tour-360-icon { font-size: 34px; line-height: 1; }
-.tour-360 h3 { margin: 0; }
-.tour-360 p { margin: 3px 0 0; color: var(--muted); font-size: 14px; max-width: 60ch; }
+.tour-card-body h3 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: var(--heading, #1a1a1a);
+}
+.tour-card-body p {
+  margin: 0;
+  color: var(--muted, #555);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.tour-card-footer {
+  margin-top: 4px;
+}
 
 /* Gallery grid + lightbox */
 .gallery {

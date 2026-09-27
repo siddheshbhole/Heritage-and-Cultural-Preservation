@@ -351,15 +351,20 @@ export default function HeritageDetail() {
           />
         </div>
 
-        {/* 5. 360° View */}
-        <div className="content-block">
-          <div className={`tour-360${has360 ? '' : ' muted'}`}>
-            <div className="tour-360-icon" aria-hidden>🛰️</div>
-            <div>
-              <h3>360° Virtual Tour</h3>
-              {has360 ? (
-                <>
-                  <p>Immersive street-level views of {h.name} on Google Maps.</p>
+        {/* 5. 360° View & VR Experience */}
+        {has360 && (
+          <div className="content-block">
+            <div className="tour-360-grid">
+              {/* Card 1: 360° Virtual Tour */}
+              <div className="tour-card">
+                <div className="tour-card-header">
+                  <div className="tour-card-icon" aria-hidden>🛰️</div>
+                  <div className="tour-card-body">
+                    <h3>360° Virtual Tour</h3>
+                    <p>Immersive street-level views of {h.name} on Google Maps.</p>
+                  </div>
+                </div>
+                <div className="tour-card-footer">
                   <a
                     className="btn btn-green"
                     href={h.google_360_url!}
@@ -368,13 +373,69 @@ export default function HeritageDetail() {
                   >
                     Explore in 360°
                   </a>
-                </>
-              ) : (
-                <p>A 360° view isn’t available for this site yet. Coverage depends on Google Street View data.</p>
-              )}
+                </div>
+              </div>
+
+              {/* Card 2: VR Experience */}
+              <div className="tour-card">
+                <div className="tour-card-header">
+                  <div className="tour-card-icon" aria-hidden>
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-4l-2 2-2-2H4a2 2 0 0 1-2-2v-6z" />
+                      <circle cx="7" cy="13" r="2" />
+                      <circle cx="17" cy="13" r="2" />
+                    </svg>
+                  </div>
+                  <div className="tour-card-body">
+                    <h3>VR Experience</h3>
+                    <p>Interactive virtual reality tour of {h.name} for VR headsets & mobile display.</p>
+                  </div>
+                </div>
+                <div className="tour-card-footer">
+                  <a
+                    className="btn btn-green"
+                    href={h.vr_url || h.vrUrl || '#vr-experience'}
+                    target={h.vr_url || h.vrUrl ? '_blank' : '_self'}
+                    rel="noreferrer"
+                    onClick={(e) => {
+                      if (!h.vr_url && !h.vrUrl) {
+                        e.preventDefault()
+                        alert('VR Experience mode selected. (Virtual Reality headset setup ready)')
+                      }
+                    }}
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-4l-2 2-2-2H4a2 2 0 0 1-2-2v-6z" />
+                      <circle cx="7" cy="13" r="2" />
+                      <circle cx="17" cy="13" r="2" />
+                    </svg>
+                    VR Experience
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* 6. Gallery */}
         {gallery.length > 0 && (

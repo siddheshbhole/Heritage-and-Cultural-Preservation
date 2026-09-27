@@ -95,7 +95,6 @@ export default function DocumentsHome() {
             {categories.data.map((c) => (
               <Link to={`/documents/${c.slug}`} className="doc-card" key={c.slug}>
                 <div className="doc-card-head">
-                  <span className="doc-card-icon" aria-hidden>{DOCUMENT_ICONS[c.slug] || '📄'}</span>
                   <span className="chip chip-outline">{c.count} files</span>
                 </div>
                 <b className="doc-card-title">{c.name}</b>

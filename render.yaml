@@ -35,7 +35,7 @@ services:
       # Proxy all /api/* requests to the backend (avoids CORS issues)
       - type: rewrite
         source: /api/*
-        destination: https://heritage-and-cultural-preservation.onrender.com/
+        destination: https://heritage-and-cultural-preservation.onrender.com/api/*
       # SPA fallback: serve index.html for all unmatched routes
       - type: rewrite
         source: /*

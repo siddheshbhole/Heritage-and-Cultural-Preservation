@@ -2,17 +2,6 @@
 
 <img src="docs/assets/banner.png" alt="Sanskriti Setu — Discover, explore and preserve India's heritage and culture" width="100%" />
 
-<p align="center">
-<a href="https://react.dev/"><img src="docs/assets/badges/react.png?v=2" height="30" alt="React 18" /></a>
-<a href="https://www.typescriptlang.org/"><img src="docs/assets/badges/typescript.png?v=2" height="30" alt="TypeScript 5" /></a>
-<a href="https://vitejs.dev/"><img src="docs/assets/badges/vite.png?v=2" height="30" alt="Vite 5" /></a>
-<a href="https://fastapi.tiangolo.com/"><img src="docs/assets/badges/fastapi.png?v=2" height="30" alt="FastAPI" /></a>
-<a href="https://www.postgresql.org/"><img src="docs/assets/badges/postgresql.png?v=2" height="30" alt="PostgreSQL 16" /></a>
-<a href="https://postgis.net/"><img src="docs/assets/badges/postgis.png?v=2" height="30" alt="PostGIS 3.4" /></a>
-<a href="https://supabase.com/"><img src="docs/assets/badges/supabase.png?v=2" height="30" alt="Supabase" /></a>
-<a href="https://www.docker.com/"><img src="docs/assets/badges/docker.png?v=2" height="30" alt="Docker" /></a>
-</p>
-
 </div>
 
 ---
@@ -95,16 +84,23 @@ fallback
 
 ---
 
-## Technology Stack
+## Tech Stack
 
-| Layer | Technologies (all genuinely used — see `package.json` / `requirements.txt`) |
-|---|---|
-| **Frontend** | React 18 · TypeScript 5 · Vite 5 · React Router 6 · `@svg-maps/india` · `@supabase/supabase-js` · hand-rolled CSS |
-| **Backend** | Python · FastAPI · Uvicorn · SQLAlchemy · Alembic · PyJWT · httpx |
-| **Data** | PostgreSQL 16 + PostGIS 3.4 (Docker) · SQLite fallback · Supabase Storage |
-| **Auth** | Supabase Auth (JWT/JWKS) · Guide PIN auth · `ADMIN_EMAILS` allow-list |
-| **AI** | Retrieval-grounded assistant · Optional Gemini (default `gemini-3.6-flash`) |
-| **Ops** | Docker Compose · `run.bat` launcher · pytest · Supabase migrations |
+What each folder runs on (verified from `package.json` / `requirements.txt` / configs):
+
+| Folder | Layer | Technologies |
+|---|---|---|
+| `frontend/` | UI | React 18 · TypeScript 5 · Vite 5 · React Router 6 |
+| `frontend/src/` | UI code | Components · Pages (≈40 routes) · Context API · hand-rolled CSS |
+| `frontend/src/data/` + `public/images/` | Content | Curated datasets · SVG India map · image assets |
+| `backend/app/` | API | Python · FastAPI · Uvicorn · 15 route modules |
+| `backend/app/models.py` | ORM | SQLAlchemy · ~48 tables |
+| `backend/` migrations | Schema | Alembic · Supabase SQL migrations |
+| `docker/` + `data/` | Database | PostgreSQL 16 · PostGIS 3.4 · SQLite fallback |
+| `supabase/` | Cloud | Auth (JWT) · Storage bucket (documents CDN) |
+| `backend/app/routes/assistant.py` | AI | Retrieval-grounded assistant · optional Gemini |
+| `backend/tests/` | Quality | pytest (auth, admin, guides, search, assistant) |
+| `scripts/` + `run.bat` | Tooling | Ingest / migrate / upload / trending utilities · one-shot launcher |
 
 > Not used: Drupal, Kubernetes, Elasticsearch, Redis, GraphQL — the prototype stays lean on purpose.
 

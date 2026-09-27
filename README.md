@@ -4,42 +4,22 @@
 
 # Sanskriti Setu — Heritage & Cultural Preservation Platform
 
-**Discover, explore and preserve India's heritage and culture — a Ministry of Culture heritage platform.**
+<h3>Discover, explore and preserve India's heritage and culture — a Ministry of Culture heritage platform.</h3>
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=000)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=fff)](https://vitejs.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=fff)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=fff)](https://www.postgresql.org/)
-[![PostGIS](https://img.shields.io/badge/PostGIS-3.4-5B9E46?logo=postgis&logoColor=fff)](https://postgis.net/)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%7C%20Storage-3ECF8E?logo=supabase&logoColor=fff)](https://supabase.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=fff)](https://www.docker.com/)
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 14px;">
+
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=000)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=fff)](https://vitejs.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=fff)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=fff)](https://www.postgresql.org/)
+[![PostGIS](https://img.shields.io/badge/PostGIS-3.4-5B9E46?style=for-the-badge&logo=postgis&logoColor=fff)](https://postgis.net/)
+[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%7C%20Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=fff)](https://supabase.com/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=fff)](https://www.docker.com/)
 
 </div>
 
----
-
-## Table of Contents
-
-- [About the Project](#about-the-project)
-- [Problem & Solution](#problem--solution)
-- [Key Features](#key-features)
-- [User Journey](#user-journey)
-- [System Architecture](#system-architecture)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Database & Migrations](#database--migrations)
-- [Authentication & Security](#authentication--security)
-- [API Overview](#api-overview)
-- [Admin Portal](#admin-portal)
-- [Heritage Guide Programme](#heritage-guide-programme)
-- [Tests](#tests)
-- [Utility Scripts](#utility-scripts)
-- [Future Scope](#future-scope)
-- [Contributing](#contributing)
-- [License](#license)
+</div>
 
 ---
 
@@ -48,8 +28,6 @@
 **Sanskriti Setu** (*“a bridge of culture”*) is a full-stack digital platform for discovering, exploring, documenting and preserving India's heritage and culture, built around official Ministry of Culture content.
 
 It unifies scattered cultural content — heritage sites, museums, festivals, schemes, awards, publications, official documents, media and events — into one searchable, map-driven experience with an interactive India map, a curated Document Archive, a retrieval-grounded AI Heritage Guide, moderated community contributions and a full admin portal.
-
-> Design language: an institutional “sandstone · terracotta · bronze · indigo” theme with a serif/sans pairing, built for a government-cultural portal rather than a generic dashboard.
 
 ---
 
@@ -106,19 +84,20 @@ DETAIL + SOURCES + NEARBY → READ · BOOK · CONTRIBUTE · GUIDE
 ## System Architecture
 
 ```
- React SPA (Vite :5173, dev /api proxy)
-              ↓
- FastAPI (Uvicorn :8000, 15 routers, serves dist + /docs)
-      ┌───────┴────────┐
-      ↓                ↓
- PostgreSQL 16     Supabase: Auth (JWT/JWKS)
- + PostGIS (Docker) + Storage bucket "documents" (CDN)
- SQLite fallback    Optional: Gemini (assistant only)
+React SPA (Vite frontend)
+        ↓
+FastAPI backend (serves built frontend + API)
+   ┌────┴────────┐
+   ↓             ↓
+PostgreSQL   Supabase: Auth (JWT/JWKS)
++ PostGIS    + Storage bucket for documents (CDN)
+SQLite       Optional: Gemini (assistant only)
+fallback
 ```
 
-- **Dev:** Vite proxies `/api` → `127.0.0.1:8000`.
-- **Single process:** backend serves `frontend/dist` with SPA fallback on `:8000`.
-- **Documents:** `data/documents/` → upload script → Supabase bucket → CDN URL in `document_items.file_url` (`308` redirect fallback). Details in `README/Tech-stack.md`.
+- **Dev:** the frontend proxies API calls to the backend.
+- **Single process:** the backend serves the built frontend with SPA fallback.
+- **Documents:** local files → upload script → Supabase bucket → CDN URL stored on the record, with redirect fallback. Details in `README/Tech-stack.md`.
 
 ---
 
@@ -145,7 +124,7 @@ Heritage-and-Cultural-Preservation/
 ├── frontend/                     ← React SPA (≈40 routes)
 │   ├── src/{pages,components,api,context,data,styles}
 │   ├── public/images/            ← branding, heritage, ministry, media assets
-│   └── vite.config.ts            ← :5173, /api proxy → :8000
+│   └── vite.config.ts            ← dev server + backend proxy
 ├── backend/                      ← FastAPI (15 routers)
 │   ├── app/{main,models,database,auth,search_engine,seed*.py,routes/}
 │   ├── run_server.py · requirements.txt · alembic.ini + migrations/ · tests/
@@ -169,29 +148,24 @@ Python 3.10+ · Node.js 18+ · Docker Desktop (for PostGIS; optional) · Supabas
 run.bat
 ```
 
-Starts PostGIS → FastAPI (creates `backend/.venv` on first run) → Vite (`npm install` on first run), each in its own window.
-
-| Frontend | http://localhost:5173 |
-|---|---|
-| API / docs / health | http://127.0.0.1:8000 · `/docs` · `/api/health` |
-| Database | localhost:5432 (or SQLite fallback) |
+Starts the database, backend (creates `backend/.venv` on first run) and frontend (`npm install` on first run), each in its own window.
 
 ### Option B — Manual setup
 
 ```bash
-cd docker && docker compose up -d        # PostGIS on :5432 (skip for SQLite mode)
+cd docker && docker compose up -d        # PostGIS database (skip for SQLite mode)
 
 cd ../backend
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install --upgrade pip -r requirements.txt
-.venv\Scripts\python.exe run_server.py   # :8000
+.venv\Scripts\python.exe run_server.py
 
 cd ../frontend
 npm install
-npm run dev                              # :5173, proxies /api → :8000
+npm run dev
 ```
 
-Single-process production style: `npm run build` in `frontend/`, then run the backend — it serves `frontend/dist` on `:8000`.
+Single-process production style: `npm run build` in `frontend/`, then run the backend — it serves the built site itself.
 
 | `npm run dev` / `npm run build` | `frontend/` | Dev server / type-check + build |
 | `pytest` | `backend/` | Test suite |
@@ -215,10 +189,10 @@ cp frontend/.env.example frontend/.env
 | `ADMIN_EMAILS` | Comma-separated admin allow-list |
 | `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY` | Server keys for document uploads |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | Optional AI generation (default model `gemini-3.6-flash`) |
-| `ALLOWED_ORIGINS` | Extra CORS origins beyond localhost |
+| `ALLOWED_ORIGINS` | Extra CORS origins |
 | `POSTGRES_USER/PASSWORD/DB` | Docker DB (default `culture` × 3) |
 | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Client auth |
-| `VITE_API_BASE` / `VITE_ADMIN_EMAIL` | Optional API override / admin-nav hint |
+| `VITE_API_BASE` / `VITE_ADMIN_EMAIL` | Optional backend override / admin-nav hint |
 
 ---
 
@@ -230,66 +204,7 @@ PostgreSQL 16 + PostGIS 3.4 in Docker (`culture-postgis`, persistent volume) is 
 
 ## Authentication & Security
 
-Supabase JWTs verified server-side via JWKS; admin access gated by `GET /api/admin/session` on `ADMIN_EMAILS` + token claims; guides use separate PIN auth; explicit localhost CORS allow-list (no wildcard); every admin mutation lands in `audit_logs`; official / verified / community / AI content stays visually distinct.
-
----
-
-## API Overview
-
-Interactive docs at **`/docs`**. Key endpoints (all verified in code):
-
-| Area | Endpoints |
-|---|---|
-| Geo / content | `/api/states*` · `/api/heritage*` · `/api/museums*` · `/api/home` · `/api/{schemes,awards,publications,authors,mous,ministry,about}` |
-| Documents | `/api/documents` (filter/sort/paginate) · `/categories` · `/file/{id}` (local or `308` → CDN) |
-| Media | `/api/media/{photos,videos,brochures,leaders,monuments,artists,sanskriti,news,events,webcast}` |
-| Search & AI | `/api/search` (+ `/suggest`) · `POST /api/assistant/query` · `/api/trending` |
-| Community / guides | `/api/community/posts` · `/api/bookings` · `/api/guide/…` (auth, tours, reviews) |
-| Admin | `/api/admin/{session,stats,analytics,users,posts,health}` · CRUD at `/api/admin/crud/…` · `/api/admin/audit` |
-
----
-
-## Admin Portal
-
-Route **`/admin`** (requires `ADMIN_EMAILS` sign-in): dashboard metrics & analytics, community moderation queue, generic CRUD over every model, system health, immutable audit log, user overview — all backed by tested endpoints.
-
----
-
-## Heritage Guide Programme
-
-Route **`/vacancies`** — register as a guide (PIN credentials), set availability, get discovered near sites, run tours, collect ratings/reviews, with a misuse-reporting channel. Covered by `tests/test_guides.py`.
-
----
-
-## Tests
-
-```bash
-cd backend
-.venv\Scripts\python.exe -m pip install pytest   # not in requirements.txt
-.venv\Scripts\python.exe -m pytest
-```
-
-Covers auth, admin session/metrics, guide lifecycle, intelligent search and assistant grounding (`backend/tests/`).
-
----
-
-## Utility Scripts
-
-| `ingest_documents.py` / `upload_documents_to_supabase.py` | Seed archive metadata · idempotent CDN upload (`--dry-run` supported) |
-| `migrate_*` / `pull_supabase_to_sqlite.py` | Move data between SQLite and Supabase/Postgres |
-| `update_trending.py` / `generate_migration_sql.py` | Recompute trending scores · emit migration SQL |
-
----
-
-## Future Scope
-
-Next steps fitting the current architecture (long-term vision in `README/Tech-stack.md`): server-side full-text/vector search, background workers for ingestion/OCR, storage lifecycle + CDN rules, production hardening (managed Postgres, CI, rate limiting), PWA offline support and deeper multilingual coverage.
-
----
-
-## Contributing
-
-Fork, branch, keep `client.ts` ↔ routes in sync, add tests for API changes, run `npm run build` + `pytest` before a PR. Never commit `.env`, `*.db`, `node_modules/` or `dist/`.
+Supabase JWTs verified server-side via JWKS; admin access gated on `ADMIN_EMAILS` + token claims; guides use separate PIN auth; strict CORS allow-list (no wildcard); every admin mutation lands in `audit_logs`; official / verified / community / AI content stays visually distinct.
 
 ---
 

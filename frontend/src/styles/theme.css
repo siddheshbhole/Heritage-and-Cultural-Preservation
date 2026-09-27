@@ -1208,6 +1208,16 @@ img { max-width: 100%; }
 .ministry-foot .muted a { color: var(--green-deep); font-weight: 600; }
 
 /* ---------- Footer ---------- */
+/* Footer brand plaque — the logo artwork is dark maroon/gold, so on the
+   deep-maroon footer it sits on a small parchment plate with a bronze
+   hairline (orange-theme title rectangle). Scoped to .footer only. */
+.footer .brand {
+  display: inline-flex;
+  background: var(--parchment);
+  border: 1px solid rgba(179, 135, 40, 0.6);
+  border-radius: 10px;
+  padding: 8px 14px;
+}
 .footer { background: var(--orange-deep); color: #fdf1e7; margin-top: 40px; }
 .footer a { color: #ffe3ce; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 26px; padding: 40px 0 26px; }

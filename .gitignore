@@ -32,3 +32,6 @@ backend/.env
 *.sqlite3
 Kanak.zip
 data/documents/
+
+# Runtime logs
+*.log

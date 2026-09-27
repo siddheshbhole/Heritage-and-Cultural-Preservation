@@ -1,21 +1,17 @@
 <div align="center">
 
-<img src="frontend/public/images/branding/sanskriti-setu-logo.png" alt="Sanskriti Setu logo" width="220" />
-
-# Sanskriti Setu — Heritage & Cultural Preservation Platform
-
-<h3>Discover, explore and preserve India's heritage and culture — a Ministry of Culture heritage platform.</h3>
+<img src="README/assets/banner.png" alt="Sanskriti Setu — Discover, explore and preserve India's heritage and culture" width="100%" />
 
 <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 14px;">
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=000)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=fff)](https://vitejs.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=fff)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=fff)](https://www.postgresql.org/)
-[![PostGIS](https://img.shields.io/badge/PostGIS-3.4-5B9E46?style=for-the-badge&logo=postgis&logoColor=fff)](https://postgis.net/)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%7C%20Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=fff)](https://supabase.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=fff)](https://www.docker.com/)
+[![React 18](README/assets/badges/react.png)](https://react.dev/)
+[![TypeScript 5](README/assets/badges/typescript.png)](https://www.typescriptlang.org/)
+[![Vite 5](README/assets/badges/vite.png)](https://vitejs.dev/)
+[![FastAPI](README/assets/badges/fastapi.png)](https://fastapi.tiangolo.com/)
+[![PostgreSQL 16](README/assets/badges/postgresql.png)](https://www.postgresql.org/)
+[![PostGIS 3.4](README/assets/badges/postgis.png)](https://postgis.net/)
+[![Supabase](README/assets/badges/supabase.png)](https://supabase.com/)
+[![Docker](README/assets/badges/docker.png)](https://www.docker.com/)
 
 </div>
 

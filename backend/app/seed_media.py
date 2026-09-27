@@ -117,24 +117,36 @@ def main():
             db.add(MediaAlbum(title=title, date=date, items_count=count, cover_image=image, gallery_url=url, display_order=i))
 
         # ------------------------------------------------------------------ videos
+        # ``source_name`` is None for the Ministry's own channel and names the
+        # publishing channel for everything else, so the page never attributes
+        # a third-party video to the Ministry.
         videos = [
-            ("वन्दे मातरम् का उद्भव: शब्दों से राष्ट्रचेतना तक", "21.01.2026", "4MINS 17SEC", "Hindi", "1cpQfqMSVww"),
-            ("वन्दे मातरम्: अमर राष्ट्रगीत का ऐतिहासिक परिचय", "21.01.2026", "4MINS 46SEC", "Hindi", "_sAK-k3ckY8"),
-            ("स्वतंत्र भारत के निर्माण की आधारशिला: वन्दे मातरम्", "21.01.2026", "5MINS 59SEC", "Hindi", "OxZk3R6BNOA"),
-            ("स्वतंत्रता संग्राम के विभिन्न आंदोलनों में वन्दे मातरम् की भूमिका", "21.01.2026", "4MINS 08SEC", "Hindi", "zbwZgW4npxc"),
-            ("स्वाधीनता संग्राम में राष्ट्रचेतना के निर्माण की प्रेरक भूमिका", "21.01.2026", "2MINS 56SEC", "Hindi", "QI4yemaO8mI"),
-            ("100th birth anniversary of Acharya Shri Vidyanand Ji Maharaj in New Delhi", "28.06.2025", "1H 5MINS", "English", "Pn7Rh02Xt5I"),
-            ("India the mother of democracy", "26.06.2025", "7MIN", "English", "u86bIEM2-1I"),
-            ("Samvidhaan Hatya Diwas 2025", "26.06.2025", "3H 13MINS", "English", "Ajbbbe-Yjtk"),
-            ("Closing Ceremony of World Heritage Committee Meeting 2024", "25.06.2025", "3H 13MINS", "English", "tPp9MSJ-nag"),
-            ("Culture ministry 10th COP to the UNESCO 2005 Convention on the Diversity of Cultural Expressions", "20.06.2025", "6MINS 19SEC", "English", "uQ2AEgPIYgI"),
-            ("Commemoration of the 300th Birth Anniversary of Lokmata Ahilyabai Holkar", "20.06.2025", "2H 20Mins", "English", "XXvULyrlo5c"),
-            ("Ahilyabai Holkar: Guardian of Culture Architect of Governance", "06.05.2025", "3MIN 48SEC", "English", "F5ulPDW8ocY"),
+            (None, "वन्दे मातरम् का उद्भव: शब्दों से राष्ट्रचेतना तक", "21.01.2026", "4MINS 17SEC", "Hindi", "1cpQfqMSVww"),
+            (None, "वन्दे मातरम्: अमर राष्ट्रगीत का ऐतिहासिक परिचय", "21.01.2026", "4MINS 46SEC", "Hindi", "_sAK-k3ckY8"),
+            (None, "स्वतंत्र भारत के निर्माण की आधारशिला: वन्दे मातरम्", "21.01.2026", "5MINS 59SEC", "Hindi", "OxZk3R6BNOA"),
+            (None, "स्वतंत्रता संग्राम के विभिन्न आंदोलनों में वन्दे मातरम् की भूमिका", "21.01.2026", "4MINS 08SEC", "Hindi", "zbwZgW4npxc"),
+            (None, "स्वाधीनता संग्राम में राष्ट्रचेतना के निर्माण की प्रेरक भूमिका", "21.01.2026", "2MINS 56SEC", "Hindi", "QI4yemaO8mI"),
+            (None, "100th birth anniversary of Acharya Shri Vidyanand Ji Maharaj in New Delhi", "28.06.2025", "1H 5MINS", "English", "Pn7Rh02Xt5I"),
+            (None, "India the mother of democracy", "26.06.2025", "7MIN", "English", "u86bIEM2-1I"),
+            (None, "Samvidhaan Hatya Diwas 2025", "26.06.2025", "3H 13MINS", "English", "Ajbbbe-Yjtk"),
+            (None, "Closing Ceremony of World Heritage Committee Meeting 2024", "25.06.2025", "3H 13MINS", "English", "tPp9MSJ-nag"),
+            (None, "Culture ministry 10th COP to the UNESCO 2005 Convention on the Diversity of Cultural Expressions", "20.06.2025", "6MINS 19SEC", "English", "uQ2AEgPIYgI"),
+            (None, "Commemoration of the 300th Birth Anniversary of Lokmata Ahilyabai Holkar", "20.06.2025", "2H 20Mins", "English", "XXvULyrlo5c"),
+            (None, "Ahilyabai Holkar: Guardian of Culture Architect of Governance", "06.05.2025", "3MIN 48SEC", "English", "F5ulPDW8ocY"),
+            ("DD India", "PM Modi Launches Prambanan Restoration Project — India’s Mission To Save Hindu Temples Across Asia", "11.07.2026", "6MINS 40SEC", "English", "ExBHOMGthXY"),
+            ("DD India", "India’s Cultural Recovery Mission Brings Stolen Heritage Back Home", "16.05.2026", "3MINS 28SEC", "English", "StPcn5fI-PI"),
+            ("DD India", "PM Modi’s Cultural Gifts During Five-Nation Tour", "21.05.2026", "8MINS 54SEC", "English", "mxMTUFluK4A"),
+            ("MyGov India", "Samrat Samprati Museum Inauguration — Celebrating Jain Wisdom and India’s Timeless Heritage", "31.03.2026", "1MINS 21SEC", "English", "ZaBdsk-MLWg"),
+            ("MyGov India", "How PM Modi Revitalized India’s Cultural Landmarks", "18.06.2026", "1MINS 40SEC", "English", "9eRtKmb8WXM"),
+            ("Bharatiya Janata Party", "Nalanda: India’s Ancient Wisdom", "28.06.2026", "1MINS 45SEC", "English", "vPpa8OOhKl8"),
+            ("Narendra Modi", "The BEAUTY that is Somnath!", "11.05.2026", "16 SECONDS", "English", "uDZ0OxLpmJA"),
+            ("India Today", "Old Buildings Will Now Turn Into A Museum", "13.02.2026", "1MINS 21SEC", "English", "jDRS99_yDtE"),
         ]
-        for i, (title, date, duration, lang, yid) in enumerate(videos):
+        for i, (source, title, date, duration, lang, yid) in enumerate(videos):
             db.add(MediaVideo(
                 title=title, date=date, duration=duration, language=lang,
-                youtube_id=yid, thumbnail_url=f"{IMG}/videos/{yid}.jpg", display_order=i,
+                youtube_id=yid, thumbnail_url=f"{IMG}/videos/{yid}.jpg",
+                source_name=source, display_order=i,
             ))
 
         # ------------------------------------------------------------------ brochures

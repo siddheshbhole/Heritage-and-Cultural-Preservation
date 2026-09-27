@@ -793,6 +793,11 @@ img { max-width: 100%; }
 .feature-card .card-thumb { border-radius: 0; height: 170px; }
 .feature-card .fc-body { padding: 14px 16px 16px; }
 
+/* ---------- Featured videos grid (Home): 3 above, 3 below ---------- */
+.fv-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 900px) { .fv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .fv-grid { grid-template-columns: 1fr; } }
+
 /* ---------- Carousel ---------- */
 .carousel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
 .carousel:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }

@@ -62,6 +62,7 @@ export default function MediaVideos() {
                 <div className="fc-body">
                   <h3 style={{ fontSize: 15 }}>{v.title}</h3>
                   <div className="meta">
+                    {v.source_name && <span>{v.source_name}</span>}
                     <span>{v.duration}</span>
                     <span>{v.language}</span>
                     <span>{v.date}</span>

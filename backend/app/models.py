@@ -573,6 +573,7 @@ class MediaVideo(Base):
     language = Column(String, default="English")  # English | Hindi
     youtube_id = Column(String)  # official embed on the Ministry's site
     thumbnail_url = Column(String)
+    source_name = Column(String)  # publishing channel; NULL = Ministry of Culture
     display_order = Column(Integer, default=0)
 
 

@@ -488,6 +488,7 @@ def media_video_row(v):
         "language": v.language,
         "youtube_id": v.youtube_id,
         "thumbnail_url": v.thumbnail_url,
+        "source_name": v.source_name,
     }
 
 

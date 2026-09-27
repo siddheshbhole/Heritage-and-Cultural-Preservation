@@ -387,21 +387,33 @@ INSERT INTO "media_sanskriti" ("id", "title", "slug", "description", "image_url"
   (5, 'Sengol', 'sengol', 'The Sengol — an august sceptre steeped in the spiritual and cultural traditions of ancient Tamil civilisation, symbolising the transfer of power from colonial rule to a sovereign Indian state when it was solemnly presented to Pandit Jawaharlal Nehru in 1947. Handcrafted by Vummidi Bangaru Chetty and sanctified by the seers of the Thiruvaduthurai Adheenam.', '/images/media/sanskriti/sengol.png', 'https://culture.gov.in/sanskriti/sengol', 'Ministry of Culture · Sanskriti', 4);
 ON CONFLICT ("id") DO UPDATE SET "title" = EXCLUDED."title", "slug" = EXCLUDED."slug", "description" = EXCLUDED."description", "image_url" = EXCLUDED."image_url", "official_url" = EXCLUDED."official_url", "source_label" = EXCLUDED."source_label", "display_order" = EXCLUDED."display_order";
 
--- media_videos: 12 rows
-INSERT INTO "media_videos" ("id", "title", "date", "duration", "language", "youtube_id", "thumbnail_url", "display_order") VALUES
-  (1, 'वन्दे मातरम् का उद्भव: शब्दों से राष्ट्रचेतना तक', '21.01.2026', '4MINS 17SEC', 'Hindi', '1cpQfqMSVww', '/images/media/videos/1cpQfqMSVww.jpg', 0),
-  (2, 'वन्दे मातरम्: अमर राष्ट्रगीत का ऐतिहासिक परिचय', '21.01.2026', '4MINS 46SEC', 'Hindi', '_sAK-k3ckY8', '/images/media/videos/_sAK-k3ckY8.jpg', 1),
-  (3, 'स्वतंत्र भारत के निर्माण की आधारशिला: वन्दे मातरम्', '21.01.2026', '5MINS 59SEC', 'Hindi', 'OxZk3R6BNOA', '/images/media/videos/OxZk3R6BNOA.jpg', 2),
-  (4, 'स्वतंत्रता संग्राम के विभिन्न आंदोलनों में वन्दे मातरम् की भूमिका', '21.01.2026', '4MINS 08SEC', 'Hindi', 'zbwZgW4npxc', '/images/media/videos/zbwZgW4npxc.jpg', 3),
-  (5, 'स्वाधीनता संग्राम में राष्ट्रचेतना के निर्माण की प्रेरक भूमिका', '21.01.2026', '2MINS 56SEC', 'Hindi', 'QI4yemaO8mI', '/images/media/videos/QI4yemaO8mI.jpg', 4),
-  (6, '100th birth anniversary of Acharya Shri Vidyanand Ji Maharaj in New Delhi', '28.06.2025', '1H 5MINS', 'English', 'Pn7Rh02Xt5I', '/images/media/videos/Pn7Rh02Xt5I.jpg', 5),
-  (7, 'India the mother of democracy', '26.06.2025', '7MIN', 'English', 'u86bIEM2-1I', '/images/media/videos/u86bIEM2-1I.jpg', 6),
-  (8, 'Samvidhaan Hatya Diwas 2025', '26.06.2025', '3H 13MINS', 'English', 'Ajbbbe-Yjtk', '/images/media/videos/Ajbbbe-Yjtk.jpg', 7),
-  (9, 'Closing Ceremony of World Heritage Committee Meeting 2024', '25.06.2025', '3H 13MINS', 'English', 'tPp9MSJ-nag', '/images/media/videos/tPp9MSJ-nag.jpg', 8),
-  (10, 'Culture ministry 10th COP to the UNESCO 2005 Convention on the Diversity of Cultural Expressions', '20.06.2025', '6MINS 19SEC', 'English', 'uQ2AEgPIYgI', '/images/media/videos/uQ2AEgPIYgI.jpg', 9),
-  (11, 'Commemoration of the 300th Birth Anniversary of Lokmata Ahilyabai Holkar', '20.06.2025', '2H 20Mins', 'English', 'XXvULyrlo5c', '/images/media/videos/XXvULyrlo5c.jpg', 10),
-  (12, 'Ahilyabai Holkar: Guardian of Culture Architect of Governance', '06.05.2025', '3MIN 48SEC', 'English', 'F5ulPDW8ocY', '/images/media/videos/F5ulPDW8ocY.jpg', 11);
-ON CONFLICT ("id") DO UPDATE SET "title" = EXCLUDED."title", "date" = EXCLUDED."date", "duration" = EXCLUDED."duration", "language" = EXCLUDED."language", "youtube_id" = EXCLUDED."youtube_id", "thumbnail_url" = EXCLUDED."thumbnail_url", "display_order" = EXCLUDED."display_order";
+-- media_videos: 20 rows
+-- source_name names the publishing channel for videos hosted outside the
+-- Ministry's own YouTube channel; NULL keeps the original meaning of
+-- "Ministry of Culture, Government of India".
+ALTER TABLE "media_videos" ADD COLUMN IF NOT EXISTS "source_name" VARCHAR(128);
+INSERT INTO "media_videos" ("id", "title", "date", "duration", "language", "youtube_id", "thumbnail_url", "source_name", "display_order") VALUES
+  (1, 'वन्दे मातरम् का उद्भव: शब्दों से राष्ट्रचेतना तक', '21.01.2026', '4MINS 17SEC', 'Hindi', '1cpQfqMSVww', '/images/media/videos/1cpQfqMSVww.jpg', NULL, 0),
+  (2, 'वन्दे मातरम्: अमर राष्ट्रगीत का ऐतिहासिक परिचय', '21.01.2026', '4MINS 46SEC', 'Hindi', '_sAK-k3ckY8', '/images/media/videos/_sAK-k3ckY8.jpg', NULL, 1),
+  (3, 'स्वतंत्र भारत के निर्माण की आधारशिला: वन्दे मातरम्', '21.01.2026', '5MINS 59SEC', 'Hindi', 'OxZk3R6BNOA', '/images/media/videos/OxZk3R6BNOA.jpg', NULL, 2),
+  (4, 'स्वतंत्रता संग्राम के विभिन्न आंदोलनों में वन्दे मातरम् की भूमिका', '21.01.2026', '4MINS 08SEC', 'Hindi', 'zbwZgW4npxc', '/images/media/videos/zbwZgW4npxc.jpg', NULL, 3),
+  (5, 'स्वाधीनता संग्राम में राष्ट्रचेतना के निर्माण की प्रेरक भूमिका', '21.01.2026', '2MINS 56SEC', 'Hindi', 'QI4yemaO8mI', '/images/media/videos/QI4yemaO8mI.jpg', NULL, 4),
+  (6, '100th birth anniversary of Acharya Shri Vidyanand Ji Maharaj in New Delhi', '28.06.2025', '1H 5MINS', 'English', 'Pn7Rh02Xt5I', '/images/media/videos/Pn7Rh02Xt5I.jpg', NULL, 5),
+  (7, 'India the mother of democracy', '26.06.2025', '7MIN', 'English', 'u86bIEM2-1I', '/images/media/videos/u86bIEM2-1I.jpg', NULL, 6),
+  (8, 'Samvidhaan Hatya Diwas 2025', '26.06.2025', '3H 13MINS', 'English', 'Ajbbbe-Yjtk', '/images/media/videos/Ajbbbe-Yjtk.jpg', NULL, 7),
+  (9, 'Closing Ceremony of World Heritage Committee Meeting 2024', '25.06.2025', '3H 13MINS', 'English', 'tPp9MSJ-nag', '/images/media/videos/tPp9MSJ-nag.jpg', NULL, 8),
+  (10, 'Culture ministry 10th COP to the UNESCO 2005 Convention on the Diversity of Cultural Expressions', '20.06.2025', '6MINS 19SEC', 'English', 'uQ2AEgPIYgI', '/images/media/videos/uQ2AEgPIYgI.jpg', NULL, 9),
+  (11, 'Commemoration of the 300th Birth Anniversary of Lokmata Ahilyabai Holkar', '20.06.2025', '2H 20Mins', 'English', 'XXvULyrlo5c', '/images/media/videos/XXvULyrlo5c.jpg', NULL, 10),
+  (12, 'Ahilyabai Holkar: Guardian of Culture Architect of Governance', '06.05.2025', '3MIN 48SEC', 'English', 'F5ulPDW8ocY', '/images/media/videos/F5ulPDW8ocY.jpg', NULL, 11),
+  (13, 'PM Modi Launches Prambanan Restoration Project — India’s Mission To Save Hindu Temples Across Asia', '11.07.2026', '6MINS 40SEC', 'English', 'ExBHOMGthXY', '/images/media/videos/ExBHOMGthXY.jpg', 'DD India', 12),
+  (14, 'India’s Cultural Recovery Mission Brings Stolen Heritage Back Home', '16.05.2026', '3MINS 28SEC', 'English', 'StPcn5fI-PI', '/images/media/videos/StPcn5fI-PI.jpg', 'DD India', 13),
+  (15, 'PM Modi’s Cultural Gifts During Five-Nation Tour', '21.05.2026', '8MINS 54SEC', 'English', 'mxMTUFluK4A', '/images/media/videos/mxMTUFluK4A.jpg', 'DD India', 14),
+  (16, 'Samrat Samprati Museum Inauguration — Celebrating Jain Wisdom and India’s Timeless Heritage', '31.03.2026', '1MINS 21SEC', 'English', 'ZaBdsk-MLWg', '/images/media/videos/ZaBdsk-MLWg.jpg', 'MyGov India', 15),
+  (17, 'How PM Modi Revitalized India’s Cultural Landmarks', '18.06.2026', '1MINS 40SEC', 'English', '9eRtKmb8WXM', '/images/media/videos/9eRtKmb8WXM.jpg', 'MyGov India', 16),
+  (18, 'Nalanda: India’s Ancient Wisdom', '28.06.2026', '1MINS 45SEC', 'English', 'vPpa8OOhKl8', '/images/media/videos/vPpa8OOhKl8.jpg', 'Bharatiya Janata Party', 17),
+  (19, 'The BEAUTY that is Somnath!', '11.05.2026', '16 SECONDS', 'English', 'uDZ0OxLpmJA', '/images/media/videos/uDZ0OxLpmJA.jpg', 'Narendra Modi', 18),
+  (20, 'Old Buildings Will Now Turn Into A Museum', '13.02.2026', '1MINS 21SEC', 'English', 'jDRS99_yDtE', '/images/media/videos/jDRS99_yDtE.jpg', 'India Today', 19);
+ON CONFLICT ("id") DO UPDATE SET "title" = EXCLUDED."title", "date" = EXCLUDED."date", "duration" = EXCLUDED."duration", "language" = EXCLUDED."language", "youtube_id" = EXCLUDED."youtube_id", "thumbnail_url" = EXCLUDED."thumbnail_url", "source_name" = EXCLUDED."source_name", "display_order" = EXCLUDED."display_order";
 
 -- media_webcasts: 0 rows, skipped
 
@@ -1041,7 +1053,7 @@ SELECT setval(pg_get_serial_sequence('media_leaders', 'id'), GREATEST(3, (SELECT
 SELECT setval(pg_get_serial_sequence('media_monuments', 'id'), GREATEST(12, (SELECT COALESCE(MAX(id),0) FROM "media_monuments")));
 SELECT setval(pg_get_serial_sequence('media_news', 'id'), GREATEST(12, (SELECT COALESCE(MAX(id),0) FROM "media_news")));
 SELECT setval(pg_get_serial_sequence('media_sanskriti', 'id'), GREATEST(5, (SELECT COALESCE(MAX(id),0) FROM "media_sanskriti")));
-SELECT setval(pg_get_serial_sequence('media_videos', 'id'), GREATEST(12, (SELECT COALESCE(MAX(id),0) FROM "media_videos")));
+SELECT setval(pg_get_serial_sequence('media_videos', 'id'), GREATEST(20, (SELECT COALESCE(MAX(id),0) FROM "media_videos")));
 SELECT setval(pg_get_serial_sequence('ministry_leaders', 'id'), GREATEST(2, (SELECT COALESCE(MAX(id),0) FROM "ministry_leaders")));
 SELECT setval(pg_get_serial_sequence('mous', 'id'), GREATEST(6, (SELECT COALESCE(MAX(id),0) FROM "mous")));
 SELECT setval(pg_get_serial_sequence('provenance', 'id'), GREATEST(72, (SELECT COALESCE(MAX(id),0) FROM "provenance")));

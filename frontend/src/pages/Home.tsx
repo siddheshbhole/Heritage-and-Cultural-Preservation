@@ -6,6 +6,7 @@ import type { HomeData, MinistryData, ShowcaseItem, State, TrendingResponse } fr
 import Ticker from '../components/Ticker'
 import Carousel from '../components/Carousel'
 import TrendingCarousel from '../components/TrendingCarousel'
+import FeaturedVideos from '../components/FeaturedVideos'
 import MinistrySection from '../components/MinistrySection'
 import IndiaMap from '../components/IndiaMap'
 import { Section, StatCard, Skeleton } from '../components/ui'
@@ -136,6 +137,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FeaturedVideos />
 
       <Section
         kicker="Curated by MoC"

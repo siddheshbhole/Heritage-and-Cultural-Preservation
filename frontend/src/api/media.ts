@@ -26,6 +26,7 @@ export interface MediaVideo {
   language: string
   youtube_id: string
   thumbnail_url: string
+  source_name: string | null
 }
 
 export interface MediaBrochure {

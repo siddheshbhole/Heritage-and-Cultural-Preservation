@@ -5,7 +5,7 @@ import type { DocumentCategory, DocumentItem, PaginatedList } from '../../api/cl
 import { PageHead } from '../_shared'
 import { Empty, Skeleton } from '../../components/ui'
 import DocumentViewerModal from '../../components/DocumentViewerModal'
-import { DOCUMENT_ICONS, formatDate } from './DocumentsHome'
+import { DocEmptyIcon, DocumentCategoryIcon, formatDate } from './DocumentsHome'
 
 const PAGE_SIZE = 12
 
@@ -40,7 +40,7 @@ export default function DocumentCategoryPage() {
   return (
     <>
       <PageHead
-        title={cat ? `${DOCUMENT_ICONS[cat.slug] || '📄'} ${cat.name}` : 'Ministry of Culture Documents'}
+        title={cat ? cat.name : 'Ministry of Culture Documents'}
         sub={cat?.description}
         crumbs={[{ label: 'Documents', to: '/documents' }, { label: categorySlug }]}
       />
@@ -53,8 +53,23 @@ export default function DocumentCategoryPage() {
         />
       )}
 
+      <div className="container" style={{ marginBottom: 4, marginTop: 14 }}>
+        {cat && (
+          <div className="doc-archive-catbar">
+            <span className="doc-archive-icon" aria-hidden="true">
+              <DocumentCategoryIcon slug={cat.slug} />
+            </span>
+            <div>
+              <b>{cat.name}</b>
+              <br />
+              <span>{cat.count === 0 ? 'No files yet' : `${cat.count} ${cat.count === 1 ? 'file' : 'files'} in this collection`}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="container" style={{ marginBottom: 20 }}>
-        <div className="filters">
+        <div className="filters doc-archive-search">
           <input
             className="input"
             style={{ maxWidth: 320 }}
@@ -85,24 +100,24 @@ export default function DocumentCategoryPage() {
         {list.loading ? (
           <div className="card-grid"><Skeleton /><Skeleton /><Skeleton /></div>
         ) : !list.data || list.data.items.length === 0 ? (
-          <Empty big="📂" text="No documents found in this category." error={list.error} onRetry={list.reload} />
+          <Empty big={<DocEmptyIcon slug={categorySlug} />} text="No documents found in this category." error={list.error} onRetry={list.reload} />
         ) : (
-          <div className="feed">
+          <div className="doc-archive-feed">
             {list.data.items.map((d) => (
-              <div className="feed-item" key={d.id}>
-                <div className="feed-head">
+              <article className="doc-archive-item" key={d.id}>
+                <div className="doc-archive-item-head">
                   <span className="chip chip-outline">{d.file_type.toUpperCase()}</span>
                   <span className="muted small">{formatDate(d.published_date)}</span>
                   <span className="muted small">{formatBytes(d.file_size)}</span>
                 </div>
-                <b>{d.title}</b>
-                <div className="feed-actions">
-                  <button type="button" className="link-btn" onClick={() => setViewer(d)}>Read document →</button>
+                <h3 className="doc-archive-item-title">{d.title}</h3>
+                <div className="doc-archive-item-actions">
+                  <button type="button" className="doc-archive-read" onClick={() => setViewer(d)}>Read document <span className="arrow" aria-hidden="true">→</span></button>
                   {d.file_url && (
                     <a href={d.file_url} target="_blank" rel="noreferrer">Open in new tab ↗</a>
                   )}
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}

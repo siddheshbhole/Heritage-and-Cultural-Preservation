@@ -3,7 +3,7 @@ import { useFetch } from '../api/hooks'
 import type { DocumentItem, PaginatedList } from '../api/client'
 import { PageHead } from './_shared'
 import { Empty, Skeleton } from '../components/ui'
-import { DOCUMENT_ICONS, formatDate } from './documents/DocumentsHome'
+import { formatDate } from './documents/DocumentsHome'
 
 export default function Papers() {
   const { data, loading, error, reload } = useFetch<PaginatedList<DocumentItem>>('/documents?per_page=500')
@@ -48,7 +48,7 @@ export default function Papers() {
             {filtered.map((d) => (
               <div className="feed-item" key={d.id}>
                 <div className="feed-head">
-                  <span className="chip">{DOCUMENT_ICONS[d.category] || '📄'} {d.category}</span>
+                  <span className="chip">{d.category}</span>
                   <span className="muted small">{formatDate(d.published_date)}</span>
                 </div>
                 <b>{d.title}</b>

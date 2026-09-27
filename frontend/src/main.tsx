@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './styles/theme.css'
 import './styles/navbar.css'
+import './styles/documents-archive.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

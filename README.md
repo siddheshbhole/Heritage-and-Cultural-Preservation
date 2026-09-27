@@ -1,19 +1,17 @@
 <div align="center">
 
-<img src="README/assets/banner.png" alt="Sanskriti Setu — Discover, explore and preserve India's heritage and culture" width="100%" />
+<img src="docs/assets/banner.png" alt="Sanskriti Setu — Discover, explore and preserve India's heritage and culture" width="100%" />
 
-<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 14px;">
-
-[![React 18](README/assets/badges/react.png)](https://react.dev/)
-[![TypeScript 5](README/assets/badges/typescript.png)](https://www.typescriptlang.org/)
-[![Vite 5](README/assets/badges/vite.png)](https://vitejs.dev/)
-[![FastAPI](README/assets/badges/fastapi.png)](https://fastapi.tiangolo.com/)
-[![PostgreSQL 16](README/assets/badges/postgresql.png)](https://www.postgresql.org/)
-[![PostGIS 3.4](README/assets/badges/postgis.png)](https://postgis.net/)
-[![Supabase](README/assets/badges/supabase.png)](https://supabase.com/)
-[![Docker](README/assets/badges/docker.png)](https://www.docker.com/)
-
-</div>
+<p align="center">
+<a href="https://react.dev/"><img src="docs/assets/badges/react.png?v=2" height="30" alt="React 18" /></a>
+<a href="https://www.typescriptlang.org/"><img src="docs/assets/badges/typescript.png?v=2" height="30" alt="TypeScript 5" /></a>
+<a href="https://vitejs.dev/"><img src="docs/assets/badges/vite.png?v=2" height="30" alt="Vite 5" /></a>
+<a href="https://fastapi.tiangolo.com/"><img src="docs/assets/badges/fastapi.png?v=2" height="30" alt="FastAPI" /></a>
+<a href="https://www.postgresql.org/"><img src="docs/assets/badges/postgresql.png?v=2" height="30" alt="PostgreSQL 16" /></a>
+<a href="https://postgis.net/"><img src="docs/assets/badges/postgis.png?v=2" height="30" alt="PostGIS 3.4" /></a>
+<a href="https://supabase.com/"><img src="docs/assets/badges/supabase.png?v=2" height="30" alt="Supabase" /></a>
+<a href="https://www.docker.com/"><img src="docs/assets/badges/docker.png?v=2" height="30" alt="Docker" /></a>
+</p>
 
 </div>
 
@@ -93,7 +91,7 @@ fallback
 
 - **Dev:** the frontend proxies API calls to the backend.
 - **Single process:** the backend serves the built frontend with SPA fallback.
-- **Documents:** local files → upload script → Supabase bucket → CDN URL stored on the record, with redirect fallback. Details in `README/Tech-stack.md`.
+- **Documents:** local files → upload script → Supabase bucket → CDN URL stored on the record, with redirect fallback.
 
 ---
 
@@ -108,7 +106,7 @@ fallback
 | **AI** | Retrieval-grounded assistant · Optional Gemini (default `gemini-3.6-flash`) |
 | **Ops** | Docker Compose · `run.bat` launcher · pytest · Supabase migrations |
 
-> Not used (long-term options in `README/Tech-stack.md` only): Drupal, Kubernetes, Elasticsearch, Redis, GraphQL.
+> Not used: Drupal, Kubernetes, Elasticsearch, Redis, GraphQL — the prototype stays lean on purpose.
 
 ---
 
@@ -116,7 +114,7 @@ fallback
 
 ```
 Heritage-and-Cultural-Preservation/
-├── README.md + README/           ← this file + product/architecture reference docs
+├── README.md                       ← this file
 ├── frontend/                     ← React SPA (≈40 routes)
 │   ├── src/{pages,components,api,context,data,styles}
 │   ├── public/images/            ← branding, heritage, ministry, media assets
@@ -127,7 +125,8 @@ Heritage-and-Cultural-Preservation/
 ├── supabase/ · docker/           ← SQL migrations · PostGIS compose
 ├── scripts/                      ← ingest / migrate / upload / trending
 ├── data/                         ← documents/ (dev) · processed/ (SQLite)
-└── run.bat + .env.example        ← one-shot launcher · env placeholders
+├── run.bat + .env.example        ← one-shot launcher · env placeholders
+└── docs/assets/                    ← README banner + tech badges
 ```
 
 ---
